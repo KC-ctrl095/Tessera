@@ -33,7 +33,16 @@ jobs:
       - run: cargo fmt --all --check
       # The desktop and Android app crates need GTK; they build in release.yml.
       - run: cargo clippy --locked --workspace --exclude tessera-app --exclude tessera-background --all-targets -- -D warnings
-      - run: cargo test --locked --workspace --exclude tessera-app --exclude tessera-background --no-fail-fast
+      # Failing tests also become error notes: those can be read without signing in.
+      - name: Tests
+        shell: bash
+        run: |
+          set +e
+          cargo test --locked --workspace --exclude tessera-app --exclude tessera-background --no-fail-fast > "$RUNNER_TEMP/test.log" 2>&1
+          status=$?
+          cat "$RUNNER_TEMP/test.log"
+          grep -E '^test .* FAILED$|panicked at|^  left:|^ right:' "$RUNNER_TEMP/test.log" | head -40 | sed 's/^/::error title=cargo test::/'
+          exit $status
 
   ui:
     name: Web UI (types, build)

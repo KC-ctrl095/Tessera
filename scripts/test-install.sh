@@ -80,6 +80,11 @@ EOF
 cp "$T/fakebin/sudo" "$T/fakebin/loginctl"
 # A "browser", so no 170 MB download.
 printf '#!/bin/sh\nexit 0\n' > "$H/.local/share/tessera-browser/chrome"
+# Hide a browser this computer has installed (CI machines come with
+# Chromium): these stand-ins look like snap launchers, which install.sh skips.
+for b in chromium chromium-browser google-chrome-stable google-chrome brave-browser brave microsoft-edge-stable microsoft-edge; do
+  printf '#!/bin/sh\n# stand-in for /snap/bin/%s\nexit 1\n' "$b" > "$T/fakebin/$b"
+done
 chmod +x "$T/fakebin/"* "$H/.local/share/tessera-browser/chrome"
 
 # A unit written before KillMode=mixed (install.sh adds the line).
