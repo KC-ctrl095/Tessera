@@ -30,9 +30,16 @@ jobs:
           rustup toolchain install stable --profile minimal --component rustfmt,clippy
           rustup default stable
       - uses: Swatinem/rust-cache@v2
-      # The runner's Chromium doesn't start for the browser tests; without it
-      # Tessera picks the runner's Google Chrome, as it would on a desktop.
-      - run: sudo rm -f /usr/bin/chromium /usr/bin/chromium-browser
+      # The browser tests use Chrome for Testing, which install.sh gives Linux
+      # users: the runner's Chromium doesn't start, and its Google Chrome and
+      # Edge make their own network calls.
+      - name: Chrome for Testing
+        run: |
+          sudo rm -f /usr/bin/chromium /usr/bin/chromium-browser /usr/bin/google-chrome /usr/bin/google-chrome-stable /usr/bin/microsoft-edge /usr/bin/microsoft-edge-stable
+          npx -y @puppeteer/browsers install chrome@stable --path "$RUNNER_TEMP/cft" | tee "$RUNNER_TEMP/cft.txt"
+          mkdir -p ~/.local/share/tessera-browser
+          ln -sf "$(tail -n 1 "$RUNNER_TEMP/cft.txt" | cut -d' ' -f2)" ~/.local/share/tessera-browser/chrome
+          ~/.local/share/tessera-browser/chrome --version
       - run: cargo fmt --all --check
       # The desktop and Android app crates need GTK; they build in release.yml.
       - run: cargo clippy --locked --workspace --exclude tessera-app --exclude tessera-background --all-targets -- -D warnings

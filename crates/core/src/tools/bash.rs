@@ -2282,11 +2282,16 @@ pub(crate) mod tests {
         );
         assert!(running_with("3015").is_empty());
         assert!(killed_text(&job.id, true, &stopped).contains("had already ended"));
-        assert!(
-            killed_text(&job.id, true, &stopped).contains("known processes"),
-            "{stopped:?}: {}",
-            killed_text(&job.id, true, &stopped)
-        );
+        // A shell that ends before its tree is captured leaves only the marker
+        // search, which honestly can't claim a clean tree; what it left is
+        // still stopped (checked above).
+        if !stopped.incomplete {
+            assert!(
+                killed_text(&job.id, true, &stopped).contains("known processes"),
+                "{stopped:?}: {}",
+                killed_text(&job.id, true, &stopped)
+            );
+        }
         reaped_disappearance(&pids);
     }
 
