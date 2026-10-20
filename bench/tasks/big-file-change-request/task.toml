@@ -1,0 +1,9 @@
+title = "Apply a 7-item change request to a 4,000-line module"
+tier = "hard2"
+difficulty = "hard"
+category = "edit-format"
+tags = ["hard2", "python", "long-file", "precise-edit", "context-heavy"]
+time_limit = 1800
+prompt = """
+Please implement change request docs/CR-2026-14.md in rating.py. Every item, and nothing else: don't change any other price or behaviour.
+"""

@@ -1,0 +1,240 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Tesserae — Tessera's design language.
+
+   The app background is grout; tiles are stone slabs set in it with a
+   consistent 6px joint (the grout *is* the border). The tile you're in gets a
+   gilded top edge and slightly lighter stone. Accents are materials (smalti
+   gold by default). Hard, small radii — cut stone, not pills. No glass, no
+   glow, no blur: flat, warm, quiet surfaces that stay fast even on software
+   compositing.
+
+   Nocturne (dark) is the default; Travertine is the light theme.
+   ───────────────────────────────────────────────────────────────────────── */
+:root {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --grout: #0e0d0c;
+  --stone: #171614;
+  --stone-focus: #1b1a17;
+  --raised: #1e1c1a;
+  --overlay: #211f1c;
+  --hover: #262421;
+  --active: #2d2a26;
+  --sunken: #131210;
+
+  /* Ink */
+  --text: #ece6dc;
+  --text-2: #b3aca2;
+  --muted: #a29b90;
+  --faint: #8f897f;
+
+  --hairline: rgba(236, 231, 223, 0.07);
+  --hairline-strong: rgba(236, 231, 223, 0.12);
+  --hairline-soft: rgba(236, 231, 223, 0.045);
+  --scrim: rgba(8, 7, 6, 0.66);
+
+  /* Materials */
+  --gold: #d4af5f;
+  --gold-ink: #1a1408;
+  --gold-soft: rgba(212, 175, 95, 0.14);
+  --lapis: #7d9be0;
+  --verdigris: #5fb39e;
+  --terracotta: #e07a56;
+  --porphyry: #b07a9c;
+  --porphyry-rgb: 176, 122, 156;
+
+  /* Stone tints for the mosaic motif */
+  --tess-0: #2a2723;
+  --tess-1: #332f2a;
+  --tess-2: #3c3731;
+  --tess-3: #25221f;
+
+  /* Legacy aliases used across components */
+  --canvas: var(--grout);
+  --surface: var(--stone);
+  --bg: var(--grout);
+  --bg-sidebar: var(--grout);
+  --ws-bg: var(--grout);
+  --pane-bg: var(--stone);
+  --surface-1: var(--raised);
+  --surface-2: var(--overlay);
+  --surface-3: var(--hover);
+  --elev-4: var(--hover);
+  --input-bg: var(--sunken);
+  --code-bg: #121110;
+  --border: var(--hairline);
+  --border-strong: var(--hairline-strong);
+  --highlight: transparent;
+
+  /* Accent material (overridden at runtime from prefs) */
+  --accent: rgb(212, 175, 95);
+  --accent-rgb: 212, 175, 95;
+  --accent-text: rgb(220, 189, 124);
+  --accent-fg: #1a1408;
+  --accent-soft: rgba(var(--accent-rgb), 0.14);
+  --accent-ring: rgba(var(--accent-rgb), 0.7);
+  /* Kept so older rules resolve; there are no gradients any more. */
+  --accent-2: var(--accent);
+  --accent-3: var(--accent);
+  --accent-grad: var(--accent);
+  --accent-grad-3: var(--accent);
+
+  /* Semantic */
+  --ok: var(--verdigris);
+  --ok-rgb: 95, 179, 158;
+  --warn: var(--terracotta);
+  --warn-rgb: 224, 122, 86;
+  --err: #e8714c;
+  --err-rgb: 232, 113, 76;
+  --yolo: var(--terracotta);
+  --yolo-rgb: 224, 122, 86;
+  --info: var(--lapis);
+
+  /* Elevation: surfaces separate by tone and hairlines, not shadows. One
+     small shadow is kept for things that float over tiles. */
+  --inner: 0 0 0 0 transparent;
+  --shadow-1: none;
+  --shadow-2: none;
+  --shadow-3: none;
+  --shadow-pop: 0 10px 24px -14px rgba(0, 0, 0, 0.75);
+  --shadow-soft: none;
+  --shadow-composer: none;
+
+  /* Radii: cut stone */
+  --r-xs: 2px;
+  --r-sm: 3px;
+  --r: 4px;
+  --r-lg: 6px;
+  --r-xl: 6px;
+  --r-pill: 3px;
+  --r-round: 999px;
+
+  /* Spacing (4px grid) */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 20px;
+  --s6: 24px;
+  --s8: 32px;
+
+  /* Type (see fonts.css) */
+  --font: "Geologica", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  --display: "Marcellus", "Iowan Old Style", Georgia, serif;
+  --serif: var(--display);
+  --mono: "Martian Mono", ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  /* Geologica's corners, cut a little sharp. */
+  --sharp: "SHRP" 48;
+  --fs: 14px;
+  --prose: 72ch;
+
+  /* Motion: deliberate and short. Only transform and opacity ever animate. */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 0.84, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.45, 0, 0.3, 1);
+  /* A gentle spring (about 2% overshoot) for things that rise into place. */
+  --spring: linear(0, 0.157, 0.438, 0.667 13.5%, 0.829, 0.936, 0.998 27.3%, 1.021 32%, 1.029 36.5%, 1.024 42%, 1.006 53%, 0.998 64%, 1);
+  --spring-soft: var(--spring);
+  --t-fast: 120ms;
+  --t: 160ms;
+  --t-slow: 220ms;
+
+  /* Tiles */
+  --tile-gap: 6px;
+  --tile-r: 4px;
+  --tile-border: 0px;
+  --tile-border-c: transparent;
+  --edge: 2px;
+
+  --row-h: 30px;
+  --gap: 16px;
+  --msg-w: 72ch;
+  --head-h: 44px;
+
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+
+  /* Syntax: warm, low-chroma inks */
+  --hl-kw: #cf9bb6;
+  --hl-str: #a9c48c;
+  --hl-num: #e0a070;
+  --hl-com: #8a8379;
+  --hl-fn: #8fb0e8;
+  --hl-type: #dcc07e;
+  --hl-attr: #7cc3b0;
+  --hl-var: #e6927a;
+  --hl-meta: #93b4c9;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --grout: #e7e0d4;
+  --stone: #f8f5ef;
+  --stone-focus: #fcfaf6;
+  --raised: #ffffff;
+  --overlay: #ffffff;
+  --hover: #efeae1;
+  --active: #e7e0d5;
+  --sunken: #f3efe8;
+
+  --text: #211e1a;
+  --text-2: #4f4942;
+  --muted: #5a534a;
+  --faint: #6a6359;
+
+  --hairline: rgba(33, 30, 26, 0.09);
+  --hairline-strong: rgba(33, 30, 26, 0.15);
+  --hairline-soft: rgba(33, 30, 26, 0.05);
+  --scrim: rgba(40, 34, 26, 0.3);
+
+  --gold: #8a6620;
+  --gold-ink: #ffffff;
+  --gold-soft: rgba(138, 102, 32, 0.12);
+  --lapis: #3d5ca8;
+  --verdigris: #2c7564;
+  --terracotta: #a94b2a;
+  --porphyry: #84506f;
+  --porphyry-rgb: 132, 80, 111;
+
+  --tess-0: #e2dacd;
+  --tess-1: #d8cfc0;
+  --tess-2: #cdc3b3;
+  --tess-3: #ebe5da;
+
+  --code-bg: #f3efe8;
+
+  --ok-rgb: 44, 117, 100;
+  --warn-rgb: 169, 75, 42;
+  --err: #a8431f;
+  --err-rgb: 168, 67, 31;
+  --yolo-rgb: 169, 75, 42;
+
+  --shadow-pop: 0 10px 24px -14px rgba(60, 48, 30, 0.35);
+
+  --hl-kw: #8a3f6b;
+  --hl-str: #4d6b2a;
+  --hl-num: #a3521f;
+  --hl-com: #736a5f;
+  --hl-fn: #2f5496;
+  --hl-type: #85611a;
+  --hl-attr: #1f6b5b;
+  --hl-var: #a8431f;
+  --hl-meta: #3a6580;
+}
+
+[data-density="compact"] {
+  --row-h: 27px;
+  --gap: 12px;
+  --head-h: 40px;
+}
+
+@media (pointer: coarse) {
+  :root {
+    --row-h: 40px;
+    --head-h: 52px;
+  }
+}

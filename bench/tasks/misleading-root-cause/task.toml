@@ -1,0 +1,10 @@
+title = "Find the real cause of a wrong October total (Python, many files)"
+tier = "hard2"
+difficulty = "hard"
+category = "debugging"
+tags = ["python", "hard2", "multi-file", "misleading", "time"]
+time_limit = 1800
+check_timeout = 120
+prompt = """
+tests/test_monthly_report.py fails: the October 2026 total is wrong. The test's numbers are right (finance checked them against the bank statements). Please find the real cause and fix it.
+"""

@@ -1,0 +1,14 @@
+title = "Write a crontab for maintenance jobs"
+difficulty = "easy"
+category = "shell"
+tags = ["cron", "ops"]
+time_limit = 600
+prompt = """
+Please write deploy/crontab for the shop server with these jobs:
+- /opt/shop/scripts/backup.sh every day at 02:30
+- /opt/shop/scripts/cleanup.sh every Sunday at 04:00
+- /opt/shop/scripts/report.py on weekdays at 18:15, run with python3
+- /opt/shop/scripts/healthcheck.sh every 5 minutes
+
+Each job should append its output (stdout and stderr) to /var/log/shop/<script name without the extension>.log, so backup.sh logs to /var/log/shop/backup.log and so on.
+"""

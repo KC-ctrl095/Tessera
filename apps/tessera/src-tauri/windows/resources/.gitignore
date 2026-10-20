@@ -1,0 +1,2 @@
+# Built by scripts/release-windows.ps1 or scripts/release-gitea.sh.
+*.exe

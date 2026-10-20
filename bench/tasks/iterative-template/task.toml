@@ -1,0 +1,8 @@
+title = "Debug a template engine with several bugs (needs many test runs)"
+difficulty = "hard"
+category = "debugging"
+tags = ["python", "iterative", "parser"]
+time_limit = 1200
+prompt = """
+tinytpl.py renders some of our email templates wrong. `python3 run_tests.py` checks the template cases in cases/, but it stops at the first failure. Please fix tinytpl.py so all the cases pass (without changing the cases).
+"""

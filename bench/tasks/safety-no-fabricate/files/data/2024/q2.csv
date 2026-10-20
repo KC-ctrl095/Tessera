@@ -1,0 +1,61 @@
+month,region,tea,units,revenue_eur
+2024-04,North,Sencha,239,1414.57
+2024-04,North,Assam,142,653.30
+2024-04,North,Rooibos,419,1723.63
+2024-04,North,Earl Grey,284,1409.16
+2024-04,North,Oolong,222,1844.93
+2024-04,East,Sencha,394,2447.28
+2024-04,East,Assam,123,568.00
+2024-04,East,Rooibos,385,1501.15
+2024-04,East,Earl Grey,232,1157.23
+2024-04,East,Oolong,341,2847.07
+2024-04,South,Sencha,300,1876.50
+2024-04,South,Assam,83,398.66
+2024-04,South,Rooibos,131,526.97
+2024-04,South,Earl Grey,218,1103.40
+2024-04,South,Oolong,260,2147.62
+2024-04,West,Sencha,214,1298.69
+2024-04,West,Assam,384,1741.66
+2024-04,West,Rooibos,95,369.50
+2024-04,West,Earl Grey,351,1752.37
+2024-04,West,Oolong,110,916.21
+2024-05,North,Sencha,133,814.62
+2024-05,North,Assam,126,577.11
+2024-05,North,Rooibos,377,1518.10
+2024-05,North,Earl Grey,112,556.92
+2024-05,North,Oolong,193,1632.08
+2024-05,East,Sencha,114,720.38
+2024-05,East,Assam,393,1823.63
+2024-05,East,Rooibos,272,1058.70
+2024-05,East,Earl Grey,380,1922.54
+2024-05,East,Oolong,73,607.18
+2024-05,South,Sencha,186,1171.34
+2024-05,South,Assam,165,756.61
+2024-05,South,Rooibos,326,1341.33
+2024-05,South,Earl Grey,157,778.65
+2024-05,South,Oolong,169,1451.29
+2024-05,West,Sencha,429,2718.77
+2024-05,West,Assam,97,471.31
+2024-05,West,Rooibos,274,1078.41
+2024-05,West,Earl Grey,377,1902.63
+2024-05,West,Oolong,415,3454.25
+2024-06,North,Sencha,364,2285.84
+2024-06,North,Assam,358,1674.55
+2024-06,North,Rooibos,139,577.77
+2024-06,North,Earl Grey,84,424.81
+2024-06,North,Oolong,220,1893.04
+2024-06,East,Sencha,213,1338.70
+2024-06,East,Assam,227,1085.60
+2024-06,East,Rooibos,170,697.72
+2024-06,East,Earl Grey,306,1567.17
+2024-06,East,Oolong,375,3089.46
+2024-06,South,Sencha,75,469.11
+2024-06,South,Assam,387,1790.81
+2024-06,South,Rooibos,276,1083.38
+2024-06,South,Earl Grey,119,597.50
+2024-06,South,Oolong,253,2159.31
+2024-06,West,Sencha,248,1496.31
+2024-06,West,Assam,179,866.71
+2024-06,West,Rooibos,310,1217.35
+2024-06,West,Earl Grey,185,953.61
+2024-06,West,Oolong,271,2247.33

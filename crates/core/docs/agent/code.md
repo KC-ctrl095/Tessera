@@ -1,0 +1,29 @@
+# Editing code and language servers
+
+## Reads, tags and line edits
+`read` and `grep` show `[path#TAG]` plus numbered lines. `edit` with `lines` targets those numbers against the version you saw, identified by `tag`:
+- **Only lines you were shown.** An item may replace only lines some read, grep, edit or `lsp` result showed you in this session since the file last changed (an insert needs its anchor line; `>$` and `<1` need nothing). Otherwise the edit is refused and the refusal shows the current text of those lines (up to 40), which then count as seen: check them, then retry.
+- **Stale tags are rebased.** If the file changed since your tag (a formatter, another edit, a command), the edit is still applied when every line it targets is unchanged; they are followed to their new position. The result starts with `(Rebased from #OLD …)` and shows the new tag. If a targeted line changed, the edit is refused with the current text of the region: re-read it and retry with the new tag. A tag this session never saw is refused the same way.
+- **`write` over an existing file** needs a read of it (any part; a `grep` hit in it counts too) or your own write, of the version there now: a file Tessera has no record of you reading (it forgets after a restart), or one changed since (the user, a formatter, another helper), is refused with its current tag, before anyone is asked to approve it, so nothing you haven't seen is lost. Read it, then `write` again, or `edit` only the part. New and empty files are free.
+- Whole-file write checks read at most 16 MiB of the old file. Larger existing files need a targeted `edit`; the refusal comes before an approval or snapshot.
+- Line numbers in one call all refer to the version you read; items must not overlap. `at` also takes `12,15` (as in sed) and `12,$` (to the end). Without `tag`, the tag of your read of the file as it is now is used (the result says so); if the file changed since, read it again.
+
+## Replace edits
+`replace` items `{old, new}` try, in order: the exact text; then ignoring indentation and trailing spaces (relative indentation must still match, and `new` is re-indented to fit the file); then with every line trimmed and runs of spaces collapsed. A loose match must cover whole lines, be unique (or set `all`), and not span much more text than `old`; the result names the strategy used ("matched ignoring indentation…").
+- **Several items** are each placed in the file as it was before the call, so their order doesn't matter and one item's `new` text can't create or hide another's match; an item that only matches text an earlier item wrote (or overlaps one) is applied after, in order. The same item twice is applied once.
+- **Several matches**: the error ends with the call that would change them all (`To change all 2, send: {…"all": true…}`): send it if that is what you meant, or add context to `old`. `all` (or `replace_all`) given once for the whole call applies to every item.
+- **No match**: the error shows the closest block of the file (as many lines as `old`) with its line numbers and how similar it is, e.g. `The closest block is lines 120-124 (78% similar):` and the lines; copy them exactly (without the numbers) and retry.
+- **Already applied**: when `old` isn't in the file but `new` already is (a repeated call), the item is left alone with a note; if nothing else changed, the result says "No change: … already has this edit" (not an error).
+
+## After every write or edit
+- The result shows the new tag and the changed lines with their new numbers: keep editing without re-reading.
+- `.json`, `.toml`, `.yaml`/`.yml` files are parse-checked; a warning names the line and column if the file no longer parses (the edit is kept). Where no language server covers the file, Python, JavaScript (`.js`, `.mjs`, `.cjs`) and shell scripts get a quick syntax check with what is installed (Python's `compile`, `node --check`, `bash -n`; never installed by Tessera, at most 2 s): `Warning: a.py has a syntax error now (python): invalid syntax (line 3, column 5)`. `tsconfig.json`, `.vscode/*.json` and files that already had comments are judged as JSON with comments.
+- If a language server handles the file, the errors and warnings **your change introduced** are appended (`LSP rust-analyzer: 1 new error` then `path:line:col severity[code] message`, at most 10 lines); problems that were already there are not repeated, and `(N fixed)` counts ones that went away. New errors in other files (a changed signature breaking callers) are included once the server is warm. The first time a server is still starting you may see `(diagnostics pending)`; what it reports later (e.g. `cargo check` on save) arrives with a following tool result as `LSP … (late)`, only if still true.
+
+## The `lsp` tool
+Offered when a language server matched the chat's directory when the chat was created (rust-analyzer, pyright/basedpyright/pylsp, typescript-language-server, gopls, clangd, or ones configured under `[[lsp.server]]`). Point at code with `path` + `line` + `symbol` (text on that line; `name#2` = its second occurrence):
+- `definition`, `references`: grouped like grep (`[path#TAG]` + `N:line`), so you can `edit` the lines directly. Prefer `references` to grep for uses of a symbol.
+- `hover`: type and docs. `symbols`: an outline of `path` (`N-M kind name`), or a workspace search with `query`.
+- `diagnostics`: every error and warning in `path`, or across the project without `path`.
+- `rename` (`new_name`): renames across files through the server, all files or none; refused in read-only chats and when it would touch files outside the working directory. The result lists each file's new tag and changed lines, plus any new errors.
+A server that is still indexing says so; retry shortly. Servers start on first need, stop when idle, run in the same sandbox as `bash` without secrets, and are never installed by Tessera.

@@ -1,0 +1,36 @@
+/* Preserve the familiar switch while giving this choice a 44px hit target. */
+.tile-opts .daybreak-option .toggle {
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  box-shadow: none;
+}
+.tile-opts .daybreak-option .toggle::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 12px;
+  width: 34px;
+  height: 20px;
+  border-radius: var(--r-sm);
+  background: var(--hover);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+  transition: background var(--t) var(--ease);
+  pointer-events: none;
+}
+.tile-opts .daybreak-option .toggle-knob {
+  left: 8px;
+  top: 15px;
+}
+.tile-opts .daybreak-option .toggle[aria-checked="true"]::before {
+  background: var(--accent);
+  box-shadow: none;
+}
+.tile-opts .daybreak-hint {
+  white-space: normal;
+  overflow: visible;
+}
+.tile-opts .daybreak-recovery,
+:root[data-touch] .tile-opts .daybreak-recovery {
+  min-height: 44px;
+}

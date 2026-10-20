@@ -1,0 +1,6 @@
+=== template
+Hello, world.
+=== context
+{}
+=== expected
+Hello, world.

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "bundle": {
+    "resources": {
+      "windows/resources/tessera.exe": "tessera.exe",
+      "windows/resources/tessera-service.exe": "tessera-service.exe"
+    }
+  }
+}

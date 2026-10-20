@@ -1,0 +1,6 @@
+=== template
+{{ html|trim|safe }}|{{ html|trim }}
+=== context
+{"html": " <i>hi</i> "}
+=== expected
+<i>hi</i>|&lt;i&gt;hi&lt;/i&gt;

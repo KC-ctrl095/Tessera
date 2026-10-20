@@ -1,0 +1,18 @@
+Tessera
+Copyright 2026 The Tessera Authors
+
+This product is licensed under the Apache License, Version 2.0 (see the
+LICENSE file). "The Tessera Authors" are the people who have contributed to
+Tessera; the project's version control history records who wrote what.
+
+This product includes software developed by third parties, under their own
+licences: Rust crates, JavaScript packages, a modified copy of wry
+(vendor/wry), the three.js and d3 libraries for whiteboards, and the
+Geologica, Marcellus and Martian Mono fonts. THIRD_PARTY_NOTICES.md lists
+them, and THIRD_PARTY_LICENSES.txt holds their licence texts and copyright
+notices, including the attribution notices of Apache-2.0 components that
+ship a NOTICE file.
+
+"Tessera" and the Tessera logo are used as the project's name and mark; the
+Apache License does not grant permission to use them (section 6). See
+TRADEMARKS.md.

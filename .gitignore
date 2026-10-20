@@ -1,0 +1,18 @@
+/target
+/out
+node_modules/
+apps/tessera/ui/dist/
+apps/tessera/src-tauri/gen/schemas/
+apps/tessera/src-tauri/gen/android/app/build/
+apps/tessera/src-tauri/gen/android/.gradle/
+apps/tessera/src-tauri/gen/android/buildSrc/build/
+apps/tessera/src-tauri/gen/android/buildSrc/.gradle/
+apps/tessera/src-tauri/gen/android/app/src/main/jniLibs/
+apps/tessera/src-tauri/gen/android/local.properties
+*.apk
+*.aab
+# Personal build settings (e.g. a target-dir off the NAS)
+/.cargo/config.toml
+# Coordination notes for multi-track work (not part of Tessera)
+/.work/
+.work/

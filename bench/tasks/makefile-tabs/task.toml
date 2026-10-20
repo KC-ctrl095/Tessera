@@ -1,0 +1,8 @@
+title = "Add a Makefile target (tabs matter)"
+difficulty = "easy"
+category = "edit-format"
+tags = ["make", "whitespace"]
+time_limit = 600
+prompt = """
+Can you add a `check` target to the Makefile that runs `tools/lint.py pages` (with $(PYTHON), like the other targets), and make `make all` run the check before building? Make sure `make all` still works afterwards.
+"""

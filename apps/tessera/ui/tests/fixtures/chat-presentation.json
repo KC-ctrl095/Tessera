@@ -1,0 +1,12 @@
+{
+  "states": ["start", "pending", "running", "approval", "unknown", "done", "error", "stopped"],
+  "calls": [
+    {"native":{"name":"bash","args":{"command":"printf hello"}},"claude":{"name":"Bash","args":{"command":"printf hello","description":"Greet"}},"output":"hello\n","details":{"exit_code":0,"duration_ms":2400}},
+    {"native":{"name":"read","args":{"path":"src/app.rs"}},"claude":{"name":"Read","args":{"file_path":"src/app.rs"}},"output":"file text"},
+    {"native":{"name":"grep","args":{"pattern":"hello","path":"src"}},"claude":{"name":"Grep","args":{"pattern":"hello","path":"src"}},"output":"src/app.rs:1:hello"},
+    {"native":{"name":"web_fetch","args":{"url":"https://example.com"}},"claude":{"name":"WebFetch","args":{"url":"https://example.com"}},"output":"Example"},
+    {"native":{"name":"edit","args":{"path":"src/app.rs"}},"claude":{"name":"Edit","args":{"file_path":"src/app.rs"}},"output":"edited","details":{"path":"src/app.rs","diff":"--- a/src/app.rs\n+++ b/src/app.rs\n@@ -1 +1 @@\n-old\n+new\n"}},
+    {"native":{"name":"agents","args":{"action":"start","tasks":[{"name":"Inspect","prompt":"Review src"}],"wait":true}},"claude":{"name":"Agent","args":{"description":"Inspect","prompt":"Review src"}},"output":"Review complete"},
+    {"native":{"name":"task","args":{"todos":[{"content":"Inspect","status":"in_progress"}]}},"claude":{"name":"TodoWrite","args":{"todos":[{"content":"Inspect","status":"in_progress"}]}},"output":"Ledger updated"}
+  ]
+}

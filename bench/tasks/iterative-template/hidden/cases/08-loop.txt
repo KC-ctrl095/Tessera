@@ -1,0 +1,6 @@
+=== template
+{% for t in tags %}[{{ t }}]{% endfor %}
+=== context
+{"tags": ["a", "b", "c"]}
+=== expected
+[a][b][c]

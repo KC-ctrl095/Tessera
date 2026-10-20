@@ -1,0 +1,2552 @@
+/* ── App shell ─────────────────────────────────────────────────────────── */
+.app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: var(--grout);
+}
+
+.splash {
+  flex: 1;
+  display: grid;
+  place-items: center;
+}
+
+.shell {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  padding-left: var(--safe-l);
+  padding-right: var(--safe-r);
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-top: var(--safe-t);
+  /* One layer for the top bar, the tiles and everything floating in them (the note editor's
+     format bubble and suggestions sit at z-index 500, its find bar at 300): whatever their own
+     z-index, they stay under dialogs, drawers, sheets and menus, which live above this layer. */
+  isolation: isolate;
+}
+
+/* ── Sidebar: set in the grout, beside the tiles ─────────────────────────── */
+.sidebar {
+  width: 260px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  background: var(--grout);
+  padding-top: var(--safe-t);
+  min-height: 0;
+}
+.sidebar.drawer {
+  width: 100%;
+  height: 100%;
+  padding-bottom: var(--safe-b);
+  background: var(--stone);
+}
+
+.sb-top {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px 0 14px;
+  flex: none;
+}
+.sb-top .brand {
+  margin-right: auto;
+}
+
+.sb-search {
+  margin: 2px 8px 6px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 6px 0 10px;
+  border-radius: var(--r-xs);
+  background: var(--stone);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  color: var(--faint);
+  transition: box-shadow var(--t-fast);
+  flex: none;
+  cursor: text;
+}
+.sidebar.drawer .sb-search {
+  background: var(--sunken);
+}
+.sb-search:hover {
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+}
+.sb-search:focus-within {
+  box-shadow: inset 0 0 0 1px var(--accent);
+  color: var(--muted);
+}
+.sb-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  outline: none;
+  color: var(--text);
+  font-size: 0.875rem;
+}
+.sb-search input::placeholder {
+  color: var(--faint);
+}
+.sb-search input::-webkit-search-cancel-button {
+  display: none;
+}
+.sb-kbd {
+  display: inline-flex;
+  gap: 2px;
+}
+.sb-kbd kbd {
+  height: 17px;
+  min-width: 17px;
+  font-size: 0.62rem;
+}
+@media (pointer: coarse) {
+  .sb-kbd,
+  kbd.kbd-hint {
+    display: none !important;
+  }
+}
+
+.sb-ws {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 12px 10px;
+  overflow-x: auto;
+  flex: none;
+}
+/* Keep the drawer's All button outside the scrolling strip, even with many mosaics. */
+.sb-ws .ws-strip {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding: 4px;
+  margin: -4px;
+}
+.sb-ws .ws-pill {
+  flex: none;
+}
+.sb-ws-all {
+  flex: none;
+  margin-left: auto;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 9px;
+  border-radius: var(--r-xs);
+  font-size: 0.78rem;
+  color: var(--muted);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+.sb-ws-all:hover {
+  color: var(--text);
+  background: var(--hover);
+}
+.sb-ws-label {
+  font-size: 0.66rem;
+  font-weight: 560;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+  flex: none;
+}
+
+.sb-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 2px 8px 16px;
+  overscroll-behavior: contain;
+}
+
+.sb-sec {
+  margin-top: 14px;
+}
+.sb-sec:first-child {
+  margin-top: 4px;
+}
+.sb-sec-head {
+  display: flex;
+  align-items: center;
+  height: 26px;
+  padding-right: 2px;
+}
+/* Section labels, cut like inscriptions: CHATS, BOTS, CHANNELS. */
+.sb-sec-toggle {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  padding: 0 8px;
+  border-radius: var(--r-xs);
+  font-size: 0.66rem;
+  font-weight: 560;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+  text-align: left;
+}
+.sb-sec-toggle:hover {
+  color: var(--muted);
+}
+.sb-sec-toggle.static {
+  cursor: default;
+}
+.sb-sec-toggle .count {
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--faint);
+  opacity: 0.8;
+}
+.sb-chev {
+  opacity: 0;
+  transition:
+    opacity var(--t-fast),
+    transform var(--t) var(--ease);
+}
+.sb-sec-head:hover .sb-chev,
+.sb-sec-toggle:focus-visible .sb-chev,
+.sb-sec.closed .sb-chev {
+  opacity: 1;
+}
+.sb-sec.closed .sb-chev {
+  transform: rotate(-90deg);
+}
+.sb-sec-add {
+  opacity: 0;
+  transition: opacity var(--t-fast);
+}
+.sb-sec-head:hover .sb-sec-add,
+.sb-sec-add:focus-visible {
+  opacity: 1;
+}
+@media (hover: none) {
+  .sb-sec-add,
+  .sb-chev {
+    opacity: 0.7;
+  }
+}
+.sb-sub {
+  padding: 8px 10px 3px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--faint);
+}
+.sb-sub.private {
+  color: color-mix(in srgb, var(--porphyry) 80%, var(--faint));
+}
+
+.srows,
+.hits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.srow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: var(--r-xs);
+  transition: background var(--t-fast) var(--ease);
+}
+.srow:hover,
+.srow:focus-within {
+  background: var(--hairline-soft);
+}
+.srow.active {
+  background: var(--stone);
+}
+.sidebar.drawer .srow.active {
+  background: var(--raised);
+}
+.srow.shown:not(.active) .srow-main {
+  color: var(--text);
+}
+/* The row of the focused tile: a gilded edge, like the tile itself. */
+.srow.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  bottom: 7px;
+  width: 2px;
+  background: var(--accent);
+}
+.srow.private.active::before {
+  background: var(--porphyry);
+}
+.srow.paused {
+  opacity: 0.55;
+}
+.srow-main {
+  flex: 1;
+  min-width: 0;
+  height: var(--row-h);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 4px 0 9px;
+  text-align: left;
+  color: var(--text-2);
+  font-size: 0.875rem;
+  border-radius: var(--r-xs);
+}
+.srow.active .srow-main {
+  color: var(--text);
+}
+.srow-lead {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  color: var(--faint);
+}
+.srow:hover .srow-lead,
+.srow.active .srow-lead {
+  color: var(--muted);
+}
+.srow.private .srow-lead {
+  color: var(--porphyry);
+}
+.srow-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.srow-pin {
+  color: var(--faint);
+}
+.srow-err {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 1px;
+  background: var(--err);
+}
+.srow-meta {
+  flex: none;
+  font-size: 0.74rem;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+.srow-more {
+  opacity: 0;
+  margin-right: 2px;
+}
+.srow:hover .srow-more,
+.srow:focus-within .srow-more,
+.srow-more[aria-expanded="true"] {
+  opacity: 1;
+}
+.srow:hover .srow-meta {
+  display: none;
+}
+@media (hover: none) {
+  .srow-more {
+    opacity: 0.55;
+  }
+}
+.srow.dm .srow-title {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+}
+.srow .av-stack {
+  --av-ring: var(--grout);
+}
+.srow.active .av-stack {
+  --av-ring: var(--stone);
+}
+
+.brow-av {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+.brow .srow-title {
+  flex: 0 1 auto;
+  font-weight: 540;
+  color: var(--text);
+}
+.brow-role {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.76rem;
+  color: var(--faint);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.brow-yolo {
+  color: var(--yolo);
+  flex: none;
+}
+
+.hit {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  padding: 7px 10px;
+  border-radius: var(--r-xs);
+}
+.hit:hover {
+  background: var(--hairline-soft);
+}
+.hit-title {
+  font-size: 0.84rem;
+  font-weight: 540;
+  color: var(--text-2);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.hit-snippet {
+  font-size: 0.79rem;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* The matched words in a search hit, a note preview or a recall card. */
+.hit-snippet mark,
+.nrow-preview mark,
+.nrow-title mark,
+.recall-hit-snippet mark {
+  background: var(--accent-soft);
+  color: var(--text);
+  font-weight: 600;
+  border-radius: 2px;
+}
+
+.sb-empty {
+  padding: 6px 10px;
+  margin: 0;
+  color: var(--faint);
+  font-size: 0.82rem;
+}
+/* An empty list says where New is (it doesn't add a second button). */
+.sb-first {
+  line-height: 1.5;
+}
+.sb-first .icon {
+  display: inline-block;
+  vertical-align: -2px;
+}
+/* Archived chats: a quiet line under the list, once there are any. */
+.sb-archived {
+  width: 100%;
+  height: var(--row-h);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 4px;
+  padding: 0 9px;
+  border-radius: var(--r-xs);
+  color: var(--faint);
+  font-size: 0.82rem;
+  text-align: left;
+}
+.sb-archived:hover {
+  background: var(--hairline-soft);
+  color: var(--text-2);
+}
+.sb-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 9px;
+  margin-top: 2px;
+  border-radius: var(--r-xs);
+  font-size: 0.8rem;
+  color: var(--faint);
+}
+.sb-more:hover {
+  color: var(--text-2);
+  background: var(--hairline-soft);
+}
+.sb-archived {
+  display: flex;
+  margin-top: 6px;
+}
+.sb-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 10px;
+}
+
+.sb-foot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 6px calc(8px + var(--safe-b));
+  border-top: 1px solid var(--hairline-soft);
+}
+.sidebar.drawer .sb-foot {
+  padding-bottom: 8px;
+}
+
+/* Collapsed rail */
+.rail {
+  width: 52px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: calc(9px + var(--safe-t)) 0 10px;
+  background: var(--grout);
+}
+.rail-logo {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-sm);
+  margin-bottom: 6px;
+  transition: background var(--t-fast);
+}
+.rail-logo:hover {
+  background: var(--hover);
+}
+.rail-sep {
+  width: 18px;
+  height: 1px;
+  background: var(--hairline);
+  margin: 6px 0;
+}
+.rail-bot {
+  position: relative;
+}
+.rail-busy {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+}
+
+/* ── Drawer ────────────────────────────────────────────────────────────── */
+.drawer-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+.drawer-layer.open {
+  pointer-events: auto;
+}
+.drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  transition: opacity 180ms var(--ease);
+}
+.drawer-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: min(86vw, 320px);
+  transform: translateX(-102%);
+  transition: transform 180ms var(--ease);
+  box-shadow: 1px 0 0 var(--hairline-strong);
+  padding-left: var(--safe-l);
+  background: var(--stone);
+  touch-action: pan-y;
+}
+.drawer-layer.open .drawer-panel {
+  transform: translateX(0);
+}
+.drawer-layer.dragging .drawer-panel,
+.drawer-layer.dragging .drawer-backdrop {
+  transition: none;
+}
+.edge-swipe {
+  position: absolute;
+  left: 0;
+  /* The swipe gutter must not cover header controls or the top bar. */
+  top: calc(var(--safe-t) + max(44px, var(--head-h)));
+  bottom: 0;
+  width: 16px;
+  z-index: 20;
+  touch-action: none;
+}
+.main:has(> .topbar) > .edge-swipe {
+  top: calc(var(--safe-t) + 42px + var(--tile-gap) + max(44px, var(--head-h)));
+}
+@media (pointer: fine) {
+  .edge-swipe {
+    display: none;
+  }
+}
+
+/* ── Top bar ───────────────────────────────────────────────────────────── */
+.topbar {
+  flex: none;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 var(--tile-gap) 0 calc(var(--tile-gap) + 2px);
+  background: var(--grout);
+  -webkit-user-select: none;
+  user-select: none;
+}
+/* Mosaics: each a number and a few tesserae, one per tile. */
+.ws-strip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+/* Named tabs stay in one row; many mosaics scroll without hiding the other controls. */
+.topbar .mosaic-tabs {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding: 4px;
+  margin: -4px 0;
+}
+.mosaic-tabs .ws-pill {
+  flex: none;
+  min-width: 104px;
+  max-width: 180px;
+  justify-content: flex-start;
+  border-radius: var(--r-xs) var(--r-xs) 0 0;
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+.mosaic-tabs .ws-pill.active {
+  box-shadow: inset 0 2px 0 var(--accent), inset 0 0 0 1px var(--hairline);
+}
+.ws-title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.topbar .tb-mosaics {
+  width: auto;
+  display: inline-flex;
+  gap: 6px;
+  padding: 0 8px;
+  white-space: nowrap;
+  font-size: 0.8rem;
+}
+.topbar .tb-new {
+  flex: none;
+}
+/* Big enough to hit without aiming: most of the top bar's height. */
+.ws-pill {
+  position: relative;
+  height: 34px;
+  min-width: 40px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--r-xs);
+  color: var(--faint);
+  font-size: 0.9rem;
+  font-weight: 560;
+  font-variant-numeric: tabular-nums;
+  transition:
+    background var(--t-fast) var(--ease),
+    color var(--t-fast);
+}
+.ws-pill:hover {
+  background: var(--hairline-soft);
+  color: var(--text);
+}
+.ws-pill.active {
+  background: var(--stone);
+  color: var(--text);
+  box-shadow: inset 0 2px 0 var(--accent);
+}
+.ws-pill.hint,
+.ws-add.hint {
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+  color: var(--accent-text);
+}
+.ws-pill.running:not(.active) .ws-num {
+  color: var(--text-2);
+}
+.ws-pill.ws-waiting:not(.active) {
+  box-shadow: inset 0 0 0 1px rgba(var(--warn-rgb), 0.55);
+}
+.ws-pill .ws-lock {
+  margin-left: -3px;
+  color: var(--muted);
+}
+.ws-dots {
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-template-rows: 5px 5px;
+  gap: 2px;
+}
+.ws-dots i {
+  width: 5px;
+  height: 5px;
+  border-radius: 0.5px;
+  background: currentColor;
+  opacity: 0.35;
+}
+.ws-dots i.f {
+  background: var(--accent);
+  opacity: 1;
+}
+.ws-dots i[data-st="running"] {
+  background: var(--accent);
+  opacity: 0.6;
+}
+.ws-dots i[data-st="approval"] {
+  background: var(--warn);
+  opacity: 1;
+}
+.ws-dots i[data-st="error"] {
+  background: var(--err);
+  opacity: 1;
+}
+/* Delete a mosaic: a small × that appears on hover (right-click and long-press offer it too). */
+.ws-pill .ws-del {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 15px;
+  height: 15px;
+  display: grid;
+  place-items: center;
+  border-radius: 2px;
+  background: var(--overlay);
+  box-shadow: 0 0 0 1px var(--hairline-strong);
+  color: var(--muted);
+  opacity: 0;
+  transform: scale(0.8);
+  transition:
+    opacity var(--t-fast) var(--ease-out),
+    transform var(--t-fast) var(--ease-out);
+}
+.ws-pill:hover .ws-del,
+.ws-pill:focus-visible .ws-del {
+  opacity: 1;
+  transform: none;
+}
+.ws-pill .ws-del:hover {
+  color: var(--err);
+  background: var(--hover);
+}
+@media (hover: none) {
+  .ws-pill .ws-del {
+    display: none;
+  }
+}
+.ws-add {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-xs);
+  color: var(--faint);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  transition:
+    color var(--t-fast),
+    background var(--t-fast),
+    box-shadow var(--t-fast);
+}
+.ws-strip .ws-pill + .ws-add {
+  margin-left: 2px;
+}
+.ws-add:hover {
+  color: var(--accent-text);
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.5);
+}
+
+.tb-icon {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-xs);
+  color: var(--muted);
+  transition:
+    background var(--t-fast),
+    color var(--t-fast);
+}
+.tb-icon:hover,
+.tb-icon[aria-expanded="true"] {
+  background: var(--hairline-soft);
+  color: var(--text);
+}
+/* New: a chat with one click; the chevron offers a web view or a note. */
+.tb-new {
+  height: 30px;
+  display: inline-flex;
+  align-items: stretch;
+  border-radius: var(--r-xs);
+  overflow: hidden;
+  color: var(--accent-fg);
+  background: var(--accent);
+}
+.tb-new > button {
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+  transition: background var(--t-fast);
+}
+.tb-new-main {
+  gap: 7px;
+  padding: 0 10px 0 10px;
+  font-size: 0.84rem;
+  font-weight: 560;
+}
+.tb-new-more {
+  padding: 0 7px;
+  box-shadow: inset 1px 0 0 color-mix(in srgb, var(--accent-fg) 22%, transparent);
+}
+.tb-new .icon {
+  color: currentColor;
+}
+.tb-new > button:hover,
+.tb-new > button[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--accent) 86%, var(--text));
+}
+.tb-new > button:focus-visible {
+  outline: 2px solid var(--accent-fg);
+  outline-offset: -3px;
+}
+@media (max-width: 820px) {
+  .tb-new-main span {
+    display: none;
+  }
+  .tb-new-main {
+    width: 30px;
+    padding: 0;
+    justify-content: center;
+  }
+  .tb-new-more {
+    padding: 0 5px;
+  }
+}
+
+/* ── The mosaic: tiles set in grout ──────────────────────────────────────── */
+.workspace {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  background: var(--grout);
+}
+
+.ws-track {
+  position: absolute;
+  inset: 0;
+}
+.workspace[data-mode="mobile"],
+.workspace[data-mode="dual"] {
+  touch-action: pan-y pinch-zoom;
+}
+/* The rule above doesn't reach inside a scroll container: the browser lets every
+   scroller pan sideways again, so a stroke that starts on one without a rule of its
+   own (a new chat's welcome, tool output, the notes editor) would be taken by the
+   browser and the swipe would never start. Everything in a tile pans up and down
+   only; a component's own touch-action still wins (zero specificity), and text
+   fields keep theirs. Wide things still scroll sideways: Workspace.tsx does it. */
+:where(.workspace[data-mode="mobile"], .workspace[data-mode="dual"]) :where(.pane *:not(input, textarea:not([data-swipe]))) {
+  touch-action: pan-y pinch-zoom;
+}
+
+/* Where you are among the pages (phones, foldables): one row over the top edge of the screen's
+   tile (its header has one line, centred, so the row never meets the title), or in the grout
+   above the pair on a foldable. */
+.ws-dots {
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  z-index: 5;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 3px;
+  pointer-events: none;
+}
+.workspace[data-mode="dual"] .ws-dots {
+  top: max(0px, calc(var(--tile-gap, 6px) / 2 - 2px));
+}
+.ws-dots i {
+  width: 4px;
+  height: 4px;
+  border-radius: 0.5px;
+  background: var(--faint);
+  opacity: 0.6;
+  transition: background 150ms;
+}
+.ws-dots i.on {
+  background: var(--accent);
+  opacity: 1;
+}
+
+/* A tile: a stone slab. The grout around it is its border. */
+.pane {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--stone);
+  container-type: size;
+  container-name: pane;
+  /* Geometry changes at once; the tile glides there with a transform (FLIP in Workspace.tsx). */
+  transition: background var(--t) var(--ease);
+}
+.workspace.framed .pane {
+  border-radius: var(--tile-r);
+}
+/* The tile you're in: slightly lighter stone and a gilded top edge. */
+.workspace.framed .pane.focused {
+  background: var(--stone-focus);
+}
+.pane::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--edge);
+  z-index: 26;
+  pointer-events: none;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity var(--t) var(--ease);
+}
+.workspace.framed.multi .pane.focused::before {
+  opacity: 1;
+}
+.workspace.framed:not(.multi) .pane::before {
+  opacity: 0;
+}
+/* A private tile is edged in porphyry tesserae instead of gold — always, so
+   it can't be mistaken for an ordinary chat. */
+.pane.private::before {
+  height: 3px;
+  background: repeating-linear-gradient(90deg, var(--porphyry) 0 5px, transparent 5px 8px);
+  opacity: 0.55;
+}
+.workspace .pane.private.focused::before,
+.workspace[data-mode="mobile"] .pane.private::before {
+  opacity: 1;
+}
+/* Unfocused tiles are only slightly dimmed: their chrome recedes. */
+[data-dim="1"] .workspace.framed.multi .pane:not(.focused) .pane-head {
+  color: var(--muted);
+}
+[data-dim="1"] .workspace.framed.multi .pane:not(.focused) .title-text,
+[data-dim="1"] .workspace.framed.multi .pane:not(.focused) .bot-name {
+  color: var(--text-2);
+}
+.workspace[data-mode="mobile"] .pane,
+.workspace[data-mode="dual"] .pane,
+.workspace.resizing .pane {
+  transition: background var(--t);
+}
+.workspace[data-mode="mobile"] .pane {
+  animation: none;
+}
+/* A tile picked up by its header: it lifts off the grout and follows the pointer
+   (transform set per frame by lib/drag.ts). */
+.pane.lifted {
+  z-index: 40;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 1px rgba(var(--accent-rgb), 0.55),
+    0 30px 60px -24px rgba(0, 0, 0, 0.5),
+    0 12px 24px -14px rgba(0, 0, 0, 0.35);
+  will-change: transform;
+  transition: none;
+}
+[data-theme="light"] .pane.lifted {
+  box-shadow:
+    0 0 0 1px rgba(var(--accent-rgb), 0.55),
+    0 30px 60px -26px rgba(60, 48, 30, 0.38),
+    0 12px 24px -14px rgba(60, 48, 30, 0.22);
+}
+.dragging-now,
+.dragging-now * {
+  cursor: grabbing !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}
+/* The place it left: a quiet dashed outline in the grout. */
+.drag-socket {
+  position: absolute;
+  border-radius: var(--tile-r);
+  background: color-mix(in srgb, var(--sunken) 55%, transparent);
+  outline: 1.5px dashed color-mix(in srgb, var(--faint) 55%, transparent);
+  outline-offset: -1.5px;
+  animation: fade-in 160ms var(--ease-out);
+  pointer-events: none;
+}
+@keyframes tile-open {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes tile-close {
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+.tile-ghost {
+  position: absolute;
+  border-radius: var(--tile-r);
+  background: var(--stone);
+  animation: tile-close 180ms var(--ease-out) forwards;
+  pointer-events: none;
+}
+
+/* Where a drop lands: one preview for the workspace, gliding between zones. */
+.drop-preview {
+  position: absolute;
+  z-index: 30;
+  pointer-events: none;
+  border-radius: var(--tile-r);
+  background: rgba(var(--accent-rgb), 0.1);
+  box-shadow: inset 0 0 0 1.5px rgba(var(--accent-rgb), 0.75);
+  transform-origin: center;
+  animation: drop-in 150ms var(--ease-out);
+}
+@keyframes drop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+.drop-chip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  /* Above the lifted tile, which hangs below the pointer. */
+  z-index: 45;
+  pointer-events: none;
+  padding: 5px 11px;
+  border-radius: var(--r-xs);
+  background: var(--overlay);
+  box-shadow:
+    0 0 0 1px var(--hairline-strong),
+    var(--shadow-pop);
+  font-size: 0.8rem;
+  font-weight: 560;
+  color: var(--text);
+  white-space: nowrap;
+  transition: transform 150ms var(--ease-out);
+  animation: fade-in 120ms var(--ease-out);
+}
+/* A chat or bot dragged from the sidebar. */
+.drag-card {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 95;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 260px;
+  padding: 7px 12px 7px 9px;
+  border-radius: var(--r-sm);
+  background: var(--overlay);
+  box-shadow:
+    inset 0 2px 0 var(--accent),
+    0 0 0 1px var(--hairline-strong),
+    0 14px 30px -14px rgba(0, 0, 0, 0.55);
+  font-size: 0.84rem;
+  font-weight: 550;
+  color: var(--text);
+  transform-origin: 0 0;
+  will-change: transform;
+}
+.drag-card > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.drag-card-mark {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--accent);
+  box-shadow: 12px 0 0 -1px var(--lapis);
+  margin-right: 10px;
+}
+
+/* Dividers live in the grout. */
+.divider {
+  position: absolute;
+  z-index: 6;
+  touch-action: none;
+}
+.divider.h {
+  cursor: col-resize;
+}
+.divider.v {
+  cursor: row-resize;
+}
+/* On hover the whole joint lights up faintly, with a grip in its middle. */
+.divider::before {
+  content: "";
+  position: absolute;
+  border-radius: 1px;
+  background: transparent;
+  transition: background var(--t);
+}
+.divider.h::before {
+  top: 6px;
+  bottom: 6px;
+  left: 50%;
+  width: 2px;
+  margin-left: -1px;
+}
+.divider.v::before {
+  left: 6px;
+  right: 6px;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+}
+.divider:hover::before {
+  background: var(--hairline);
+  transition-delay: 80ms;
+}
+/* The grab handle: a small pill in the middle of the grout, always there
+   (quietly), brighter under the pointer, accent while dragging. The same
+   pill is the handle between the two tiles of a foldable. */
+.divider-grip,
+.dual-grip {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--muted) 42%, transparent);
+  transition:
+    background var(--t),
+    width var(--t) var(--ease-out),
+    height var(--t) var(--ease-out);
+}
+.divider.h .divider-grip,
+.dual-grip {
+  width: 4px;
+  height: 36px;
+}
+.divider.v .divider-grip {
+  height: 4px;
+  width: 36px;
+}
+.divider:hover .divider-grip,
+.divider:focus-visible .divider-grip {
+  background: var(--muted);
+  transition-delay: 60ms;
+}
+.divider.h:hover .divider-grip {
+  height: 48px;
+}
+.divider.v:hover .divider-grip {
+  width: 48px;
+}
+.workspace.resizing .divider:active .divider-grip,
+.workspace.resizing .divider-grip.on {
+  background: var(--accent);
+}
+.workspace.resizing .divider:active::before {
+  background: rgba(var(--accent-rgb), 0.35);
+}
+.workspace.resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
+/* Monocle tabs */
+.ws-tabs {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 0 var(--tile-gap);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ws-tab {
+  flex: 0 1 220px;
+  min-width: 90px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  border-radius: var(--r-xs) var(--r-xs) 0 0;
+  color: var(--muted);
+  transition:
+    background var(--t-fast),
+    color var(--t-fast);
+}
+.ws-tab:hover {
+  background: var(--hairline-soft);
+  color: var(--text-2);
+}
+.ws-tab.active {
+  background: var(--stone-focus);
+  color: var(--text);
+  box-shadow: inset 0 2px 0 var(--accent);
+}
+.ws-tab-main {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 4px 0 10px;
+  font-size: 0.8rem;
+  text-align: left;
+}
+.ws-tab-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ws-tab-x {
+  width: 22px;
+  height: 22px;
+  margin-right: 4px;
+  border-radius: var(--r-xs);
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  opacity: 0;
+}
+.ws-tab:hover .ws-tab-x,
+.ws-tab.active .ws-tab-x,
+.ws-tab-x:focus-visible {
+  opacity: 1;
+}
+.ws-tab-x:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+.ws-tab-add {
+  margin-bottom: 3px;
+}
+.tab-warn {
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  flex: none;
+  background: var(--warn);
+}
+
+.placeholder-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--muted);
+}
+
+/* ── Empty mosaic: the launcher ──────────────────────────────────────────── */
+.launcher {
+  position: absolute;
+  inset: var(--tile-gap);
+  overflow-y: auto;
+  display: flex;
+  border-radius: var(--tile-r);
+  background: var(--stone);
+  transition: box-shadow var(--t);
+  animation: fade-in 180ms var(--ease);
+}
+.workspace[data-mode="mobile"] .launcher {
+  inset: 0;
+  border-radius: 0;
+}
+.launcher-menu {
+  position: absolute;
+  top: calc(6px + var(--safe-t));
+  left: 6px;
+  z-index: 2;
+}
+.launcher-new {
+  position: absolute;
+  top: calc(6px + var(--safe-t));
+  right: 6px;
+  z-index: 2;
+}
+.launcher.over {
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+.launcher-inner {
+  width: min(620px, 100%);
+  margin: auto;
+  padding: 32px 24px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+.launcher-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+.launcher-mosaic {
+  width: min(520px, 100%);
+  margin-bottom: 8px;
+}
+.launcher-head .inscription {
+  margin: 0;
+}
+.launcher-head h2 {
+  margin: 0;
+  font-size: 2.3rem;
+  line-height: 1.1;
+}
+.launcher-head p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.launcher-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.launch-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--r);
+  background: var(--raised);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  text-align: left;
+  transition:
+    background var(--t) var(--ease),
+    box-shadow var(--t) var(--ease);
+}
+.launch-card:hover {
+  background: var(--hover);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+}
+.launch-card.primary {
+  box-shadow: inset 0 2px 0 var(--accent), inset 0 0 0 1px var(--hairline);
+}
+.launch-card.private .launch-icon {
+  color: var(--porphyry);
+}
+.launch-icon {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-sm);
+  background: var(--stone);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  color: var(--text-2);
+}
+.launch-card.primary .launch-icon {
+  background: var(--accent);
+  box-shadow: none;
+  color: var(--accent-fg);
+}
+.launch-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.launch-title {
+  font-size: 0.9rem;
+  font-weight: 580;
+}
+.launch-sub {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+.launcher-sec h3 {
+  margin: 0 0 10px;
+  font-size: 0.66rem;
+  font-weight: 560;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.launcher-bots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 6px;
+}
+.bot-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 8px 12px;
+  border-radius: var(--r);
+  background: var(--raised);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  transition:
+    background var(--t),
+    box-shadow var(--t);
+}
+.bot-tile:hover {
+  background: var(--hover);
+  box-shadow: inset 0 2px 0 var(--bot), inset 0 0 0 1px var(--hairline);
+}
+.bot-tile-av {
+  position: relative;
+}
+.bot-tile-busy {
+  position: absolute;
+  right: -4px;
+  bottom: -2px;
+}
+.bot-tile-name {
+  font-size: 0.84rem;
+  font-weight: 560;
+}
+.launcher-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.launcher-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: var(--r-xs);
+  text-align: left;
+  color: var(--text-2);
+  font-size: 0.88rem;
+}
+.launcher-row:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+.launcher-row-icon {
+  min-width: 20px;
+  display: grid;
+  justify-items: start;
+  place-items: center start;
+  color: var(--muted);
+  flex: none;
+}
+.launcher-row-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.launcher-row-when {
+  color: var(--faint);
+  font-size: 0.78rem;
+}
+.launcher-row-go {
+  color: var(--faint);
+  opacity: 0;
+  transition: opacity var(--t-fast);
+}
+.launcher-row:hover .launcher-row-go {
+  opacity: 1;
+}
+@media (max-width: 520px) {
+  .launcher-actions {
+    grid-template-columns: 1fr;
+  }
+  .launcher-head h2 {
+    font-size: 1.9rem;
+  }
+}
+
+/* ── Connection ────────────────────────────────────────────────────────── */
+/* Reconnecting: a small pill over the top of the tiles, not a banner that shifts them. */
+.offline-banner {
+  position: absolute;
+  top: calc(var(--safe-t) + 8px);
+  left: 50%;
+  z-index: 40;
+  transform: translateX(-50%);
+  /* Left at 50% would leave it half the width to fit in: size it to its text. */
+  width: max-content;
+  max-width: calc(100% - 32px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--r-sm);
+  font-size: 0.8rem;
+  color: var(--text-2);
+  background: var(--overlay);
+  box-shadow: 0 0 0 1px var(--hairline-strong), var(--shadow-pop);
+  animation: rise-spring 320ms var(--spring) both;
+}
+/* A phone's chat header holds the menu, the title and the close button: the pill sits under it. */
+.offline-banner.below {
+  top: calc(var(--safe-t) + var(--head-h) + 6px);
+}
+.offline-banner .link-btn {
+  color: var(--accent-text);
+  flex: none;
+}
+
+.conn-badge {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 8px;
+  border-radius: var(--r-sm);
+  text-align: left;
+  transition: background var(--t-fast);
+}
+.conn-badge:hover {
+  background: var(--hover);
+}
+.conn-badge.compact {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  justify-content: center;
+}
+.conn-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 1px;
+  flex: none;
+  background: var(--faint);
+}
+.conn-dot.lg {
+  width: 10px;
+  height: 10px;
+}
+[data-state="connected"] > .conn-dot,
+.conn-dot[data-state="connected"] {
+  background: var(--ok);
+}
+.conn-badge.warn[data-state="connected"] > .conn-dot {
+  background: var(--warn);
+}
+[data-state="connecting"] > .conn-dot,
+.conn-dot[data-state="connecting"] {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--warn);
+}
+[data-state="offline"] > .conn-dot,
+.conn-dot[data-state="offline"] {
+  background: var(--err);
+}
+.conn-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+.conn-name {
+  font-size: 0.84rem;
+  font-weight: 560;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.conn-sub {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.74rem;
+  color: var(--muted);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.conn-lock {
+  color: var(--ok);
+}
+.conn-badge.warn .conn-sub {
+  color: var(--warn);
+}
+.conn-pop {
+  width: 340px;
+}
+.conn-details {
+  width: 340px;
+  max-width: calc(100vw - 16px);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.conn-details-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 4px 2px;
+}
+.sec-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-xs);
+  background: var(--sunken);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+.sec-note > .icon {
+  margin-top: 1px;
+  color: var(--muted);
+}
+.sec-note.ok {
+  background: rgba(var(--ok-rgb), 0.07);
+  box-shadow: inset 0 0 0 1px rgba(var(--ok-rgb), 0.2);
+}
+.sec-note.ok > .icon {
+  color: var(--ok);
+}
+.sec-note.warn {
+  background: rgba(var(--warn-rgb), 0.08);
+  box-shadow: inset 0 0 0 1px rgba(var(--warn-rgb), 0.3);
+}
+.sec-note.warn > .icon,
+.sec-note.warn .sec-title {
+  color: var(--warn);
+}
+.sec-note.subtle {
+  background: transparent;
+}
+.sec-note .btn {
+  align-self: center;
+  flex: none;
+}
+.sec-title {
+  font-weight: 600;
+  color: var(--text);
+}
+.sec-sub {
+  color: var(--muted);
+}
+.sec-sub .mono {
+  color: var(--text-2);
+  font-size: 0.78rem;
+}
+.conn-error {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: var(--r-xs);
+  background: rgba(var(--err-rgb), 0.08);
+  font-size: 0.82rem;
+  color: var(--err);
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+.conn-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 2px 0;
+}
+.endpoint-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.endpoint-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--r-xs);
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--muted);
+  min-width: 0;
+}
+.endpoint-list li .icon {
+  color: var(--faint);
+}
+.endpoint-list li.active {
+  color: var(--text);
+  background: var(--hover);
+}
+.ep-kind {
+  font-family: var(--font);
+  font-size: 0.7rem;
+  color: var(--faint);
+  flex: none;
+}
+
+.connect-screen {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: calc(40px + var(--safe-t)) 16px calc(24px + var(--safe-b));
+  background: var(--grout);
+}
+.connect-card {
+  width: min(440px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  animation: rise-in 400ms var(--ease);
+}
+.connect-mark {
+  position: relative;
+  padding: 18px;
+  margin-bottom: 6px;
+}
+.connect-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.connect-card h1 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.15;
+}
+.connect-card p {
+  margin: 0;
+}
+.connect-card .endpoint-list {
+  width: 100%;
+  margin: 6px 0;
+  padding: 6px;
+  border-radius: var(--r);
+  background: var(--raised);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+.connect-card .conn-error {
+  width: 100%;
+}
+.connect-recovery {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.connect-recovery .conn-error {
+  overflow-wrap: anywhere;
+}
+.connect-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* ── Onboarding ────────────────────────────────────────────────────────── */
+.onboarding {
+  position: relative;
+  flex: 1;
+  overflow-y: auto;
+  /* The mosaic is wider than a phone on purpose; never let it scroll sideways. */
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: calc(48px + var(--safe-t)) 16px calc(28px + var(--safe-b));
+  background: var(--grout);
+  isolation: isolate;
+}
+@media (min-height: 820px) {
+  .onboarding {
+    justify-content: center;
+  }
+}
+.onb-mosaic {
+  width: min(760px, 130vw);
+  max-width: none;
+  margin: 0 0 -60px;
+  z-index: -1;
+}
+.onb-card {
+  width: min(520px, 100%);
+  padding: 28px 32px 32px;
+  background: var(--stone);
+  border-radius: var(--r-lg);
+  box-shadow: inset 0 2px 0 var(--accent), 0 0 0 1px var(--hairline);
+  animation: modal-in 180ms var(--ease);
+}
+@media (max-width: 520px) {
+  .onboarding {
+    padding-top: calc(20px + var(--safe-t));
+  }
+  .onb-card {
+    padding: 22px 18px 22px;
+    border-radius: var(--r-lg);
+  }
+}
+.onb-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.stepper li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--faint);
+  font-size: 0.78rem;
+  font-weight: 560;
+}
+.stepper li + li::before {
+  content: "";
+  width: 18px;
+  height: 1px;
+  margin-right: 2px;
+  background: var(--hairline-strong);
+}
+.step-dot {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-xs);
+  font-size: 0.7rem;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+  transition: all var(--t) var(--ease);
+}
+.stepper li.on {
+  color: var(--text);
+}
+.stepper li.on .step-dot {
+  background: var(--accent);
+  color: var(--accent-fg);
+  box-shadow: none;
+}
+.stepper li.done {
+  color: var(--muted);
+}
+.stepper li.done .step-dot {
+  background: rgba(var(--accent-rgb), 0.16);
+  color: var(--accent-text);
+  box-shadow: none;
+}
+@media (max-width: 420px) {
+  .step-label {
+    display: none;
+  }
+}
+.onb-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: rise-in 320ms var(--ease);
+}
+.onb-body h1 {
+  margin: 0;
+  font-size: 2.1rem;
+  line-height: 1.1;
+}
+.onb-lede {
+  margin: -8px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+.onb-actions {
+  display: flex;
+  gap: 8px;
+}
+.onb-foot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 18px 0 0;
+  text-align: center;
+  color: var(--faint);
+  font-size: 0.78rem;
+}
+
+.route-art {
+  width: 100%;
+  height: auto;
+  margin: 2px 0 -2px;
+}
+.route-art .ra-box {
+  fill: var(--sunken);
+  stroke: var(--hairline-strong);
+  stroke-width: 1;
+}
+.route-art .ra-screen {
+  fill: rgba(var(--accent-rgb), 0.12);
+  stroke: rgba(var(--accent-rgb), 0.3);
+}
+.route-art .ra-led {
+  fill: var(--ok);
+}
+.route-art .ra-slot {
+  fill: var(--hairline-strong);
+}
+.route-art .ra-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.route-art .ra-line.home {
+  stroke: var(--accent);
+}
+.route-art .ra-line.remote {
+  stroke: var(--muted);
+  stroke-dasharray: 3 6;
+}
+.route-art .ra-tag {
+  fill: var(--raised);
+  stroke: var(--hairline-strong);
+}
+.route-art .ra-text {
+  fill: var(--text-2);
+  font-size: 10.5px;
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  font-family: var(--font);
+}
+
+/* Server address fields (onboarding, add server, settings). */
+.server-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.addr-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.addr-icon {
+  width: 32px;
+  height: 32px;
+  margin-top: 24px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-xs);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+.addr-icon.remote {
+  background: var(--hover);
+  color: var(--muted);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+.addr-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.addr-input {
+  display: flex;
+  gap: 6px;
+}
+.addr-foot {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.probe {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  font-size: 0.76rem;
+  font-weight: 560;
+  max-width: 55%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.probe-ok {
+  color: var(--ok);
+}
+.probe-bad {
+  color: var(--err);
+}
+.disclosure {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.84rem;
+  font-weight: 580;
+  color: var(--muted);
+  align-self: flex-start;
+  padding: 2px 0;
+}
+.disclosure:hover {
+  color: var(--text);
+}
+.disclosure .count {
+  font-weight: 500;
+  color: var(--faint);
+}
+.disc-chev {
+  transition: transform var(--t) var(--ease);
+}
+[aria-expanded="true"] > .disc-chev {
+  transform: rotate(90deg);
+}
+.advanced {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px;
+  border-radius: var(--r);
+  background: var(--sunken);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  animation: rise-in var(--t) var(--ease);
+}
+.endpoint-row,
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.header-row > .input {
+  flex: 0.9;
+}
+.header-row > .secret {
+  flex: 1.1;
+}
+.add-row {
+  align-self: flex-start;
+}
+.code-input {
+  height: 56px;
+  font-family: var(--mono);
+  font-size: 1.6rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-align: center;
+  border-radius: var(--r-sm);
+}
+.code-input::placeholder {
+  color: var(--faint);
+  opacity: 0.6;
+  letter-spacing: 0.22em;
+}
+.pair-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.server-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.modal-lede {
+  margin: 0 0 14px;
+  line-height: 1.5;
+}
+
+.onb-done {
+  align-items: center;
+  text-align: center;
+}
+.done-badge {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r);
+  background: var(--accent);
+  color: var(--accent-fg);
+  animation: fade-in 180ms var(--ease);
+}
+.onb-done .onb-lede {
+  margin: -6px 0 4px;
+  max-width: 40ch;
+}
+.fingerprint {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--r);
+  background: var(--sunken);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  text-align: left;
+}
+.fingerprint > .icon {
+  margin-top: 2px;
+  color: var(--ok);
+}
+.fp-label {
+  font-size: 0.74rem;
+  font-weight: 580;
+  color: var(--muted);
+}
+.fp-value {
+  font-size: 1.02rem;
+  font-weight: 560;
+  letter-spacing: 0.06em;
+  margin: 2px 0 4px;
+}
+.device-name-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+}
+.fp-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── All mosaics: a page of its own (the level above a mosaic's tile
+   overview), each mosaic a big card drawn as its tiles. It shares the
+   overview's frame (.overview) on every screen size. ─────────────────── */
+.overview.mosaics-page {
+  z-index: 66;
+}
+.mosaics-grid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  align-content: start;
+  gap: 10px;
+  padding: 2px 12px 16px;
+  touch-action: pan-y;
+}
+@media (min-width: 1100px) {
+  .mosaics-grid {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 14px;
+    padding: 4px 20px 20px;
+  }
+  .mosaics-page .overview-head {
+    height: 60px;
+    padding: 0 20px 0 12px;
+  }
+}
+/* Cards are divs, not buttons: a button's flex children don't always stretch (Android's WebView). */
+.mz-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 10px 11px;
+  border-radius: var(--r);
+  background: var(--stone);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+  outline: none;
+  transition:
+    box-shadow var(--t-fast),
+    background var(--t-fast);
+}
+.mz-card.current {
+  box-shadow: inset 0 2px 0 var(--accent), inset 0 0 0 1px var(--hairline);
+}
+.mz-card.mz-asking:not(.sel) {
+  box-shadow: inset 0 0 0 1px rgba(var(--warn-rgb), 0.55);
+}
+.mz-card.sel,
+.mz-card:focus-visible {
+  background: var(--stone-focus);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.mz-card.sel.current {
+  box-shadow: inset 0 2px 0 var(--accent), 0 0 0 2px var(--accent);
+}
+@media (hover: none) {
+  /* Touch: nothing is "selected" but the mosaic on screen. */
+  .mz-card.sel:not(.current) {
+    background: var(--stone);
+    box-shadow: inset 0 0 0 1px var(--hairline);
+  }
+  .mz-card.sel.current {
+    box-shadow: inset 0 2px 0 var(--accent), inset 0 0 0 1px var(--hairline);
+  }
+}
+.mz-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  min-height: 28px;
+  margin-bottom: 8px;
+  padding: 0 0 0 2px;
+}
+.mz-num {
+  flex: none;
+  font-family: var(--serif);
+  font-size: 1.45rem;
+  line-height: 1;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.mz-name {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.88rem;
+  font-weight: 560;
+  color: var(--text-2);
+}
+.mz-lock {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  color: var(--muted);
+}
+.mz-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 0.76rem;
+  color: var(--faint);
+}
+.mz-here {
+  color: var(--accent-text);
+}
+.mz-more {
+  flex: none;
+  margin: -4px -4px -4px 0;
+}
+.mz-preview,
+.mz-new-body {
+  position: relative;
+  display: block;
+  width: 100%;
+  border-radius: var(--r-xs);
+  overflow: hidden;
+}
+.mz-preview {
+  background: var(--grout);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+.mz-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  color: var(--faint);
+}
+/* Scoped class names only: plain ones (.board, .approval) belong to other parts of the app. */
+.mz-tile {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 7px 8px;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--raised);
+  color: var(--text-2);
+}
+.mz-tile.is-focused {
+  box-shadow: inset 0 2px 0 var(--accent);
+  background: var(--hover);
+}
+.mz-tile.is-private {
+  box-shadow: inset 0 2px 0 var(--porphyry);
+}
+.mz-tile[data-st="approval"] {
+  box-shadow: inset 0 0 0 1px rgba(var(--warn-rgb), 0.7);
+}
+.mz-tile[data-st="error"] .mz-tile-top {
+  color: var(--err);
+}
+.mz-tile-top {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 14px;
+  color: var(--faint);
+}
+.mz-tile.is-board .mz-tile-top {
+  color: var(--lapis);
+}
+.mz-tile-title {
+  flex: none;
+  width: 100%;
+  font-size: 0.76rem;
+  font-weight: 560;
+  line-height: 1.3;
+  color: var(--text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+.mz-tile-text {
+  flex: 0 1 auto;
+  min-height: 0;
+  width: 100%;
+  font-size: 0.7rem;
+  line-height: 1.4;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+.mz-more-tiles {
+  position: absolute;
+  right: 6px;
+  bottom: 5px;
+  padding: 0 5px;
+  border-radius: 2px;
+  font-size: 0.68rem;
+  color: var(--muted);
+  background: var(--overlay);
+}
+.mz-new {
+  background: transparent;
+}
+.mz-new .mz-name {
+  font-weight: 480;
+  color: var(--muted);
+}
+.mz-new-body {
+  display: grid;
+  place-items: center;
+  color: var(--faint);
+  border: 1px dashed var(--hairline-strong);
+}
+.mz-new:hover .mz-new-body {
+  color: var(--accent-text);
+  border-color: rgba(var(--accent-rgb), 0.5);
+}
+.mosaics-foot {
+  flex: none;
+  margin: 0;
+  padding: 8px 20px 10px;
+  font-size: 0.74rem;
+  color: var(--faint);
+}
+.mosaics-foot kbd {
+  height: 17px;
+  min-width: 17px;
+  font-size: 0.62rem;
+}
+
+/* Two-up on foldables: the handle between the tiles (like split view). */
+.dual-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 7;
+  width: 16px;
+  margin-left: -8px;
+  display: grid;
+  place-items: center;
+  cursor: col-resize;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+/* The grip is the big target for a finger (its ::before reaches past it). */
+.dual-grip {
+  position: relative;
+  inset: auto;
+  margin: 0;
+}
+.dual-grip::before {
+  content: "";
+  position: absolute;
+  inset: -22px -16px;
+}
+.dual-handle {
+  transition: opacity 120ms var(--ease);
+}
+.dual-handle.away {
+  opacity: 0;
+  pointer-events: none;
+}
+.dual-handle:hover .dual-grip,
+.dual-handle:focus-visible .dual-grip {
+  background: var(--muted);
+}
+.dual-handle.active .dual-grip {
+  height: 56px;
+  background: var(--accent);
+}
+.dual-handle:focus-visible {
+  outline: none;
+}
+
+/* ── A maximized tile's Restore button (tiled desktop) ─────────────────── */
+.head-max {
+  color: var(--accent-text);
+}
+
+/* Dragging a tile to a side or corner of the mosaic: where it would snap. */
+.drop-preview.snap-zone {
+  background: rgba(var(--accent-rgb), 0.16);
+  backdrop-filter: blur(2px);
+}
+/* A tile carried to a side of the screen (phones, foldables): the page turns that way. */
+.page-edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 40;
+  width: 44px;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  color: var(--accent-text);
+  animation: fade-in 120ms var(--ease);
+}
+.page-edge[data-side="left"] {
+  left: 0;
+  background: linear-gradient(to right, rgba(var(--accent-rgb), 0.28), transparent);
+}
+.page-edge[data-side="right"] {
+  right: 0;
+  background: linear-gradient(to left, rgba(var(--accent-rgb), 0.28), transparent);
+}
+.page-edge .icon {
+  animation: edge-nudge 700ms var(--ease) infinite alternate;
+}
+.page-edge[data-side="left"] .icon {
+  animation-name: edge-nudge-left;
+}
+@keyframes edge-nudge {
+  to {
+    transform: translateX(3px);
+  }
+}
+@keyframes edge-nudge-left {
+  to {
+    transform: translateX(-3px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-edge .icon {
+    animation: none;
+  }
+}
+/* The notification center's bell (NotificationBell.tsx); its own styles load with it. */
+.notification-bell { position: relative; }
+.notification-badge {
+  position: absolute;
+  right: -2px;
+  top: -2px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 15px;
+  text-align: center;
+  pointer-events: none;
+}
+/* Something unread in the notification center: a dot on a folded phone's sidebar button. */
+.inbox-news .head-menu,
+.inbox-news .launcher-menu {
+  position: relative;
+}
+.inbox-news .head-menu::after,
+.inbox-news .launcher-menu::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--stone);
+  pointer-events: none;
+}

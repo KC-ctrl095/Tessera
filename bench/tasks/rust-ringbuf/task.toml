@@ -1,0 +1,9 @@
+title = "Fix a ring buffer that breaks after wrapping (Rust)"
+difficulty = "medium"
+category = "bugfix"
+tags = ["rust", "failing-test"]
+time_limit = 900
+check_timeout = 400
+prompt = """
+`cargo test` fails in this crate: the ring buffer gets confused once it wraps around. Please fix src/lib.rs. The doc comments describe how it's supposed to behave.
+"""

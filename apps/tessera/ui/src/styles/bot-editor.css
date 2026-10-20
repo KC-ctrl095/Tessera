@@ -1,0 +1,772 @@
+/* The bot editor, the channel editor and the bot profile's shared parts (bot/BotForm.tsx,
+   bot/BotProfile.tsx, ChannelEditor.tsx). Loaded with them, on first use; the bots' look in
+   chats and the sidebar stays in bots.css. */
+
+/* ── Bot editor ────────────────────────────────────────────────────────
+   Desktop: the form beside a live preview. Tablets and unfolded foldables:
+   one centred sheet, the identity in two columns (fields beside the avatar
+   picker) and the actions pinned at the bottom. Phones: full screen. */
+.bot-editor.modal-lg {
+  max-width: 1080px;
+  height: min(860px, 100%);
+}
+.be {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+}
+.be-form {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 24px 24px;
+  container-type: inline-size;
+  container-name: be;
+}
+.be-side {
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 18px 18px;
+  box-shadow: inset 1px 0 0 var(--hairline);
+  background: color-mix(in srgb, var(--bot) 4%, var(--surface));
+}
+/* Identity: the fields, and the avatar picker beside them when there's room. */
+.be-id {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px 28px;
+  align-items: start;
+}
+.be-id-fields {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  container-type: inline-size;
+  container-name: befields;
+}
+.be-avatar {
+  min-width: 0;
+}
+@container be (min-width: 600px) {
+  .be-id {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+  }
+  .be .mavp {
+    --mavp-cell: 44px;
+    --mavp-max-h: 236px;
+  }
+}
+/* A new bot's other settings, one line until asked for. */
+.be-more {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  color: var(--text-2);
+  text-align: left;
+}
+.be-more:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+.be-more .disc-chev {
+  margin-top: 3px;
+  flex: none;
+}
+.be-more-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-weight: 560;
+}
+.be-more-what {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+.be-sec {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 0 20px;
+  border-bottom: 1px solid var(--hairline);
+}
+.be-sec:first-child {
+  padding-top: 8px;
+}
+.be-h {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 620;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+.be-h .icon {
+  color: color-mix(in srgb, var(--bot) 70%, var(--text));
+}
+.be-note {
+  margin: -4px 0 0;
+}
+/* Home folder: a folder made for the bot right here (components/bot/BotForm.tsx). */
+.be-home-new {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: -4px;
+}
+.be-home-btn {
+  max-width: 100%;
+  min-width: 0;
+}
+.be-home-btn span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.be-home-note {
+  margin-top: -6px;
+  line-height: 1.4;
+}
+/* Machines (components/bot/BotMachines.tsx): one row per machine. */
+.be-mach-list {
+  display: flex;
+  flex-direction: column;
+}
+.be-mach {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 9px 0;
+}
+.be-mach + .be-mach {
+  border-top: 1px solid var(--hairline);
+}
+.be-mach .field-help {
+  grid-column: 1 / -1;
+}
+.be-mach-head {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  min-width: 0;
+}
+.be-mach-head .icon {
+  flex: none;
+  align-self: center;
+  color: var(--muted);
+}
+.be-mach-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.be-mach-preset {
+  font-size: 0.76rem;
+  color: var(--faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.be-mach-seg {
+  flex-wrap: nowrap;
+}
+.be-mach-seg button {
+  white-space: nowrap;
+}
+.be-mach-legacy {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0;
+  color: var(--text-2);
+}
+.be-mach-legacy .icon {
+  flex: none;
+  margin-top: 2px;
+  color: var(--muted);
+}
+/* Narrow (folded phones): the choice goes under the machine's name, full width. */
+@container be (max-width: 460px) {
+  .be-mach {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .be-mach-seg {
+    display: flex;
+  }
+  .be-mach-seg button {
+    flex: 1 1 0;
+    justify-content: center;
+    padding: 0 6px;
+  }
+}
+.be-identity {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+@container befields (min-width: 440px) {
+  .be-identity {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 210px);
+  }
+}
+.be-name {
+  font-size: 1.02rem;
+  font-weight: 600;
+}
+.be-handle {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--hairline-strong);
+  background: var(--sunken);
+  transition:
+    border-color var(--t-fast),
+    box-shadow var(--t-fast);
+}
+.be-handle > span {
+  color: var(--muted);
+  font-weight: 600;
+}
+.be-handle input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+}
+.be-handle:focus-within {
+  border-color: rgba(var(--accent-rgb), 0.65);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.14);
+}
+.be-handle.invalid {
+  border-color: var(--err);
+}
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+  gap: 3px;
+  padding: 6px;
+  border-radius: var(--r);
+  background: var(--sunken);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+.emoji-btn {
+  height: 38px;
+  border-radius: var(--r-xs);
+  display: grid;
+  place-items: center;
+  font-size: 21px;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", var(--font);
+  transition:
+    background var(--t-fast),
+    transform var(--t-fast) var(--ease);
+}
+.emoji-btn:hover {
+  background: var(--hover);
+  transform: scale(1.1);
+}
+.emoji-btn[aria-checked="true"] {
+  background: color-mix(in srgb, var(--bot) 22%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--bot);
+}
+.be-custom-av .input {
+  max-width: 280px;
+}
+.tool-presets {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.tool-preset {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: var(--r-xs);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  text-align: left;
+  transition:
+    box-shadow var(--t-fast),
+    background var(--t-fast);
+}
+.tool-preset:hover {
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+}
+.tool-preset.active {
+  background: color-mix(in srgb, var(--bot) 10%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--bot);
+}
+.tp-label {
+  font-weight: 620;
+  font-size: 0.88rem;
+}
+.tp-desc {
+  font-size: 0.74rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+.tool-checks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 6px;
+  margin-top: 10px;
+}
+.tool-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: var(--r-xs);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  font-size: 0.84rem;
+  cursor: pointer;
+}
+.tool-check.on {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bot) 55%, transparent);
+  background: color-mix(in srgb, var(--bot) 7%, transparent);
+}
+.tool-check input {
+  accent-color: var(--bot);
+}
+.tool-check .muted {
+  margin-left: auto;
+  text-align: right;
+}
+.msg-chip {
+  gap: 6px;
+  padding-left: 5px;
+}
+.duty-empty {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--r);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+  color: var(--muted);
+  text-align: left;
+  font-size: 0.86rem;
+  transition:
+    box-shadow var(--t-fast),
+    color var(--t-fast);
+}
+.duty-empty:hover {
+  box-shadow: inset 0 0 0 1px var(--bot, var(--accent));
+  color: var(--text);
+}
+.be-danger {
+  border-bottom: 0;
+}
+.be-preview {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 28px 16px 16px;
+  border-radius: var(--r-lg);
+  box-shadow: inset 0 2px 0 var(--bot), inset 0 0 0 1px var(--hairline);
+  background: var(--raised);
+  text-align: center;
+}
+.be-preview > * {
+  position: relative;
+}
+.be-preview-glow {
+  display: none;
+}
+
+.be-preview-name {
+  margin-top: 12px;
+  font-size: 1.28rem;
+  font-weight: 680;
+  letter-spacing: -0.02em;
+}
+.be-preview-handle {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: color-mix(in srgb, var(--bot) 65%, var(--muted));
+}
+.be-preview-role {
+  margin: 8px 0 10px;
+  color: var(--text-2);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+.be-preview-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+}
+.be-bubble {
+  margin-top: 14px;
+  align-self: stretch;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 11px;
+  border-radius: 14px 14px 14px 4px;
+  background: var(--hover);
+  text-align: left;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+.be-bubble p {
+  margin: 0;
+}
+.be-suggest {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 10px;
+}
+.be-suggest .chip {
+  height: 24px;
+  padding: 0 9px;
+  font-size: 0.72rem;
+  pointer-events: none;
+}
+.be-home {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.be-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+}
+.be-mini {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  margin-right: auto;
+}
+.be-mini-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.be-mini-name {
+  font-weight: 620;
+  font-size: 0.9rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.be-mini-handle {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: color-mix(in srgb, var(--bot) 65%, var(--muted));
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* Tablets, unfolded foldables and narrow windows: one centred sheet with the
+   actions pinned at the bottom. */
+@media (min-width: 701px) and (max-width: 1099px) {
+  .bot-editor.modal-lg {
+    max-width: 800px;
+    height: min(900px, 100%);
+  }
+  .be {
+    display: flex;
+    flex-direction: column;
+  }
+  .be-form {
+    flex: 1;
+    padding: 0 28px 24px;
+  }
+  .be-side {
+    order: 2;
+    flex: none;
+    overflow: visible;
+    padding: 10px 16px 12px 20px;
+    background: var(--stone);
+    box-shadow: 0 -1px 0 var(--hairline-strong);
+  }
+  .be-preview,
+  .be-bubble,
+  .be-suggest {
+    display: none;
+  }
+  .be-actions {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+  }
+  .be-mini {
+    display: flex;
+  }
+  .be-actions .btn {
+    width: auto;
+    flex: none;
+  }
+  .be-actions .btn-lg {
+    height: 36px;
+    padding: 0 16px;
+    font-size: 0.9rem;
+  }
+  .be-actions .btn-ghost {
+    order: 1;
+  }
+  .be-actions .btn:not(.btn-primary):not(.btn-ghost) {
+    order: 2;
+  }
+  .be-actions .btn-primary {
+    order: 3;
+  }
+  .be-side .form-error {
+    margin: 0;
+  }
+  .tool-presets {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@container be (min-width: 640px) {
+  .tool-presets {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+/* Short screens (landscape foldables, small laptop windows): use the height. */
+@media (min-width: 701px) and (max-height: 600px) {
+  .modal-backdrop:has(.bot-editor) {
+    padding: calc(6px + var(--safe-t)) 12px calc(6px + var(--safe-b));
+  }
+  .bot-editor.modal-lg {
+    height: 100%;
+  }
+  .bot-editor .modal-head {
+    padding-top: 10px;
+    padding-bottom: 4px;
+  }
+  .be-sec {
+    padding: 12px 0 14px;
+  }
+  .be .mavp {
+    --mavp-max-h: 168px;
+  }
+  .be-side {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+}
+@media (min-width: 1100px) and (max-height: 600px) {
+  .be-bubble,
+  .be-suggest {
+    display: none;
+  }
+}
+
+/* ── Channel editor ────────────────────────────────────────────────────── */
+.member-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 8px;
+}
+.member-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: var(--r);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  text-align: left;
+  transition:
+    box-shadow var(--t-fast),
+    background var(--t-fast);
+}
+.member-card:hover {
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+}
+.member-card.on {
+  box-shadow: inset 0 0 0 1.5px var(--bot);
+  background: color-mix(in srgb, var(--bot) 9%, transparent);
+}
+.member-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+.member-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 0 0 1.5px var(--hairline-strong);
+  color: #fff;
+}
+.member-card.on .member-check {
+  background: var(--bot);
+  box-shadow: none;
+}
+/* ── Bot editor on phones: one column, the form scrolls, the actions stay put ── */
+@media (max-width: 700px) {
+  .bot-editor.modal-lg {
+    height: var(--app-h, 100dvh);
+    max-height: none;
+  }
+  .bot-editor .modal-head {
+    padding: calc(10px + var(--safe-t)) 8px 6px 16px;
+  }
+  .be {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .be-form {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    padding: 0 16px 20px;
+  }
+  .be-side {
+    order: 2;
+    flex: none;
+    overflow: visible;
+    padding: 10px 16px calc(10px + var(--safe-b));
+    gap: 8px;
+    background: var(--stone);
+    box-shadow: 0 -1px 0 var(--hairline-strong);
+  }
+  /* The live preview needs room phones don't have: the form shows the avatar and name. */
+  .be-preview,
+  .be-bubble,
+  .be-suggest {
+    display: none;
+  }
+  .be-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+  }
+  .be-actions .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 44px;
+    height: 44px;
+    white-space: normal;
+    line-height: 1.2;
+  }
+  .be-actions .btn-primary {
+    flex-basis: 100%;
+  }
+  .be-mini {
+    display: none;
+  }
+  .be-identity,
+  .be .grid2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .be .input,
+  .be select.input {
+    min-height: 44px;
+    font-size: 16px;
+    max-width: 100%;
+  }
+  .be textarea.input {
+    min-height: 88px;
+  }
+  .be select.input {
+    text-overflow: ellipsis;
+  }
+  .be .chip,
+  .be .think-chip {
+    min-height: 40px;
+  }
+  .be .preset-row,
+  .be .think-chips {
+    flex-wrap: wrap;
+  }
+  .tool-presets {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tool-preset {
+    min-height: 52px;
+  }
+  .tool-check {
+    min-height: 44px;
+  }
+  .be .emoji-grid {
+    grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  }
+  .be .emoji-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .be .row.gap {
+    flex-wrap: wrap;
+  }
+  .be .setting-row {
+    gap: 12px;
+  }
+  .be * {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Channel editor: roles under names, and "New bot" at the end of the grid. */
+.member-role {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.member-new {
+  box-shadow: none;
+  outline: 1px dashed var(--hairline-strong);
+  outline-offset: -1px;
+}
+.member-new:hover {
+  box-shadow: none;
+  outline-color: var(--muted);
+}
+.member-new-icon {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-xs);
+  color: var(--muted);
+  background: var(--hover);
+}

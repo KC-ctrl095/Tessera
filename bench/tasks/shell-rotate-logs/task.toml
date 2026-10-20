@@ -1,0 +1,8 @@
+title = "Write a log rotation script"
+difficulty = "hard"
+category = "shell"
+tags = ["shell", "write-script", "spec"]
+time_limit = 1200
+prompt = """
+Please write rotate_logs.sh as described in docs/ROTATION.md.
+"""

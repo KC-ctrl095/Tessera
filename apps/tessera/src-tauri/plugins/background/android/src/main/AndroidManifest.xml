@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Android 13+: asked when the user turns notifications on, or after
+         an approval was missed in the background. Never on first launch. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <queries>
+        <intent><action android:name="android.speech.RecognitionService" /></intent>
+        <intent><action android:name="android.intent.action.TTS_SERVICE" /></intent>
+    </queries>
+    <!-- Keep-alive: a foreground service holds the server connection while
+         work is in progress. remoteMessaging has no daily time limit
+         (dataSync is capped at 6 h a day from Android 15). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING" />
+    <!-- Only for "Stay connected: always"; the user confirms a system dialog. -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- The background check for agents' messages survives a restart of
+         the phone (a persisted job). -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <application>
+        <!-- Not exported: only the app itself starts or stops it. Swiping
+             the app away from recents stops it too. -->
+        <service
+            android:name="dev.tessera.background.KeepAliveService"
+            android:exported="false"
+            android:stopWithTask="true"
+            android:foregroundServiceType="remoteMessaging" />
+        <!-- Checks for agents' messages with the app closed (every ~15
+             minutes, and when a scheduled one is due). Only the system's
+             job scheduler can start it. -->
+        <service
+            android:name="dev.tessera.background.PullJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <!-- The alarm for a scheduled message; not reachable by other apps. -->
+        <receiver
+            android:name="dev.tessera.background.WakeReceiver"
+            android:exported="false" />
+    </application>
+</manifest>

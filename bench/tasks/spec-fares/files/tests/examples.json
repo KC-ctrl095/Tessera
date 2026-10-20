@@ -1,0 +1,280 @@
+[
+ {
+  "title": "A family in summer, at peak hour, with a code",
+  "booking": {
+   "route": "CS-SE",
+   "date": "2026-07-14",
+   "time": "08:15",
+   "passengers": [
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    },
+    {
+     "type": "child",
+     "age": 7
+    },
+    {
+     "type": "child",
+     "age": 9
+    },
+    {
+     "type": "infant",
+     "age": 1
+    }
+   ],
+   "promo": "SUMMER10"
+  },
+  "quote": {
+   "total": "6.61",
+   "legs": [
+    {
+     "date": "2026-07-14",
+     "season": "high",
+     "subtotal": "6.79"
+    }
+   ],
+   "promo_applied": true,
+   "booking_fee": "0.50"
+  }
+ },
+ {
+  "title": "A night crossing by car, return in ten days, with a code that doesn't combine",
+  "booking": {
+   "route": "LI-PO",
+   "class": "comfort",
+   "date": "2026-05-12",
+   "time": "23:30",
+   "return": {
+    "date": "2026-05-22",
+    "time": "01:15"
+   },
+   "passengers": [
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    }
+   ],
+   "vehicles": [
+    {
+     "type": "car"
+    }
+   ],
+   "promo": "NIGHTOWL"
+  },
+  "quote": {
+   "total": "200.30",
+   "legs": [
+    {
+     "date": "2026-05-12",
+     "season": "low",
+     "subtotal": "146.00"
+    },
+    {
+     "date": "2026-05-22",
+     "season": "low",
+     "subtotal": "120.40"
+    }
+   ],
+   "promo_applied": true,
+   "booking_fee": "0.50"
+  }
+ },
+ {
+  "title": "A group, paid in cash at the counter",
+  "booking": {
+   "route": "SE-TR",
+   "date": "2026-03-07",
+   "time": "10:00",
+   "passengers": [
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    },
+    {
+     "type": "senior",
+     "age": 71
+    },
+    {
+     "type": "student",
+     "card": true
+    },
+    {
+     "type": "infant",
+     "age": 2
+    }
+   ],
+   "channel": "counter",
+   "payment": "cash"
+  },
+  "quote": {
+   "total": "40.00",
+   "legs": [
+    {
+     "date": "2026-03-07",
+     "season": "low",
+     "subtotal": "45.48"
+    }
+   ],
+   "promo_applied": false,
+   "booking_fee": "0.00"
+  }
+ },
+ {
+  "title": "Weekday students and seniors at peak hour",
+  "booking": {
+   "route": "TP-BA",
+   "date": "2026-10-06",
+   "time": "18:05",
+   "passengers": [
+    {
+     "type": "student",
+     "card": true
+    },
+    {
+     "type": "senior",
+     "age": 66
+    },
+    {
+     "type": "senior",
+     "age": 60
+    }
+   ]
+  },
+  "quote": {
+   "total": "8.81",
+   "legs": [
+    {
+     "date": "2026-10-06",
+     "season": "low",
+     "subtotal": "8.31"
+    }
+   ],
+   "promo_applied": false,
+   "booking_fee": "0.50"
+  }
+ },
+ {
+  "title": "A van and a bicycle",
+  "booking": {
+   "route": "BE-TR",
+   "date": "2026-08-20",
+   "time": "12:00",
+   "passengers": [
+    {
+     "type": "adult"
+    }
+   ],
+   "vehicles": [
+    {
+     "type": "van",
+     "length_m": 6.4
+    },
+    {
+     "type": "bicycle"
+    }
+   ]
+  },
+  "quote": {
+   "total": "32.20",
+   "legs": [
+    {
+     "date": "2026-08-20",
+     "season": "high",
+     "subtotal": "31.70"
+    }
+   ],
+   "promo_applied": false,
+   "booking_fee": "0.50"
+  }
+ },
+ {
+  "title": "The discount cap",
+  "booking": {
+   "route": "CS-MO",
+   "date": "2026-11-03",
+   "time": "11:00",
+   "return": {
+    "date": "2026-11-04",
+    "time": "11:00"
+   },
+   "passengers": [
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    },
+    {
+     "type": "adult"
+    }
+   ],
+   "promo": "PARTNER45"
+  },
+  "quote": {
+   "total": "38.90",
+   "legs": [
+    {
+     "date": "2026-11-03",
+     "season": "low",
+     "subtotal": "32.00"
+    },
+    {
+     "date": "2026-11-04",
+     "season": "low",
+     "subtotal": "32.00"
+    }
+   ],
+   "promo_applied": true,
+   "booking_fee": "0.50"
+  }
+ }
+]

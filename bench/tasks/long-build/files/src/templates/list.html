@@ -1,0 +1,5 @@
+<ul class="books">
+    {% for book in books %}
+        <li>{{ book.title }} by {{ book.author }} ({{ book.pages }} pages)</li>
+    {% endfor %}
+</ul>

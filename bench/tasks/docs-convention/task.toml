@@ -1,0 +1,8 @@
+title = "Add a CLI command following the contribution guidelines (Python)"
+difficulty = "medium"
+category = "docs"
+tags = ["python", "conventions", "cli"]
+time_limit = 900
+prompt = """
+Add a `count` command that prints how many notes there are, with an optional --tag TAG to count only notes with that tag. Please follow our contribution guidelines.
+"""

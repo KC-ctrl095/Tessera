@@ -1,0 +1,139 @@
+{
+  "snapshot": "2026-08-15",
+  "note": "Mirror of the versions our build machines may install. Refresh with the infra team's mirror tool.",
+  "packages": {
+    "httpx": {
+      "0.25.2": [
+        "anyio>=3.0",
+        "certifi",
+        "httpcore>=1.0,<2",
+        "idna",
+        "sniffio"
+      ],
+      "0.26.0": [
+        "anyio>=3.0",
+        "certifi",
+        "httpcore>=1.0,<2",
+        "idna",
+        "sniffio"
+      ],
+      "0.27.0": [
+        "anyio>=3.0",
+        "certifi",
+        "httpcore>=1.0.4,<2",
+        "idna",
+        "sniffio"
+      ]
+    },
+    "anyio": {
+      "3.7.1": [
+        "idna>=2.8",
+        "sniffio>=1.1"
+      ],
+      "4.2.0": [
+        "idna>=2.8",
+        "sniffio>=1.1"
+      ]
+    },
+    "certifi": {
+      "2024.2.2": []
+    },
+    "httpcore": {
+      "1.0.2": [
+        "certifi",
+        "h11>=0.13,<0.15"
+      ],
+      "1.0.4": [
+        "certifi",
+        "h11>=0.13,<0.15"
+      ]
+    },
+    "h11": {
+      "0.14.0": []
+    },
+    "idna": {
+      "3.6": []
+    },
+    "sniffio": {
+      "1.3.0": []
+    },
+    "pydantic": {
+      "2.5.3": [
+        "annotated-types>=0.4.0",
+        "pydantic-core==2.14.6",
+        "typing-extensions>=4.6.1"
+      ],
+      "2.6.4": [
+        "annotated-types>=0.4.0",
+        "pydantic-core==2.16.3",
+        "typing-extensions>=4.6.1"
+      ]
+    },
+    "pydantic-core": {
+      "2.14.6": [
+        "typing-extensions>=4.6.0"
+      ],
+      "2.16.3": [
+        "typing-extensions>=4.6.0"
+      ]
+    },
+    "annotated-types": {
+      "0.6.0": []
+    },
+    "typing-extensions": {
+      "4.9.0": [],
+      "4.10.0": []
+    },
+    "python-dateutil": {
+      "2.8.2": [
+        "six>=1.5"
+      ],
+      "2.9.0": [
+        "six>=1.5"
+      ]
+    },
+    "six": {
+      "1.16.0": []
+    },
+    "rich": {
+      "13.3.5": [
+        "markdown-it-py>=2.2.0,<3",
+        "pygments>=2.13.0,<3"
+      ],
+      "13.6.0": [
+        "markdown-it-py>=2.2.0",
+        "pygments>=2.13.0,<3"
+      ]
+    },
+    "markdown-it-py": {
+      "2.2.0": [
+        "mdurl~=0.1"
+      ],
+      "3.0.0": [
+        "mdurl~=0.1"
+      ]
+    },
+    "mdurl": {
+      "0.1.2": []
+    },
+    "pygments": {
+      "2.16.1": [],
+      "2.17.2": []
+    },
+    "tabwrite": {
+      "1.2.0": [
+        "xmlwriter-lite>=0.4"
+      ],
+      "1.3.1": [
+        "xmlwriter-lite>=0.4"
+      ]
+    },
+    "xmlwriter-lite": {
+      "0.4.2": [],
+      "0.5.0": []
+    },
+    "charset-normalizer": {
+      "3.3.2": []
+    }
+  }
+}

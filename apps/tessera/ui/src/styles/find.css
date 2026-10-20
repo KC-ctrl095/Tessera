@@ -1,0 +1,76 @@
+/* Loaded with note tiles and with files being read (components/files/TextView), not with the app. */
+
+/* Find (Ctrl+F), in notes and in files being read (components/files/TextView) */
+:is(.note-ed, .text-view) .cm-panels {
+  background: var(--stone);
+  color: var(--text);
+}
+:is(.note-ed, .text-view) .cm-panels-top {
+  border-bottom: 1px solid var(--hairline);
+}
+:is(.note-ed, .text-view) .cm-search {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  padding: 6px 34px 6px 10px;
+  font-size: 0.8rem;
+}
+:is(.note-ed, .text-view) .cm-search br {
+  display: none;
+}
+:is(.note-ed, .text-view) .cm-search .cm-textfield {
+  height: 28px;
+  min-width: 0;
+  flex: 1 1 140px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: var(--sunken);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  color: var(--text);
+  font: inherit;
+}
+:is(.note-ed, .text-view) .cm-search .cm-textfield:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px rgba(var(--accent-rgb), 0.6);
+}
+:is(.note-ed, .text-view) .cm-search .cm-button {
+  height: 28px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: var(--hover);
+  background-image: none;
+  color: var(--text-2);
+  font: inherit;
+}
+:is(.note-ed, .text-view) .cm-search .cm-button:hover {
+  color: var(--text);
+  background: var(--active);
+}
+:is(.note-ed, .text-view) .cm-search label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+}
+:is(.note-ed, .text-view) .cm-search [name="close"] {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-xs);
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+  background: transparent;
+}
+:is(.note-ed, .text-view) .cm-searchMatch {
+  background: rgba(var(--accent-rgb), 0.22);
+  border-radius: 2px;
+}
+:is(.note-ed, .text-view) .cm-searchMatch-selected {
+  background: rgba(var(--accent-rgb), 0.5);
+}

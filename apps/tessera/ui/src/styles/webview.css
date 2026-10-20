@@ -1,0 +1,361 @@
+/* ── Web view: the server's browser tab, as a picture with input sent back ──
+   One compact bar (back, forward, reload or stop, the address, zoom and more),
+   then the page. Whiteboards use the same bar without the address. Loaded with
+   board/WebView.tsx; the tile frame it sits in is in boards.css. */
+.wv-bar {
+  gap: 2px;
+  padding: 0 4px 0 6px;
+}
+.wv-nav {
+  flex: none;
+  width: 30px;
+  height: 30px;
+}
+.wv-nav:disabled {
+  opacity: 0.35;
+}
+.wv-addr {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 4px;
+  padding: 0 8px 0 9px;
+  border-radius: 999px;
+  background: var(--sunken);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  cursor: text;
+  transition: box-shadow var(--t-fast);
+}
+.wv-addr.editing {
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+.wv-lock {
+  flex: none;
+  display: inline-flex;
+  color: var(--faint);
+}
+.wv-addr.insecure .wv-lock {
+  color: var(--warn);
+}
+.wv-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.82rem;
+  text-overflow: ellipsis;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.wv-addr:not(.editing) .wv-input {
+  color: var(--text-2);
+  /* Not being edited, the address is part of the bar you grab (WebView.tsx):
+     presses go to it, a click there starts editing. */
+  pointer-events: none;
+}
+.wv-addr:not(.editing) {
+  cursor: default;
+}
+/* Desktop tiles: a strip of empty bar beside the address to take hold of. */
+.workspace[data-mode="tile"] .wv-addr {
+  margin-right: 14px;
+}
+.wv-input::placeholder {
+  color: var(--faint);
+}
+.wv-zoom {
+  flex: none;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+}
+/* Loading: a thin line under the bar. */
+.wv-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent) 0 0 / 40% 100% no-repeat;
+  transition: opacity 200ms;
+}
+.wv-progress.on {
+  opacity: 1;
+  animation: wv-load 1.1s linear infinite;
+}
+@keyframes wv-load {
+  from {
+    background-position: -40% 0;
+  }
+  to {
+    background-position: 140% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wv-progress.on {
+    animation: none;
+    background: var(--accent);
+    opacity: 0.5;
+  }
+}
+.wv-error {
+  margin: 6px 10px 0;
+}
+.wv-body {
+  background: var(--sunken);
+}
+.wv-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  /* The page's own: every touch, drag and wheel goes there. */
+  touch-action: none;
+  outline: none;
+  opacity: 0;
+  transform-origin: center;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.wv-canvas.shown {
+  opacity: 1;
+}
+/* Takes the keys (and the phone's keyboard) for the page; never seen. */
+.wv-keys {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  resize: none;
+  pointer-events: none;
+  font-size: 16px; /* no zoom on focus (iOS) */
+  caret-color: transparent;
+}
+/* Where the page runs, when it isn't the server: "on Desktop". */
+.wv-host {
+  flex: none;
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.72rem;
+  color: var(--faint);
+}
+.wv-host.down {
+  color: var(--warn);
+}
+/* Its machine can't show it: the last picture greys out under the card. */
+.wv-host-down,
+.wv-on-screen {
+  z-index: 2;
+  pointer-events: auto;
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  backdrop-filter: grayscale(1);
+}
+/* "Show on <machine>'s screen": the page waits there; the note is the tile's. */
+.wv-on-screen .board-note p {
+  max-width: 34em;
+}
+.wv-blank {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px;
+  text-align: center;
+  color: var(--faint);
+}
+.wv-blank p {
+  max-width: 320px;
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.wv-kbd {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  min-width: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  color: var(--accent-fg);
+  background: var(--accent);
+  box-shadow: var(--shadow-pop);
+  font-size: 0.82rem;
+  font-weight: 560;
+}
+/* What the page asks (alert, confirm, prompt, leaving). */
+.wv-dialog-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  place-items: start center;
+  padding: 18px 12px;
+  background: rgba(0, 0, 0, 0.32);
+  animation: fade-in 120ms var(--ease);
+}
+.wv-dialog {
+  width: min(100%, 380px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px 12px;
+  border-radius: var(--r);
+  background: var(--surface);
+  box-shadow: 0 0 0 1px var(--hairline-strong), var(--shadow-pop);
+}
+/* Native file inputs otherwise make the dialog's grid track too wide. */
+.wv-file-wrap {
+  grid-template-columns: minmax(0, 1fr);
+}
+.wv-file-dialog {
+  min-width: 0;
+  max-width: calc(100vw - 24px);
+}
+.wv-file-dialog input[type="file"] {
+  min-width: 0;
+  width: 100%;
+}
+.wv-dialog-from {
+  margin: 0;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.wv-dialog-msg {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 40vh;
+  overflow: auto;
+}
+.wv-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+@container pane (max-width: 420px) {
+  .wv-fwd {
+    display: none;
+  }
+  .wv-addr {
+    margin: 0 2px;
+  }
+}
+/* Not being edited, the address is part of the bar: a sideways swipe there swipes the tiles. */
+.workspace[data-mode="mobile"] .wv-input:not(:focus),
+.workspace[data-mode="dual"] .wv-input:not(:focus) {
+  touch-action: pan-y;
+}
+.wv-favicon {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  object-fit: contain;
+}
+
+/* A site's "prove you're a person" check: the way to finish it yourself. */
+.wv-check {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px 6px 10px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: 0 0 0 1px var(--hairline), var(--shadow-sm, 0 2px 8px rgb(0 0 0 / 0.18));
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--text-2);
+  animation: fade-in 200ms var(--ease) both;
+}
+.wv-check > .icon {
+  flex: none;
+  color: var(--warn, var(--accent));
+}
+.wv-check .btn {
+  flex: none;
+  white-space: nowrap;
+}
+@media (max-width: 480px) {
+  .wv-check {
+    flex-wrap: wrap;
+  }
+  .wv-check .grow {
+    flex-basis: calc(100% - 60px);
+  }
+  .wv-check .icon-btn {
+    margin-left: auto;
+  }
+}
+
+.wv-find {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--hairline-strong);
+}
+.wv-find .input { min-width: 0; flex: 1; font-size: 16px; }
+.wv-find [role="status"] { font-size: 0.82rem; color: var(--text-2); }
+.wv-dialog textarea { min-height: 90px; resize: vertical; }
+.wv-find .icon-btn, .wv-keyboard, .wv-tabs .icon-btn { min-width: 44px; min-height: 44px; }
+@media (pointer: coarse) {
+  .wv-host { overscroll-behavior: contain; }
+}
+
+.wv-tabs { flex: 0 0 auto; display: flex; align-items: center; overflow-x: auto; background: var(--surface-1); border-bottom: 1px solid var(--hairline-strong); scrollbar-width: thin; }
+.wv-tab { display: flex; flex: 0 0 auto; align-items: center; max-width: 180px; border-right: 1px solid var(--hairline-strong); }
+.wv-tab.active { background: var(--surface); box-shadow: inset 0 -2px var(--accent); }
+.wv-tab-title { display: flex; align-items: center; gap: 5px; min-width: 44px; min-height: 44px; padding: 7px 9px; border: 0; background: none; color: var(--text-2); font: inherit; font-size: 0.82rem; cursor: pointer; }
+.wv-tab-title img { width: 13px; height: 13px; object-fit: contain; }
+.wv-tab-title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wv-new-tab { flex: 0 0 auto; }
+@media (pointer: coarse) { .wv-tabs .icon-btn { min-width: 44px; min-height: 44px; } .wv-tab-title { min-height: 44px; } }
+
+.wv-tab-count { display: none; flex: 0 0 auto; }
+@media (pointer: coarse) { .wv-tab-count { display: flex; position: sticky; right: 44px; background: var(--surface-1); } }
+.wv-file-dialog progress { max-width: 100%; }
+/* A visible phone page owns the left-edge Back gesture; the sidebar still
+   opens from its button instead of intercepting the first 16 page pixels. */
+@media (pointer: coarse) {
+  .main:has(.wv-canvas.shown) > .edge-swipe { pointer-events: none; }
+}

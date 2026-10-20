@@ -1,0 +1,10 @@
+[package]
+name = "ringlog"
+version = "0.1.0"
+edition = "2021"
+description = "Keeps the most recent log lines in a fixed amount of memory."
+
+[dependencies]
+
+# A crate of its own, not part of an enclosing workspace.
+[workspace]

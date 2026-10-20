@@ -1,0 +1,26 @@
+[package]
+name = "tessera-secure"
+description = "End-to-end encryption for Tessera clients and servers: PAKE pairing and Noise sessions"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+base64.workspace = true
+rand.workspace = true
+sha2.workspace = true
+snow = { version = "0.10", default-features = false, features = ["std", "use-chacha20poly1305", "use-blake2", "use-curve25519", "use-getrandom"] }
+spake2 = "0.4"
+chacha20poly1305 = "0.10"
+hkdf = "0.12"
+zeroize = "1"
+# Already built for TLS (rustls): checks web browsers' P-256 keys.
+ring = "0.17"
+
+# Hardening (Linux) and this computer's name (`computer`).
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[dev-dependencies]
+tessera-proto.workspace = true

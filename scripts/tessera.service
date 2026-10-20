@@ -1,0 +1,14 @@
+[Unit]
+Description=Tessera agent server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# Listens on server.bind from ~/.config/tessera/config.toml (use 0.0.0.0:7878 for LAN/tunnel access).
+ExecStart=%h/.local/bin/tessera serve
+Restart=on-failure
+RestartSec=3
+Environment=TESSERA_LOG=info
+
+[Install]
+WantedBy=default.target

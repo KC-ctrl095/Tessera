@@ -1,0 +1,30 @@
+{
+  "budgets": {
+    "staticKiB": 610,
+    "pairedKiB": 670,
+    "pairedMeasuredBytes": 681767,
+    "pairedHeadroomBytes": 4313,
+    "measuredCommit": "2b74376",
+    "reason": "Paired encrypted /web/ cold start: emitted HTML/static closure plus lib/e2e and its pre-chat imports. 2b74376 measured 681395 file bytes plus 372 inline bytes; fixed 670 KiB allows only 4313 bytes (0.63%) headroom. Onboarding and FileWindow are reported, not gated."
+  },
+  "html": "<!doctype html><script>var theme='é';</script><script type='module' src='./main.js'></script><script src='./second.cjs'></script><link rel='modulepreload' href='worker.js'><link rel='stylesheet' href='./app.css'><script type='application/json'>{\"data\":true}</script>",
+  "chunks": [
+    {"fileName":"main.js", "isEntry":true, "imports":["shared.mjs","cycle.js","app.css"], "dynamicImports":["lazy.js"], "tesseraStartupEdges":{"lazy.js":[{"importer":"/fixture/src/App.tsx","specifier":"./components/Settings","modes":[]}]}, "code":"x", "written":"// é\nimport './shared.mjs';\nconst __vite__mapDeps = ['lazy.js'];\n"},
+    {"fileName":"second.cjs", "isEntry":true, "imports":["shared.mjs"], "code":"x", "written":"import './shared.mjs';\n"},
+    {"fileName":"shared.mjs", "imports":["cycle.js"], "code":"x", "written":"import './cycle.js';\n"},
+    {"fileName":"cycle.js", "imports":["shared.mjs","main.js"], "code":"x", "written":"import './shared.mjs';\n"},
+    {"fileName":"lazy.js", "isDynamicEntry":true, "moduleIds":["/fixture/src/components/Settings.tsx"], "imports":["shared.mjs","lazy-only.js"], "code":"x", "written":"// dynamic only"},
+    {"fileName":"lazy-only.js", "code":"x", "written":"// dynamic dependency only"},
+    {"fileName":"crypto.js", "moduleIds":["/fixture/src/lib/e2e.ts"], "imports":["shared.mjs"], "dynamicImports":["crypto-helper.js"], "code":"x", "written":"import('./crypto-helper.js');"},
+    {"fileName":"crypto-helper.js", "imports":[], "code":"x", "written":"// before chat shows"},
+    {"fileName":"onboarding.js", "moduleIds":["/fixture/src/components/Onboarding.tsx"], "imports":["shared.mjs"], "code":"x", "written":"// onboarding startup"},
+    {"fileName":"setup.js", "moduleIds":["/fixture/src/components/Setup.tsx"], "imports":["shared.mjs"], "code":"x", "written":"// native first-time setup"},
+    {"fileName":"file-window.js", "moduleIds":["/fixture/src/components/files/FileWindow.tsx"], "imports":["shared.mjs"], "code":"x", "written":"// file startup"}
+  ],
+  "assets": [
+    {"fileName":"app.css", "source":"large stylesheet"},
+    {"fileName":"main.js.map", "source":"large sourcemap"},
+    {"fileName":"worker.js", "source":"// JS asset, not a Rollup chunk"}
+  ],
+  "expected": ["cycle.js","index.html#script-0","main.js","second.cjs","shared.mjs","worker.js"]
+}

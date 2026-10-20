@@ -1,0 +1,8 @@
+title = "One precise change deep inside a 1,600-line file"
+difficulty = "medium"
+category = "edit-format"
+tags = ["python", "long-file", "precise-edit"]
+time_limit = 900
+prompt = """
+Pricing change for Lisbon express (zone 31) in shipping_rules.py: above 10 kg it should now charge 4.75 per extra kg instead of 4.50, and orders of 150 euros or more ship free (the threshold is 120 now). Nothing else changes, so please don't touch any other zone or service.
+"""

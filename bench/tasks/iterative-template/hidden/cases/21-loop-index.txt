@@ -1,0 +1,6 @@
+=== template
+{% for x in xs %}{{ loop.index }}={{ x }}{% if loop.first %}*{% endif %} {% endfor %}
+=== context
+{"xs": ["a", "b"]}
+=== expected
+1=a* 2=b 

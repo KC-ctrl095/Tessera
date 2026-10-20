@@ -1,0 +1,6 @@
+=== template
+{% if paid %}Thanks!{% else %}Please pay.{% endif %}
+=== context
+{"paid": false}
+=== expected
+Please pay.

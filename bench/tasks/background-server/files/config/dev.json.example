@@ -1,0 +1,7 @@
+{
+  "host": "127.0.0.1",
+  "port": 8640,
+  "data": "data/parcels.json",
+  "page_size": 20,
+  "max_page_size": 100
+}

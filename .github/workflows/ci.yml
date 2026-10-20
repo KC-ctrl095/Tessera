@@ -1,0 +1,69 @@
+# Checks for every push and pull request: formatting, lints and tests of the
+# Rust workspace, the web UI's types and build, and the installer.
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rust:
+    name: Rust (fmt, clippy, tests)
+    # 22.04: unprivileged user namespaces, which the command sandbox's tests
+    # use, are allowed there (24.04 restricts them through AppArmor).
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust
+        run: |
+          rustup toolchain install stable --profile minimal --component rustfmt,clippy
+          rustup default stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all --check
+      # The desktop and Android app crates need GTK; they build in release.yml.
+      - run: cargo clippy --locked --workspace --exclude tessera-app --exclude tessera-background --all-targets -- -D warnings
+      - run: cargo test --locked --workspace --exclude tessera-app --exclude tessera-background --no-fail-fast
+
+  ui:
+    name: Web UI (types, build)
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: apps/tessera/ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/tessera/ui/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run -s typecheck
+      - run: npm run build
+      # THIRD_PARTY_LICENSES.txt and THIRD_PARTY_NOTICES.md follow the lockfiles.
+      - name: Third-party licences are up to date
+        run: node ../../../scripts/licenses.mjs --check
+
+  installer:
+    name: Installer
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - run: node scripts/release-links.mjs --check
+      - run: sh scripts/test-first-run.sh
+      - run: shellcheck -S warning scripts/install.sh scripts/test-install.sh scripts/first-run.sh scripts/test-first-run.sh scripts/release-gitea.sh
+      # A throwaway home: from the source tree, piped with a ready-made build,
+      # a bad checksum, and the fallback to the source.
+      - run: sh scripts/test-install.sh

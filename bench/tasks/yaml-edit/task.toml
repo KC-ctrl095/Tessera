@@ -1,0 +1,8 @@
+title = "Edit a Docker Compose file"
+difficulty = "easy"
+category = "config"
+tags = ["yaml", "docker", "edit"]
+time_limit = 600
+prompt = """
+In deploy/compose.yaml, set the worker to 3 replicas and add LOG_LEVEL=debug to the api service's environment only. Keep the comments.
+"""

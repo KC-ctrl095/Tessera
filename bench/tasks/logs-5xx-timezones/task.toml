@@ -1,0 +1,8 @@
+title = "Count 5xx errors per endpoint across time zones (logs)"
+difficulty = "hard"
+category = "data"
+tags = ["logs", "time-zones"]
+time_limit = 1200
+prompt = """
+Which three endpoints (path without the query string) returned the most 5xx errors between 14:00 and 15:00 UTC on 12 September 2026? Write answer.json as a list of objects with path and count, most first.
+"""

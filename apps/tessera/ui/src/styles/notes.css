@@ -1,0 +1,1165 @@
+/* Loaded with note tiles (components/notes/NoteTile.tsx), not with the app. */
+
+/* ── Note tiles: a note from the library, with its editor ──────────────── */
+.note-title {
+  width: 100%;
+  min-width: 0;
+  height: 22px;
+  padding: 0 6px;
+  margin-left: -6px;
+  border: 0;
+  border-radius: var(--r-xs);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  font-weight: 600;
+  outline: none;
+  text-overflow: ellipsis;
+}
+.note-title:hover:not(:focus):not(:disabled) {
+  background: var(--hover);
+}
+.note-title:focus {
+  background: var(--sunken);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.note-status {
+  color: var(--faint);
+}
+.note-status[data-state="saving"],
+.note-status[data-state="dirty"] {
+  color: var(--muted);
+}
+.note-status[data-state="conflict"],
+.note-status[data-state="error"] {
+  color: var(--warn);
+}
+.note-body {
+  display: flex;
+  flex-direction: column;
+}
+.note-editor {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  resize: none;
+  border: 0;
+  outline: none;
+  padding: 16px clamp(14px, 4cqw, 36px) 28px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  tab-size: 2;
+}
+.note-editor::placeholder {
+  color: var(--faint);
+}
+
+/* ── Note tiles: the page (components/notes/NoteEditor, ./editor), its bars and panels ──
+   A note reads like a document and is written in like one: markdown drawn as
+   what it means as you type (CodeMirror underneath, cm-* classes). */
+
+.note-ed-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+.note-ed {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+.note-ed .cm-editor {
+  height: 100%;
+  background: transparent;
+  color: var(--text);
+}
+.note-ed .cm-editor.cm-focused {
+  outline: none;
+}
+.note-ed .cm-scroller {
+  font-family: var(--font);
+  font-size: 0.95rem;
+  line-height: 1.65;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-top: 18px;
+}
+.note-ed .cm-content {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: calc(72ch + 2 * clamp(16px, 5cqw, 40px));
+  margin: 0 auto;
+  padding: 0 clamp(16px, 5cqw, 40px) max(96px, 30vh);
+  caret-color: var(--accent);
+  overflow-wrap: anywhere;
+}
+.note-ed .cm-line {
+  padding: 0;
+}
+/* An empty line between blocks: a paragraph's spacing, not a full line (full again with the caret on it). */
+.note-ed .cm-line.cm-blank {
+  line-height: 1.05;
+}
+.note-ed .cm-placeholder {
+  color: var(--faint);
+}
+.note-ed.read-only .cm-content {
+  caret-color: transparent;
+}
+/* The editor's zero-width helpers around drawn markers (some browsers, e.g. Android's): inline,
+   whatever the app's rule for images says, or a line would break after every bullet. */
+.note-ed .cm-widgetBuffer {
+  display: inline;
+  width: 0;
+  height: 1em;
+  vertical-align: text-top;
+}
+
+/* Headings */
+.note-ed .cm-h {
+  font-weight: 640;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+.note-ed .cm-h1 {
+  font-size: 1.6em;
+  padding-top: 0.35em;
+}
+.note-ed .cm-h2 {
+  font-size: 1.32em;
+  padding-top: 0.3em;
+}
+.note-ed .cm-h3 {
+  font-size: 1.12em;
+  padding-top: 0.25em;
+}
+.note-ed .cm-h4,
+.note-ed .cm-h5,
+.note-ed .cm-h6 {
+  font-size: 1em;
+}
+.note-ed .cm-h6 {
+  color: var(--text-2);
+}
+.note-ed .cm-setext {
+  color: var(--faint);
+  font-size: 0.8em;
+}
+
+/* Inline */
+.note-ed .cm-strong {
+  font-weight: 650;
+}
+.note-ed .cm-em {
+  font-style: italic;
+}
+.note-ed .cm-strike {
+  text-decoration: line-through;
+  text-decoration-color: var(--muted);
+  color: var(--text-2);
+}
+.note-ed .cm-hl {
+  background: rgba(var(--accent-rgb), 0.24);
+  border-radius: 2px;
+}
+.note-ed .cm-icode {
+  font-family: var(--mono);
+  font-size: 0.84em;
+  background: var(--hover);
+  border-radius: var(--r-xs);
+  padding: 0.1em 0.3em;
+}
+.note-ed .cm-link {
+  color: var(--accent-text);
+  text-decoration: underline;
+  text-decoration-color: rgba(var(--accent-rgb), 0.4);
+  text-underline-offset: 2px;
+}
+.note-ed [data-href],
+.note-ed [data-wiki] {
+  cursor: pointer;
+}
+.note-ed .cm-link-src,
+.note-ed .cm-syntax {
+  color: var(--faint);
+  font-weight: 400;
+  font-style: normal;
+}
+.note-ed .cm-wiki {
+  color: var(--accent-text);
+  border-bottom: 1px solid rgba(var(--accent-rgb), 0.38);
+}
+.note-ed .cm-wiki-new {
+  color: var(--text-2);
+  border-bottom: 1px dashed var(--hairline-strong);
+}
+.note-ed .cm-html-tag {
+  font-family: var(--mono);
+  font-size: 0.84em;
+  color: var(--faint);
+}
+/* What an agent just changed (while its changes are offered). */
+.note-ed .cm-agent {
+  background: rgba(var(--accent-rgb), 0.15);
+  box-shadow: 0 1px 0 rgba(var(--accent-rgb), 0.5);
+  border-radius: 2px;
+}
+
+/* Lists: the marker hangs left of the text, wrapped lines line up under it. */
+.note-ed .cm-line.cm-li {
+  padding-left: calc(var(--li) * 1.55em);
+  text-indent: -1.55em;
+}
+.note-ed .cm-line.cm-li-cont {
+  padding-left: calc(var(--li) * 1.55em);
+}
+.note-ed .cm-mark {
+  display: inline-block;
+  width: 1.55em;
+  text-indent: 0;
+  vertical-align: baseline;
+  color: var(--muted);
+}
+.note-ed .cm-mark-bullet::before {
+  content: "";
+  display: inline-block;
+  width: 0.36em;
+  height: 0.36em;
+  margin-left: 0.5em;
+  vertical-align: 0.18em;
+  border-radius: 50%;
+  background: currentColor;
+}
+.note-ed .cm-mark-bullet[data-depth="1"]::before {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.4px currentColor;
+}
+.note-ed .cm-mark-bullet[data-depth="2"]::before {
+  border-radius: 1px;
+  width: 0.32em;
+  height: 0.32em;
+}
+.note-ed .cm-mark-ordered {
+  min-width: 1.55em;
+  width: auto;
+  padding-right: 0.4em;
+  box-sizing: border-box;
+  font-variant-numeric: tabular-nums;
+}
+.note-ed .cm-task {
+  position: relative;
+  margin-left: 0.12em;
+  display: inline-grid;
+  place-items: center;
+  width: 1.05em;
+  height: 1.05em;
+  vertical-align: -0.17em;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1.5px var(--border-strong);
+  background: var(--surface);
+  cursor: pointer;
+  transition: background var(--t-fast), box-shadow var(--t-fast);
+}
+.note-ed .cm-task:hover {
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+.note-ed .cm-task[aria-checked="true"] {
+  background: var(--accent);
+  box-shadow: none;
+}
+.note-ed .cm-task[aria-checked="true"]::after {
+  content: "";
+  width: 0.32em;
+  height: 0.58em;
+  margin-top: -0.12em;
+  border: solid var(--accent-fg);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.note-ed.read-only .cm-task {
+  cursor: default;
+  pointer-events: none;
+}
+@media (pointer: coarse) {
+  .note-ed .cm-task::before {
+    content: "";
+    position: absolute;
+    inset: -10px;
+  }
+}
+.note-ed .cm-line.cm-done {
+  color: var(--muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--hairline-strong);
+}
+
+/* Quotes: a bar per level. */
+.note-ed .cm-line.cm-quote {
+  padding-left: calc(var(--q) * 0.95em);
+  color: var(--text-2);
+  background: repeating-linear-gradient(to right, var(--hairline-strong) 0 2px, transparent 2px 0.95em) left top / calc(var(--q) * 0.95em) 100% no-repeat;
+}
+
+/* Callouts (`> [!note] Title`) */
+.note-ed .cm-line.cm-callout {
+  --co: var(--lapis);
+  padding: 0 0.9em 0 0.95em;
+  background: color-mix(in srgb, var(--co) 9%, transparent);
+  box-shadow: inset 2px 0 0 var(--co);
+}
+.note-ed .cm-line.cm-callout-first {
+  padding-top: 0.35em;
+  font-weight: 600;
+  border-radius: 0 var(--r-sm) 0 0;
+}
+.note-ed .cm-line.cm-callout-last {
+  padding-bottom: 0.35em;
+  border-radius: 0 0 var(--r-sm) 0;
+}
+.note-ed .cm-line.cm-callout-first.cm-callout-last {
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.note-ed .cm-co-tip,
+.note-ed .cm-co-success {
+  --co: var(--verdigris);
+}
+.note-ed .cm-co-question,
+.note-ed .cm-co-example {
+  --co: var(--porphyry);
+}
+.note-ed .cm-co-warning {
+  --co: var(--terracotta);
+}
+.note-ed .cm-co-danger,
+.note-ed .cm-co-bug {
+  --co: var(--err);
+}
+.note-ed .cm-co-quote {
+  --co: var(--muted);
+}
+.note-ed .cm-callout-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  margin-right: 0.45em;
+  vertical-align: -0.12em;
+  color: var(--co);
+}
+.note-ed .cm-callout-label {
+  font-weight: 600;
+}
+
+/* Dividers */
+.note-ed .cm-rule {
+  display: inline-block;
+  width: 100%;
+  height: 1px;
+  vertical-align: middle;
+  background: var(--border);
+}
+.note-ed .cm-hr-src {
+  color: var(--faint);
+}
+
+/* Code */
+.note-ed .cm-line.cm-codeline {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  line-height: 1.65;
+  padding: 0 14px;
+  background: var(--code-bg);
+  box-shadow:
+    inset 1px 0 0 var(--hairline),
+    inset -1px 0 0 var(--hairline);
+  overflow-wrap: anywhere;
+}
+.note-ed .cm-line.cm-code-first {
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+  box-shadow:
+    inset 1px 0 0 var(--hairline),
+    inset -1px 0 0 var(--hairline),
+    inset 0 1px 0 var(--hairline);
+  padding-right: 4px;
+}
+.note-ed .cm-line.cm-code-last {
+  border-radius: 0 0 var(--r-sm) var(--r-sm);
+  box-shadow:
+    inset 1px 0 0 var(--hairline),
+    inset -1px 0 0 var(--hairline),
+    inset 0 -1px 0 var(--hairline);
+  padding-bottom: 4px;
+}
+.note-ed .cm-line.cm-code-fence {
+  color: var(--faint);
+}
+/* The closing ``` out of sight: just the block's bottom edge. */
+.note-ed .cm-line.cm-code-close {
+  line-height: 10px;
+  padding-bottom: 0;
+}
+.note-ed .cm-code-head {
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  min-height: 30px;
+  gap: 2px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+.note-ed .cm-code-lang {
+  flex: 1;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--faint);
+}
+.note-ed .cm-code-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: var(--r-xs);
+  color: var(--muted);
+  font-family: var(--font);
+  font-size: 0.74rem;
+  font-weight: 500;
+}
+.note-ed .cm-code-btn:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+.note-ed .cm-code-btn.done {
+  color: var(--ok);
+}
+.note-ed .cm-code-run[aria-pressed="true"] {
+  color: var(--accent-text);
+}
+.note-ed .cm-preview .nb-frame {
+  margin: 0 0 0.6em;
+}
+.note-ed .cm-line.cm-raw,
+.note-ed .cm-line.cm-fm {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* Pictures */
+.note-ed .cm-pic {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: bottom;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.note-ed .cm-pic.block {
+  display: inline-block;
+  margin: 0.35em 0;
+}
+.note-ed .cm-pic img {
+  display: block;
+  max-width: 100%;
+  max-height: min(70vh, 720px);
+  width: auto;
+  height: auto;
+  border-radius: var(--r-sm);
+  box-shadow: 0 0 0 1px var(--hairline);
+}
+.note-ed .cm-pic:not(.block) img {
+  max-height: 10em;
+}
+.note-ed .cm-pic.selected img,
+.note-ed .cm-pic.selected .cm-pic-missing {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.note-ed .cm-pic.uploading img {
+  opacity: 0.55;
+}
+/* A width of its own (`alt|300`, or dragged with the handle): the picture fills it. */
+.note-ed .cm-pic.sized img {
+  width: 100%;
+  max-height: none;
+}
+/* The handle on a selected picture's right edge: drag to make it wider or narrower. */
+.note-ed .cm-pic-handle {
+  display: none;
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  width: 12px;
+  height: 36px;
+  max-height: 80%;
+  transform: translateY(-50%);
+  border-radius: 6px;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--surface);
+  cursor: ew-resize;
+  touch-action: none;
+}
+.note-ed .cm-pic.selected .cm-pic-handle,
+.note-ed .cm-pic.resizing .cm-pic-handle {
+  display: block;
+}
+.note-ed.read-only .cm-pic-handle {
+  display: none !important;
+}
+/* Phones: a bigger handle to hit with a finger. */
+:root[data-touch] .note-ed .cm-pic-handle {
+  right: -9px;
+  width: 18px;
+  height: 44px;
+}
+.note-ed .cm-pic.resizing img {
+  max-height: none;
+}
+.note-ed .cm-pic.dragging {
+  opacity: 0.45;
+  cursor: grabbing;
+}
+/* Where a dragged picture will go. */
+.note-ed .cm-pic-drop {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+  pointer-events: none;
+  z-index: 5;
+}
+.note-ed .cm-pic-wait {
+  display: block;
+  width: min(100%, 360px);
+  aspect-ratio: 4 / 3;
+  max-height: 60vh;
+  border-radius: var(--r-sm);
+  background: var(--hover);
+  animation: note-pulse 1.4s ease-in-out infinite;
+}
+@keyframes note-pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+.note-ed .cm-pic-missing {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25em 0.6em;
+  border-radius: var(--r-sm);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+  font-size: 0.82em;
+  color: var(--muted);
+}
+.note-ed .cm-pic-note {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.75em;
+  color: var(--faint);
+}
+
+/* Tables */
+.note-ed .cm-table {
+  position: relative;
+  margin: 0.4em 0 0.6em;
+  padding: 0 14px 14px 0;
+}
+.note-ed .cm-table-scroll {
+  overflow-x: auto;
+  border-radius: var(--r-sm);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  touch-action: pan-x pan-y;
+}
+.note-ed .cm-table table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.92em;
+}
+.note-ed .cm-table th,
+.note-ed .cm-table td {
+  position: relative;
+  min-width: 6ch;
+  padding: 7px 11px;
+  border-bottom: 1px solid var(--hairline);
+  border-right: 1px solid var(--hairline-soft);
+  text-align: left;
+  vertical-align: top;
+  cursor: text;
+}
+.note-ed .cm-table th {
+  font-weight: 600;
+  color: var(--text-2);
+  background: var(--hairline-soft);
+}
+.note-ed .cm-table tr:last-child td {
+  border-bottom: 0;
+}
+.note-ed .cm-table tr > :last-child {
+  border-right: 0;
+}
+.note-ed .cm-cell {
+  min-height: 1.5em;
+  white-space: pre-wrap;
+}
+.note-ed .cm-table .editing {
+  box-shadow: inset 0 0 0 1.5px rgba(var(--accent-rgb), 0.7);
+}
+.note-ed .cm-cell-edit {
+  display: block;
+  width: 100%;
+  min-height: 1.5em;
+  padding: 0 18px 0 0;
+  border: 0;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+}
+.note-ed .cm-cell-menu {
+  position: absolute;
+  top: 4px;
+  right: 3px;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-xs);
+  color: var(--muted);
+  background: var(--stone);
+}
+.note-ed .cm-cell-menu:hover {
+  color: var(--text);
+  background: var(--hover);
+}
+.note-ed .cm-table-add {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-xs);
+  color: var(--faint);
+  opacity: 0;
+  transition: opacity var(--t-fast);
+}
+.note-ed .cm-table-add-row {
+  left: 0;
+  right: 14px;
+  bottom: 0;
+  height: 12px;
+}
+.note-ed .cm-table-add-col {
+  top: 0;
+  right: 0;
+  bottom: 14px;
+  width: 12px;
+}
+.note-ed .cm-table:hover .cm-table-add,
+.note-ed .cm-table:focus-within .cm-table-add {
+  opacity: 1;
+}
+.note-ed .cm-table-add:hover {
+  color: var(--text);
+  background: var(--hover);
+}
+@media (pointer: coarse) {
+  .note-ed .cm-table-add {
+    opacity: 0.8;
+  }
+}
+
+/* Suggestions ([[ and /) and the bubble over a selection */
+.note-ed .cm-tooltip {
+  border: 0;
+  background: transparent;
+  color: var(--text);
+}
+.note-ed .cm-tooltip.cm-sug {
+  background: var(--overlay);
+  border-radius: var(--r);
+  box-shadow:
+    0 0 0 1px var(--hairline-strong),
+    var(--shadow-pop);
+  overflow: hidden;
+}
+.note-ed .cm-tooltip.cm-tooltip-autocomplete > ul {
+  font-family: var(--font);
+  max-height: min(18em, 40vh);
+  min-width: 220px;
+  padding: 4px;
+}
+.note-ed .cm-tooltip.cm-tooltip-autocomplete > ul > li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 6px 6px;
+  border-radius: var(--r-sm);
+  font-size: 0.86rem;
+  color: var(--text-2);
+}
+.note-ed .cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected] {
+  background: var(--hover);
+  color: var(--text);
+}
+.note-ed .cm-completionMatchedText {
+  text-decoration: none;
+  color: var(--accent-text);
+}
+.note-ed .cm-sug-icon {
+  flex: none;
+  width: 1.9em;
+  text-align: center;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: var(--muted);
+}
+.note-ed .cm-bubble {
+  display: flex;
+  gap: 1px;
+  padding: 3px;
+  border-radius: var(--r);
+  background: var(--overlay);
+  box-shadow:
+    0 0 0 1px var(--hairline-strong),
+    var(--shadow-pop);
+}
+.note-ed .cm-bubble-btn {
+  min-width: 28px;
+  height: 26px;
+  padding: 0 6px;
+  border-radius: var(--r-xs);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-2);
+}
+.note-ed .cm-bubble-btn:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+.note-ed .cm-bubble-italic {
+  font-style: italic;
+  font-family: Georgia, serif;
+}
+.note-ed .cm-bubble-strike {
+  text-decoration: line-through;
+}
+.note-ed .cm-bubble-code {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+}
+.note-ed .cm-bubble-highlight {
+  background: rgba(var(--accent-rgb), 0.2);
+}
+
+/* "Linked from": after the text. */
+.note-ed .cm-note-foot {
+  padding-bottom: 8px;
+}
+.note-links {
+  margin: 2.2em 0 0;
+  padding-top: 0.9em;
+  border-top: 1px solid var(--hairline);
+  font-size: 0.84rem;
+}
+.note-links-title {
+  margin-bottom: 0.4em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.note-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 32px;
+  padding: 0 8px;
+  margin-left: -8px;
+  border-radius: var(--r-sm);
+  color: var(--text-2);
+  text-align: left;
+}
+.note-link:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+.note-link .icon {
+  color: var(--accent-text);
+}
+.note-link-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.note-link-when {
+  font-size: 0.74rem;
+  color: var(--faint);
+}
+
+/* HTML code: Preview runs it below the code, sandboxed (PreviewFrame). */
+.nb-frame {
+  position: relative;
+  margin: -0.5em 0 0.9em;
+  height: 340px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0 0 var(--r-sm) var(--r-sm);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  background: var(--sunken);
+  cursor: auto;
+}
+.nb-frame.tall {
+  height: min(72vh, 900px);
+}
+.nb-frame-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 28px;
+  padding: 0 4px 0 10px;
+  font-size: 0.7rem;
+  color: var(--faint);
+  border-bottom: 1px solid var(--hairline-soft);
+}
+.nb-frame-label {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nb-frame-note {
+  color: var(--faint);
+  opacity: 0.8;
+}
+.nb-frame iframe {
+  flex: 1;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  opacity: 0;
+  transition: opacity 160ms var(--ease);
+}
+.nb-frame.ready iframe {
+  opacity: 1;
+}
+.nb-frame-msg {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  padding: 12px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* ── bars under the header: a conflict, an agent's changes ───────────── */
+.note-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 8px 6px;
+  padding: 5px 6px 5px 9px;
+  border-radius: var(--r-xs);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.3);
+  font-size: 0.8rem;
+  color: var(--text-2);
+  animation: fade-in 160ms var(--ease);
+}
+.note-bar > .icon {
+  flex: none;
+  color: var(--accent-text);
+}
+.note-bar.warn {
+  background: rgba(var(--warn-rgb), 0.1);
+  box-shadow: inset 0 0 0 1px rgba(var(--warn-rgb), 0.35);
+}
+.note-bar.warn > .icon {
+  color: var(--warn);
+}
+.note-bar-text {
+  flex: 1;
+  min-width: 0;
+}
+.note-bar-actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+@container pane (max-width: 420px) {
+  .note-bar {
+    flex-wrap: wrap;
+  }
+  .note-bar-actions {
+    margin-left: auto;
+  }
+}
+
+.note-status[data-state="notice"] {
+  color: var(--accent-text);
+}
+.note-ro {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 16px;
+  padding: 0 6px;
+  border-radius: var(--r-xs);
+  font-size: inherit;
+  color: var(--muted);
+  background: var(--hover);
+}
+.note-ro:hover {
+  color: var(--text);
+}
+.note-by {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── panels over the note: changes, history ──────────────────────────── */
+.note-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  background: var(--note-bg, var(--stone));
+  animation: fade-in 140ms var(--ease);
+}
+.np-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 2px 8px 2px 6px;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+.np-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.82rem;
+  font-weight: 560;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.np-sub {
+  font-weight: 400;
+  color: var(--muted);
+}
+.np-actions {
+  flex: none;
+  display: flex;
+  gap: 4px;
+}
+.np-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  position: relative;
+}
+
+.note-diff {
+  max-width: 76ch;
+  margin: 0 auto;
+  padding: 14px clamp(14px, 4cqw, 32px) 32px;
+}
+.nd-stat {
+  margin: 0 0 10px;
+  font-size: 0.74rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.nd-add {
+  color: var(--ok);
+}
+.nd-del {
+  color: var(--err);
+}
+.nd-same {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+.nd-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--text-2);
+}
+.nd-text ins {
+  text-decoration: none;
+  color: var(--text);
+  background: rgba(var(--ok-rgb), 0.18);
+  box-shadow: 0 1px 0 rgba(var(--ok-rgb), 0.5);
+  border-radius: 2px;
+}
+.nd-text del {
+  color: var(--muted);
+  background: rgba(var(--err-rgb), 0.12);
+  text-decoration-color: rgba(var(--err-rgb), 0.7);
+  border-radius: 2px;
+}
+.nd-fold {
+  display: block;
+  width: 100%;
+  margin: 4px 0;
+  padding: 3px 8px;
+  border-radius: var(--r-xs);
+  font-size: 0.74rem;
+  color: var(--faint);
+  text-align: left;
+  background: var(--hairline-soft);
+}
+.nd-fold:hover {
+  color: var(--text);
+  background: var(--hover);
+}
+
+.nh-list {
+  list-style: none;
+  margin: 0 auto;
+  padding: 8px;
+  max-width: 560px;
+}
+.nh-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 0 10px;
+  border-radius: var(--r-sm);
+  font-size: 0.84rem;
+  text-align: left;
+  color: var(--text-2);
+}
+button.nh-row:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+.nh-row.now {
+  color: var(--text);
+  font-weight: 560;
+}
+.nh-when {
+  flex: 1;
+  min-width: 0;
+}
+.nh-by {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.nh-empty {
+  padding: 12px 10px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* Read only: the title is a title, not a field. */
+.note-tile.read-only .note-title {
+  cursor: default;
+}
+.note-tile.read-only .note-title:focus {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Phones and foldables: sideways strokes over a note turn the page (Workspace.tsx swipes); the
+   browser may only scroll it up and down, or it grabs the stroke (and on a page edge, goes back). */
+.workspace[data-mode="mobile"] .note-ed .cm-scroller,
+.workspace[data-mode="dual"] .note-ed .cm-scroller,
+.workspace[data-mode="mobile"] .np-body,
+.workspace[data-mode="dual"] .np-body {
+  touch-action: pan-y pinch-zoom;
+}
+
+/* The format bar: at the bottom of the note while writing on a touch screen (above the keyboard). */
+.nb-tools {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px max(6px, var(--safe-r)) calc(4px + var(--safe-b)) max(6px, var(--safe-l));
+  background: var(--stone);
+  border-top: 1px solid var(--hairline);
+  animation: fade-in 120ms var(--ease);
+}
+.nb-tools-row {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nb-tools-row::-webkit-scrollbar {
+  display: none;
+}
+.nb-tool {
+  flex: none;
+  min-width: 38px;
+  height: 36px;
+  padding: 0 8px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: var(--r-sm);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-2);
+}
+.nb-tool:active,
+.nb-tool[aria-pressed="true"] {
+  background: var(--hover);
+  color: var(--text);
+}
+.nb-tool .nb-h {
+  font-size: 0.85rem;
+}
+.nb-tool .nb-i {
+  font-family: Georgia, serif;
+  font-size: 1.05rem;
+}
+.nb-tool.done {
+  margin-left: 4px;
+  font-size: 0.85rem;
+  color: var(--accent-text);
+}
+
+/* The outline: headings indented by level. */
+.note-outline .nh-row[data-level="1"] {
+  font-weight: 600;
+  color: var(--text);
+}
+.workspace.framed .pane.focused .note-panel {
+  --note-bg: var(--stone-focus);
+}

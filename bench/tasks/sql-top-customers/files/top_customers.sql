@@ -1,0 +1,1 @@
+-- Top 5 customers by what they spent in 2025 (paid orders only).

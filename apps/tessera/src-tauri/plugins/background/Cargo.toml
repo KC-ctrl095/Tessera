@@ -1,0 +1,16 @@
+[package]
+name = "tessera-background"
+description = "Tessera on Android: native notifications and a keep-alive foreground service"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+# Required by tauri-plugin: the Android library is found through this key.
+links = "tessera-background"
+
+[dependencies]
+tauri = { version = "2", default-features = false }
+serde.workspace = true
+serde_json.workspace = true
+
+[build-dependencies]
+tauri-plugin = { version = "2", features = ["build"] }

@@ -1,0 +1,305 @@
+/* ── Mosaic avatars ─────────────────────────────────────────────────────
+   Portraits are pre-cut SVG images (one data URL per avatar), so a grid of
+   them is just <img> elements. Emoji and text avatars sit on a small tile
+   field in the bot's colour. Uses the app's tokens, with fallbacks so the
+   components also work on their own (the dev gallery).
+   ─────────────────────────────────────────────────────────────────────── */
+
+.mav {
+  position: relative;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  border-radius: 20%;
+  background: var(--mav-bg, #3b342d);
+  overflow: hidden;
+  vertical-align: middle;
+  line-height: 1;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.mav-ring {
+  box-shadow: 0 0 0 var(--mav-rw, 1.5px) var(--mav-c);
+}
+.mav-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+.mav-text {
+  position: relative;
+  font-family: var(--display, "Marcellus", Georgia, serif);
+  color: #f4ecdc;
+  text-shadow: 0 1px 0 rgba(20, 15, 10, 0.55);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.mav-text.is-emoji {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", var(--font, sans-serif);
+  text-shadow: none;
+  filter: drop-shadow(0 1px 0 rgba(20, 15, 10, 0.45));
+}
+
+/* ── Picker ─────────────────────────────────────────────────────────── */
+
+/* Zero-specificity reset, so the component classes below always win. */
+:where(.mavp) :where(button) {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  margin: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mavp {
+  --mavp-cell: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  border-radius: var(--r, 4px);
+  background: var(--sunken, #131210);
+  box-shadow: inset 0 0 0 1px var(--hairline, rgba(236, 231, 223, 0.07));
+  padding: 8px 8px 6px;
+  color: var(--text, #ece6dc);
+  font-family: var(--font, system-ui, sans-serif);
+}
+.mavp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 2px;
+}
+.mavp-title,
+.mavp-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint, #7a746c);
+}
+.mavp-shuffle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: var(--r-sm, 3px);
+  color: var(--text-2, #b3aca2);
+  font-size: 0.8rem;
+  font-weight: 550;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--hairline-strong, rgba(236, 231, 223, 0.12));
+  transition:
+    background var(--t-fast, 120ms),
+    color var(--t-fast, 120ms),
+    transform var(--t-fast, 120ms) var(--ease, ease);
+}
+.mavp-shuffle:hover {
+  background: var(--hover, #262421);
+  color: var(--text, #ece6dc);
+}
+.mavp-shuffle:active {
+  transform: scale(0.96);
+}
+.mavp-shuffle:active svg {
+  transform: rotate(90deg);
+}
+.mavp-shuffle svg {
+  transition: transform var(--t, 160ms) var(--ease, ease);
+}
+.mavp-scroll {
+  max-height: var(--mavp-max-h, 312px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding: 2px 4px 4px;
+  margin: 0 -4px;
+}
+.mavp-section + .mavp-section {
+  margin-top: 8px;
+}
+.mavp-label {
+  position: sticky;
+  top: -2px;
+  z-index: 1;
+  padding: 4px 2px 5px;
+  background: var(--sunken, #131210);
+}
+.mavp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--mavp-cell), 1fr));
+  gap: 4px;
+}
+.mavp-opt {
+  display: grid;
+  place-items: center;
+  height: var(--mavp-cell);
+  border-radius: var(--r-sm, 3px);
+  background: transparent;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.mavp-opt .mav {
+  transition:
+    transform var(--t-fast, 120ms) var(--ease, ease),
+    box-shadow var(--t-fast, 120ms) var(--ease, ease);
+}
+.mavp-opt:hover .mav {
+  transform: translateY(-1px) scale(1.06);
+}
+.mavp-opt:active .mav {
+  transform: scale(0.94);
+}
+.mavp-opt[aria-selected="true"] .mav {
+  box-shadow:
+    0 0 0 2px var(--sunken, #131210),
+    0 0 0 4px var(--accent, #d4af5f);
+}
+.mavp-opt.popped .mav {
+  animation: mavp-pop 260ms var(--spring, cubic-bezier(0.2, 0.7, 0.2, 1));
+}
+.mavp-opt:focus-visible {
+  outline: 2px solid var(--accent-ring, rgba(212, 175, 95, 0.7));
+  outline-offset: 0;
+}
+@keyframes mavp-pop {
+  0% {
+    transform: scale(0.82);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* The emoji option stays quiet: a small link until asked for. */
+.mavp-foot {
+  display: flex;
+  justify-content: center;
+  padding-top: 2px;
+}
+.mavp-link {
+  font-size: 0.76rem;
+  color: var(--faint, #7a746c);
+  background: none;
+  border: 0;
+  padding: 4px 2px;
+  cursor: pointer;
+  border-radius: var(--r-xs, 2px);
+}
+.mavp-link:hover {
+  color: var(--text-2, #b3aca2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.mavp-emoji {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  width: 100%;
+  padding-top: 6px;
+  border-top: 1px solid var(--hairline, rgba(236, 231, 223, 0.07));
+  animation: mavp-rise var(--t-slow, 220ms) var(--ease-out, ease-out);
+}
+.mavp-emoji .mavp-link {
+  align-self: center;
+}
+.mavp-emoji-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mavp-input {
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: var(--r-xs, 2px);
+  border: 1px solid var(--hairline-strong, rgba(236, 231, 223, 0.12));
+  background: var(--stone, #171614);
+  color: var(--text, #ece6dc);
+  font-size: 0.9rem;
+  outline: none;
+}
+.mavp-input::placeholder {
+  color: var(--faint, #7a746c);
+}
+.mavp-input:focus {
+  border-color: var(--accent, #d4af5f);
+}
+.mavp-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+  gap: 2px;
+}
+.mavp-em {
+  height: 36px;
+  border-radius: var(--r-xs, 2px);
+  font-size: 19px;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition:
+    background var(--t-fast, 120ms),
+    transform var(--t-fast, 120ms) var(--ease, ease);
+}
+.mavp-em:hover {
+  background: var(--hover, #262421);
+  transform: scale(1.1);
+}
+.mavp-em[aria-pressed="true"] {
+  background: var(--accent-soft, rgba(212, 175, 95, 0.14));
+  box-shadow: inset 0 0 0 1.5px var(--accent, #d4af5f);
+}
+@keyframes mavp-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+/* Touch: every target at least 44px. */
+@media (pointer: coarse) {
+  .mavp {
+    --mavp-cell: 52px;
+  }
+  .mavp-shuffle {
+    min-height: 44px;
+  }
+  .mavp-link {
+    min-height: 44px;
+    padding: 0 8px;
+  }
+  .mavp-em {
+    height: 44px;
+  }
+  .mavp-emoji-grid {
+    grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  }
+  .mavp-input {
+    height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mavp-opt .mav,
+  .mavp-shuffle,
+  .mavp-shuffle svg,
+  .mavp-em {
+    transition: none;
+  }
+  .mavp-opt.popped .mav,
+  .mavp-emoji {
+    animation: none;
+  }
+}

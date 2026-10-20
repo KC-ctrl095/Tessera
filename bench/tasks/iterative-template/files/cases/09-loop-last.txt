@@ -1,0 +1,6 @@
+=== template
+Tags: {% for t in tags %}{{ t }}{% if not loop.last %}, {% endif %}{% endfor %}.
+=== context
+{"tags": ["red", "green", "blue"]}
+=== expected
+Tags: red, green, blue.

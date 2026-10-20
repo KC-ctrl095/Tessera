@@ -1,0 +1,11 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.tessera_app" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Dark chrome to match the app; light system-bar icons. -->
+        <item name="android:windowBackground">#0b0b0c</item>
+        <item name="android:statusBarColor">#0b0b0c</item>
+        <item name="android:navigationBarColor">#0b0b0c</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+</resources>

@@ -1,0 +1,10 @@
+title = "Rebase a feature branch with a generated lock file and a code conflict (git)"
+tier = "hard2"
+difficulty = "hard"
+category = "git"
+tags = ["hard2", "git", "rebase", "merge-conflict", "generated-files", "python"]
+time_limit = 1800
+check_timeout = 120
+prompt = """
+Please rebase feature/export onto main and resolve the conflicts, keeping both sides' changes. deps.lock is generated, don't hand-edit it.
+"""

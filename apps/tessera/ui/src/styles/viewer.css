@@ -1,0 +1,167 @@
+/* The picture viewer (components/Lightbox.tsx). Dark in both themes: pictures
+   read best on black. Above dialogs, below toasts and tooltips. */
+.lightbox-view {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  /* Every touch is the viewer's: no page zoom, scroll or pull-to-refresh under it. */
+  touch-action: none;
+  overscroll-behavior: contain;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  color: #ece6dc;
+  animation: fade-in 160ms var(--ease);
+}
+.lb-backdrop {
+  position: absolute;
+  inset: 0;
+  /* Solid: a light theme under a see-through black reads as grey ghosts behind the picture. */
+  background: #080706;
+}
+.lb-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: zoom-out;
+}
+.lb-img {
+  position: absolute;
+  max-width: none;
+  max-height: none;
+  transform-origin: center;
+  opacity: 0;
+  cursor: zoom-in;
+  -webkit-user-drag: none;
+}
+.lb-img.ready {
+  opacity: 1;
+}
+.lb-zoomed .lb-img {
+  cursor: grab;
+}
+.lb-zoomed .lb-stage:active .lb-img {
+  cursor: grabbing;
+}
+.lb-spin,
+.lb-error {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.lb-error {
+  padding: 24px;
+  text-align: center;
+  color: #b3aca2;
+  font-size: 0.9rem;
+}
+
+/* The controls: a bar along the top, and arrows at the sides where there's a mouse. */
+.lb-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: calc(8px + var(--safe-t)) calc(10px + var(--safe-r)) 14px calc(18px + var(--safe-l));
+  background: linear-gradient(rgba(8, 7, 6, 0.72), rgba(8, 7, 6, 0));
+  transition: opacity 160ms var(--ease);
+}
+.lb-count {
+  font-size: 0.86rem;
+  color: #b3aca2;
+  font-variant-numeric: tabular-nums;
+}
+.lb-btn {
+  min-width: 40px;
+  height: 40px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: var(--r-sm);
+  color: #ece6dc;
+  transition: background var(--t-fast) var(--ease);
+}
+/* Hover only where there is one: a tapped button on a phone keeps :hover until the next tap. */
+@media (hover: hover) {
+  .lb-btn:hover:not(:disabled) {
+    background: rgba(236, 230, 220, 0.12);
+  }
+  .lb-nav:hover:not(:disabled) {
+    background: rgba(54, 50, 45, 0.85);
+  }
+}
+.lb-btn:active:not(:disabled) {
+  background: rgba(236, 230, 220, 0.16);
+}
+.lb-btn:focus-visible,
+.lb-nav:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.lb-btn:disabled {
+  opacity: 0.35;
+}
+.lb-pct {
+  min-width: 52px;
+  padding: 0 6px;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+.lb-touch .lb-btn {
+  min-width: 46px;
+  height: 46px;
+}
+.lb-nav {
+  position: absolute;
+  top: 50%;
+  width: 48px;
+  height: 64px;
+  margin-top: -32px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-sm);
+  color: #ece6dc;
+  background: rgba(33, 31, 28, 0.6);
+  transition:
+    background var(--t-fast) var(--ease),
+    opacity 160ms var(--ease);
+}
+.lb-nav:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+.lb-prev {
+  left: calc(12px + var(--safe-l));
+}
+.lb-next {
+  right: calc(12px + var(--safe-r));
+}
+/* Touch screens swipe between pictures. */
+.lb-touch .lb-nav {
+  display: none;
+}
+/* A tap on the picture hides the controls (phones), another brings them back. */
+.lb-bare .lb-bar,
+.lb-bare .lb-nav {
+  opacity: 0;
+  pointer-events: none;
+}
+/* The Linux desktop app paints the app's scrollbars over the viewer: hidden while it is open. */
+.viewer-open #root,
+.viewer-open #root * {
+  scrollbar-width: none;
+}
+/* A phone shows toasts at the top, over the viewer's ✕ and Save: at the bottom while it's open. */
+@media (max-width: 700px) {
+  :root.has-viewer .toasts {
+    top: auto;
+    bottom: calc(16px + var(--safe-b));
+    flex-direction: column;
+  }
+}

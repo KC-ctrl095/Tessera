@@ -1,0 +1,89 @@
+# Compose file for the ledger app (production).
+# Values in ${...} come from the .env file next to this one.
+# Deploy with: docker compose -f deploy/compose.yaml up -d
+
+name: ledger
+
+services:
+  # Public HTTP API, behind the load balancer on port 8080.
+  api:
+    image: registry.example.com/ledger/app:2.14.1
+    command: ["./ledger", "serve", "--port", "8080"]
+    ports:
+      - "8080:8080"
+    environment:
+      - APP_ENV=production
+      - DATABASE_URL=postgres://ledger:${DB_PASSWORD}@db.internal:5432/ledger
+      - REDIS_URL=redis://redis:6379/0
+      # Requests slower than this are logged with their query plan.
+      - SLOW_QUERY_MS=500
+      - LOG_FORMAT=json
+    depends_on:
+      - redis
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Background jobs: invoices, emails, exports.
+  # Scale this one when the queue grows.
+  worker:
+    image: registry.example.com/ledger/app:2.14.1
+    command: ["./ledger", "work", "--queues", "default,mail,exports"]
+    environment:
+      - APP_ENV=production
+      - DATABASE_URL=postgres://ledger:${DB_PASSWORD}@db.internal:5432/ledger
+      - REDIS_URL=redis://redis:6379/0
+      - LOG_LEVEL=info
+      - LOG_FORMAT=json
+      # Jobs that run longer than this (seconds) are stopped and retried.
+      - JOB_TIMEOUT=300
+    depends_on:
+      - redis
+    deploy:
+      # One worker handles about 40 jobs a minute.
+      replicas: 1
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 1G
+
+  # Starts recurring jobs (month-end statements, reminders).
+  # Keep exactly one replica, or every job runs twice.
+  scheduler:
+    image: registry.example.com/ledger/app:2.14.1
+    command: ["./ledger", "schedule"]
+    environment:
+      - APP_ENV=production
+      - DATABASE_URL=postgres://ledger:${DB_PASSWORD}@db.internal:5432/ledger
+      - REDIS_URL=redis://redis:6379/0
+      - LOG_LEVEL=info
+    depends_on:
+      - redis
+    deploy:
+      replicas: 1
+
+  # Queue and cache. The data is disposable: no volume on purpose.
+  redis:
+    image: redis:7.2-alpine
+    command: ["redis-server", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    environment:
+      - REDIS_ARGS=--save ""
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 300M
+
+# The load balancer joins this network too.
+networks:
+  default:
+    name: ledger-net
+    external: true

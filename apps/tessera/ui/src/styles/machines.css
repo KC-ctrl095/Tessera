@@ -1,0 +1,811 @@
+/* Devices and machines: Settings → Devices (components/settings/DevicesTab.tsx,
+   ThisComputerPanel.tsx), and machine calls in chats. */
+
+/* ── Settings → Devices: one list ── */
+.dev-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.dev-top p {
+  margin: 0;
+  font-size: 0.84rem;
+}
+.dev-add-btn {
+  flex: none;
+}
+.dev-add {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.dev-add-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dev-add .pair-card {
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+.dev-item {
+  padding: 12px 14px;
+}
+.dev-item.here {
+  box-shadow:
+    inset 0 0 0 1px var(--hairline),
+    inset 3px 0 0 var(--accent);
+}
+.dev-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.dev-id {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.dev-name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 560;
+  color: var(--text);
+}
+.dev-meta {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.dev-tags {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dev-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--hairline-strong);
+}
+.dev-dot.on {
+  background: var(--ok);
+  box-shadow: 0 0 0 3px rgba(var(--ok-rgb), 0.16);
+}
+.dev-chev {
+  flex: none;
+  color: var(--faint);
+  transition: transform var(--t) var(--ease);
+}
+.dev-item.open .dev-chev {
+  transform: rotate(180deg);
+}
+.dev-item[data-state="offline"] .device-icon {
+  opacity: 0.6;
+}
+.dev-item[data-state="paused"] .device-icon {
+  color: var(--warn);
+}
+.dev-details {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.dev-machine {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.dev-sec {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+/* "Keep Tessera running" (the server on this computer starts at sign-in). */
+.keep-running .setting-row {
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 12px;
+}
+.keep-running .setting-text {
+  min-width: 0;
+}
+.keep-busy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.dev-sec-title,
+.mach-block-title {
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+.dev-device {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  column-gap: 10px;
+}
+.dev-role-icon {
+  flex: none;
+  color: var(--faint);
+}
+.dev-signin {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.dev-role {
+  font-size: 0.86rem;
+  font-weight: 540;
+  color: var(--text);
+}
+.dev-signin .muted {
+  overflow-wrap: anywhere;
+}
+/* The entry's name and Rename; what agents call it, when that differs. */
+.dev-naming-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.dev-naming-text {
+  min-width: 0;
+  font-size: 0.84rem;
+  color: var(--text-2);
+  overflow-wrap: anywhere;
+}
+.dev-naming-text code,
+.dev-agentname code {
+  white-space: nowrap;
+  padding: 1px 5px;
+  border-radius: var(--r-xs);
+  background: var(--sunken);
+  font-family: var(--mono);
+  font-size: 0.76rem;
+}
+.dev-agentname {
+  margin: 0;
+  color: var(--muted);
+}
+.dev-agentname b {
+  color: var(--text-2);
+  font-weight: 600;
+}
+.dev-agentname .link-btn {
+  font-size: inherit;
+}
+.dev-preset {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+.dev-preset > .icon {
+  flex: none;
+  margin-top: 2px;
+  color: var(--accent-text);
+}
+.dev-preset.warn > .icon {
+  color: var(--warn);
+}
+.dev-preset.danger > .icon {
+  color: var(--err);
+}
+/* Settings → Devices → Activity: what agents did on the machines. */
+.act-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.act-chip {
+  height: 28px;
+  max-width: 100%;
+  padding: 0 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.act-chip.on {
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.5);
+  color: var(--accent-text);
+}
+.act-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.act-list > li + li {
+  border-top: 1px solid var(--hairline);
+}
+.act-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 2px;
+  text-align: left;
+}
+.act-what {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.act-line {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-2);
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.act-row.open .act-line {
+  display: block;
+  white-space: pre-wrap;
+}
+.act-verb {
+  color: var(--muted);
+}
+.act-target {
+  font-size: 0.78rem;
+}
+.act-meta {
+  font-size: 0.74rem;
+  color: var(--faint);
+  overflow-wrap: anywhere;
+}
+.act-row .badge {
+  flex: none;
+  margin-top: 1px;
+}
+.act-empty,
+.act-fine {
+  margin: 0;
+}
+.mach-activity-link {
+  align-self: flex-start;
+}
+.dev-empty {
+  margin: 0;
+  text-align: center;
+}
+.dev-machine .mach-scope {
+  margin: 0;
+}
+.dev-machine .mach-fine,
+.dev-addm .mach-fine {
+  margin: 0;
+}
+.mach-scope {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.mach-scope li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+.mach-scope li > span {
+  overflow-wrap: anywhere;
+}
+.mach-scope li > .icon {
+  flex: none;
+  color: var(--faint);
+}
+.mach-scope li.warn > .icon {
+  color: var(--warn);
+}
+.mach-note {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--warn);
+}
+.mach-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.mach-cmd {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 3px 4px 3px 10px;
+  border-radius: var(--r-xs);
+  background: var(--sunken);
+}
+.mach-cmd code {
+  min-width: 0;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+.mach-fine {
+  display: flex;
+  gap: 8px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--faint);
+}
+.mach-fine .icon {
+  flex: none;
+  margin-top: 2px;
+}
+.mach-fine code {
+  padding: 1px 5px;
+  border-radius: var(--r-xs);
+  background: var(--sunken);
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--text-2);
+}
+
+/* Add a machine */
+.dev-addm {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.dev-addm-local {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.25);
+}
+.dev-addm-local > .icon {
+  flex: none;
+  color: var(--accent-text);
+}
+.dev-addm-other {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+.dev-steps {
+  margin: 0;
+  padding: 0 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 0.84rem;
+  color: var(--text-2);
+  max-width: 100%;
+}
+.dev-steps li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  max-width: 100%;
+}
+.dev-steps li::marker {
+  color: var(--faint);
+  font-weight: 600;
+}
+.dev-wait,
+.dev-joined {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+.dev-joined {
+  align-items: flex-start;
+  color: var(--ok);
+}
+.dev-joined .icon {
+  flex: none;
+  margin-top: 2px;
+}
+
+@media (max-width: 560px) {
+  .dev-top {
+    flex-wrap: wrap;
+  }
+  /* The name keeps its line; a machine's badge goes under it. */
+  .dev-row.tagged {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+  .dev-row.tagged .dev-id {
+    flex: 1 1 calc(100% - 80px);
+  }
+  .dev-row.tagged .dev-tags {
+    order: 3;
+    margin-left: 46px;
+    max-width: calc(100% - 46px);
+  }
+  .dev-mbadge {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* What it's used for may take a second line rather than be cut. */
+  .dev-meta {
+    white-space: normal;
+  }
+}
+
+/* ── This computer (the desktop app's own entry) ── */
+.mach-local-tab {
+  gap: 14px;
+}
+.mach-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hairline);
+}
+.mach-presets {
+  display: grid;
+  gap: 6px;
+}
+.mach-preset {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background var(--t-fast) var(--ease),
+    box-shadow var(--t-fast) var(--ease);
+}
+.mach-preset:hover:not(:disabled) {
+  background: var(--hover);
+}
+.mach-preset:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.mach-preset-icon {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-xs);
+  background: var(--sunken);
+  color: var(--muted);
+}
+.mach-preset-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.mach-preset-name {
+  font-size: 0.86rem;
+  font-weight: 560;
+  color: var(--text);
+}
+.mach-preset-desc {
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.mach-preset-radio {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px var(--hairline-strong);
+}
+.mach-preset[aria-checked="true"] {
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.45);
+}
+.mach-preset[aria-checked="true"] .mach-preset-icon {
+  background: rgba(var(--accent-rgb), 0.16);
+  color: var(--accent-text);
+}
+.mach-preset[aria-checked="true"] .mach-preset-radio {
+  box-shadow: inset 0 0 0 5px var(--accent);
+}
+.mach-preset.warn[aria-checked="true"] {
+  background: rgba(var(--warn-rgb), 0.08);
+  box-shadow: inset 0 0 0 1px rgba(var(--warn-rgb), 0.45);
+}
+.mach-preset.warn[aria-checked="true"] .mach-preset-icon {
+  background: rgba(var(--warn-rgb), 0.14);
+  color: var(--warn);
+}
+.mach-preset.warn[aria-checked="true"] .mach-preset-radio {
+  box-shadow: inset 0 0 0 5px var(--warn);
+}
+.mach-preset.danger[aria-checked="true"] {
+  background: rgba(var(--err-rgb), 0.07);
+  box-shadow: inset 0 0 0 1px rgba(var(--err-rgb), 0.45);
+}
+.mach-preset.danger[aria-checked="true"] .mach-preset-icon {
+  background: rgba(var(--err-rgb), 0.12);
+  color: var(--err);
+}
+.mach-preset.danger[aria-checked="true"] .mach-preset-radio {
+  box-shadow: inset 0 0 0 5px var(--err);
+}
+.mach-preset.danger .mach-preset-icon {
+  color: var(--err);
+}
+.mach-folders {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+.mach-folders .badge {
+  flex: none;
+}
+.mach-homeline,
+.mach-desk {
+  margin: 4px 0 0;
+}
+.mach-ask,
+.mach-term,
+.mach-admin {
+  align-self: flex-start;
+  max-width: 100%;
+}
+/* Administrator: whether sudo's password is saved here, and Save / Change / Forget. */
+.mach-admin-pw {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--sunken);
+  color: var(--text-2);
+  font-size: 0.84rem;
+}
+.mach-admin-pw > .icon {
+  flex: none;
+  color: var(--muted);
+}
+.mach-admin-pw > .grow {
+  flex: 1 1 14em;
+  min-width: 0;
+}
+.mach-admin-pw[data-saved="no"] > .icon {
+  color: var(--warn);
+}
+.mach-block > .setting-help {
+  margin: 0;
+}
+.mach-advanced {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.mach-advanced .setting-row {
+  padding: 0;
+}
+.mach-startup-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+.mach-startup-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-top: 1px solid var(--hairline);
+}
+.mach-startup-list li:first-child {
+  border-top: 0;
+}
+.mach-startup-what {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.mach-startup-what .mono {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.8rem;
+}
+.mach-local-tab .sec-doc code {
+  padding: 1px 5px;
+  border-radius: var(--r-xs);
+  background: var(--sunken);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text);
+}
+/* A long path ellipsizes instead of widening the list (grid items size to their content). */
+.mach-local-tab .sec-folders {
+  grid-template-columns: minmax(0, 1fr);
+}
+.mach-status[data-tone="off"] .sec-status-icon {
+  background: var(--hover);
+  color: var(--muted);
+}
+.mach-state {
+  font-weight: 560;
+  color: var(--text-2);
+}
+.mach-status[data-tone="ok"] .mach-state {
+  color: var(--ok);
+}
+.mach-status[data-tone="warn"] .mach-state {
+  color: var(--warn);
+}
+.mach-status[data-tone="bad"] .mach-state {
+  color: var(--err);
+}
+.mach-row {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hairline);
+  gap: 10px;
+}
+.mach-row .segmented {
+  align-self: flex-start;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.mach-log-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mach-log-head .disclosure {
+  flex: 1;
+}
+.mach-log-empty {
+  margin: 10px 0 0;
+}
+.mach-log-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  max-height: 420px;
+  overflow-y: auto;
+  display: grid;
+}
+.mach-log-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 2px;
+  border-top: 1px solid var(--hairline);
+  font-size: 0.8rem;
+}
+.mach-log-row:first-child {
+  border-top: 0;
+}
+.mach-log-time {
+  flex: none;
+  width: 104px;
+  color: var(--faint);
+  font-size: 0.76rem;
+}
+.mach-log-what {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+}
+.mach-log-action {
+  font-weight: 540;
+  color: var(--text-2);
+}
+.mach-log-target {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+.mach-log-from,
+.mach-log-reason {
+  color: var(--faint);
+}
+.mach-log-row.refused .mach-log-reason {
+  color: var(--err);
+}
+.mach-log-row .badge {
+  flex: none;
+}
+
+@media (max-width: 560px) {
+  .mach-log-row {
+    flex-wrap: wrap;
+  }
+  .mach-log-time {
+    width: auto;
+  }
+  .mach-log-what {
+    flex-basis: 100%;
+    order: 3;
+  }
+  .mach-log-row .badge {
+    margin-left: auto;
+  }
+}
+
+/* ── machine calls in chats ── */
+.approval-tool.approval-machine {
+  font-weight: 580;
+  color: var(--accent-text);
+}
+.tool-name.tool-machine {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 40%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-family: inherit;
+  color: var(--accent-text);
+}
+.tool-name.tool-machine .icon {
+  flex: none;
+}

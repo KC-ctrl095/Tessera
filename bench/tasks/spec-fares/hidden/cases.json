@@ -1,0 +1,11733 @@
+[
+{
+"booking": {
+"route": "SE-TR",
+"class": "comfort",
+"date": "2026-06-15",
+"time": "00:00",
+"passengers": [
+{
+"type": "senior",
+"age": 64
+},
+{
+"type": "adult",
+"age": 10
+},
+{
+"type": "adult",
+"age": 34
+}
+],
+"return": {
+"date": "2026-06-20",
+"time": "00:00"
+},
+"payment": "cash"
+},
+"quote": {
+"total": "41.90",
+"legs": [
+{
+"date": "2026-06-15",
+"season": "high",
+"subtotal": "21.80"
+},
+{
+"date": "2026-06-20",
+"season": "high",
+"subtotal": "21.80"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "comfort",
+"date": "2026-08-13",
+"time": "17:04",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "adult"
+},
+{
+"type": "disabled"
+}
+],
+"payment": "cash"
+},
+"quote": {
+"total": "27.20",
+"legs": [
+{
+"date": "2026-08-13",
+"season": "high",
+"subtotal": "26.68"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-MO",
+"class": "standard",
+"date": "2026-04-25",
+"time": "19:33",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "adult",
+"age": 27
+},
+{
+"type": "companion"
+}
+]
+},
+"quote": {
+"total": "17.30",
+"legs": [
+{
+"date": "2026-04-25",
+"season": "peak",
+"subtotal": "16.80"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-CA",
+"class": "standard",
+"date": "2026-06-14",
+"time": "07:05",
+"passengers": [
+{
+"type": "student",
+"card": false
+},
+{
+"type": "adult"
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 16
+},
+{
+"type": "adult"
+},
+{
+"type": "companion"
+},
+{
+"type": "child"
+},
+{
+"type": "senior",
+"age": 82
+}
+],
+"promo": "NOPE",
+"channel": "counter"
+},
+"quote": {
+"total": "9.38",
+"legs": [
+{
+"date": "2026-06-14",
+"season": "low",
+"subtotal": "9.38"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "SE-TR-X",
+"class": "standard",
+"date": "2026-04-07",
+"time": "19:30",
+"passengers": [
+{
+"type": "adult",
+"age": 11
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 64
+},
+{
+"type": "adult",
+"age": 46
+}
+],
+"return": {
+"date": "2026-05-08",
+"time": "12:12"
+}
+},
+"quote": {
+"total": "41.80",
+"legs": [
+{
+"date": "2026-04-07",
+"season": "low",
+"subtotal": "20.65"
+},
+{
+"date": "2026-05-08",
+"season": "low",
+"subtotal": "20.65"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR-X",
+"class": "standard",
+"date": "2026-06-15",
+"time": "09:30",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "companion"
+}
+],
+"return": {
+"date": "2026-07-16",
+"time": "22:42"
+},
+"promo": "TROIA5",
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "53.80",
+"legs": [
+{
+"date": "2026-06-15",
+"season": "high",
+"subtotal": "29.40"
+},
+{
+"date": "2026-07-16",
+"season": "high",
+"subtotal": "29.40"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "BE-PO",
+"class": "standard",
+"date": "2026-12-23",
+"time": "04:59",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "senior",
+"age": 82
+},
+{
+"type": "senior",
+"age": 82
+}
+],
+"promo": "WINTER30",
+"payment": "cash"
+},
+"quote": {
+"total": "5.60",
+"legs": [
+{
+"date": "2026-12-23",
+"season": "low",
+"subtotal": "5.10"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "FA-FA",
+"class": "standard",
+"date": "2026-02-09",
+"time": "03:02",
+"passengers": [
+{
+"type": "child"
+},
+{
+"type": "adult"
+},
+{
+"type": "student",
+"card": false
+},
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "student",
+"card": false
+},
+{
+"type": "adult",
+"age": 18
+},
+{
+"type": "adult",
+"age": 75
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 79
+},
+{
+"type": "senior",
+"age": 65
+}
+],
+"return": {
+"date": "2026-03-10",
+"time": "18:24"
+}
+},
+"quote": {
+"total": "28.73",
+"legs": [
+{
+"date": "2026-02-09",
+"season": "low",
+"subtotal": "14.11"
+},
+{
+"date": "2026-03-10",
+"season": "low",
+"subtotal": "19.97"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "FA-FA",
+"class": "standard",
+"date": "2026-10-05",
+"time": "20:19",
+"passengers": [
+{
+"type": "student",
+"card": true
+}
+],
+"promo": "STUDENT5"
+},
+"quote": {
+"total": "2.49",
+"legs": [
+{
+"date": "2026-10-05",
+"season": "peak",
+"subtotal": "2.10"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR",
+"class": "standard",
+"date": "2026-06-26",
+"time": "08:33",
+"passengers": [
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 3
+},
+{
+"type": "adult"
+}
+],
+"return": {
+"date": "2026-07-26",
+"time": "22:25"
+}
+},
+"quote": {
+"total": "20.90",
+"legs": [
+{
+"date": "2026-06-26",
+"season": "high",
+"subtotal": "11.22"
+},
+{
+"date": "2026-07-26",
+"season": "high",
+"subtotal": "10.20"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "FA-CU",
+"class": "standard",
+"date": "2026-07-15",
+"time": "12:24",
+"passengers": [
+{
+"type": "infant",
+"age": 0
+},
+{
+"type": "adult",
+"age": 12
+},
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "adult",
+"age": 28
+},
+{
+"type": "adult",
+"age": 53
+},
+{
+"type": "adult"
+},
+{
+"type": "student",
+"card": true
+}
+],
+"return": {
+"date": "2026-08-13",
+"time": "15:37"
+},
+"promo": "MINHO",
+"payment": "cash"
+},
+"quote": {
+"total": "33.55",
+"legs": [
+{
+"date": "2026-07-15",
+"season": "high",
+"subtotal": "17.40"
+},
+{
+"date": "2026-08-13",
+"season": "high",
+"subtotal": "17.40"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-CA",
+"class": "standard",
+"date": "2026-04-25",
+"time": "02:01",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "adult",
+"age": 14
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "senior",
+"age": 64
+},
+{
+"type": "adult"
+},
+{
+"type": "companion"
+},
+{
+"type": "adult",
+"age": 79
+},
+{
+"type": "infant",
+"age": 2
+}
+],
+"return": {
+"date": "2026-04-26",
+"time": "19:30"
+},
+"promo": "TEJO2"
+},
+"quote": {
+"total": "19.65",
+"legs": [
+{
+"date": "2026-04-25",
+"season": "peak",
+"subtotal": "11.70"
+},
+{
+"date": "2026-04-26",
+"season": "low",
+"subtotal": "10.50"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-MO",
+"class": "standard",
+"date": "2026-04-30",
+"time": "00:00",
+"passengers": [
+{
+"type": "adult"
+}
+],
+"return": {
+"date": "2026-05-31",
+"time": "06:59"
+},
+"promo": "STUDENT5",
+"channel": "counter"
+},
+"quote": {
+"total": "5.76",
+"legs": [
+{
+"date": "2026-04-30",
+"season": "low",
+"subtotal": "2.56"
+},
+{
+"date": "2026-05-31",
+"season": "low",
+"subtotal": "3.20"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"class": "standard",
+"date": "2026-04-16",
+"time": "21:27",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "adult"
+},
+{
+"type": "disabled"
+}
+],
+"return": {
+"date": "2026-04-21",
+"time": "15:16"
+},
+"promo": "STUDENT5",
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "19.65",
+"legs": [
+{
+"date": "2026-04-16",
+"season": "low",
+"subtotal": "10.33"
+},
+{
+"date": "2026-04-21",
+"season": "low",
+"subtotal": "10.33"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CS-MO",
+"class": "standard",
+"date": "2026-12-24",
+"time": "05:06",
+"passengers": [
+{
+"type": "companion"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "infant",
+"age": 2
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "adult"
+},
+{
+"type": "infant"
+}
+],
+"return": {
+"date": "2027-01-24",
+"time": "05:00"
+},
+"promo": "PARTNER45",
+"channel": "counter"
+},
+"quote": {
+"total": "28.86",
+"legs": [
+{
+"date": "2026-12-24",
+"season": "peak",
+"subtotal": "27.30"
+},
+{
+"date": "2027-01-24",
+"season": "low",
+"subtotal": "20.80"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "OL-AR",
+"class": "standard",
+"date": "2026-07-22",
+"time": "16:59",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "companion"
+},
+{
+"type": "adult"
+}
+],
+"promo": "STUDENT5",
+"channel": "counter"
+},
+"quote": {
+"total": "9.00",
+"legs": [
+{
+"date": "2026-07-22",
+"season": "high",
+"subtotal": "9.00"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "FA-CU",
+"class": "standard",
+"date": "2026-10-20",
+"time": "04:10",
+"passengers": [
+{
+"type": "adult",
+"age": 78
+},
+{
+"type": "adult",
+"age": 60
+},
+{
+"type": "adult",
+"age": 68
+},
+{
+"type": "adult",
+"age": 61
+},
+{
+"type": "adult",
+"age": 15
+},
+{
+"type": "adult",
+"age": 22
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 65
+},
+{
+"type": "adult",
+"age": 64
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 45
+}
+],
+"payment": "cash"
+},
+"quote": {
+"total": "16.75",
+"legs": [
+{
+"date": "2026-10-20",
+"season": "low",
+"subtotal": "18.48"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CA-VI",
+"class": "standard",
+"date": "2026-06-25",
+"time": "21:03",
+"passengers": [
+{
+"type": "disabled"
+}
+],
+"promo": "MINHO"
+},
+"quote": {
+"total": "1.43",
+"legs": [
+{
+"date": "2026-06-25",
+"season": "high",
+"subtotal": "0.93"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-BA",
+"class": "comfort",
+"date": "2026-04-25",
+"time": "16:59",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "adult",
+"age": 39
+},
+{
+"type": "child",
+"age": 6
+}
+],
+"promo": "WELCOME"
+},
+"quote": {
+"total": "29.72",
+"legs": [
+{
+"date": "2026-04-25",
+"season": "peak",
+"subtotal": "34.38"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-CA",
+"class": "standard",
+"date": "2026-08-05",
+"time": "19:29",
+"passengers": [
+{
+"type": "adult",
+"age": 22
+},
+{
+"type": "companion"
+}
+],
+"channel": "counter"
+},
+"quote": {
+"total": "3.80",
+"legs": [
+{
+"date": "2026-08-05",
+"season": "high",
+"subtotal": "3.80"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "standard",
+"date": "2026-04-25",
+"time": "09:29",
+"passengers": [
+{
+"type": "infant",
+"age": 1
+},
+{
+"type": "child",
+"age": 2
+}
+],
+"promo": "TROIA5",
+"channel": "counter"
+},
+"quote": {
+"total": "3.45",
+"legs": [
+{
+"date": "2026-04-25",
+"season": "peak",
+"subtotal": "3.45"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CA-VI",
+"class": "standard",
+"date": "2026-06-15",
+"time": "05:30",
+"passengers": [
+{
+"type": "adult",
+"age": 58
+},
+{
+"type": "adult",
+"age": 18
+},
+{
+"type": "adult",
+"age": 42
+},
+{
+"type": "adult",
+"age": 49
+}
+],
+"promo": "WINTER30",
+"payment": "cash"
+},
+"quote": {
+"total": "7.90",
+"legs": [
+{
+"date": "2026-06-15",
+"season": "high",
+"subtotal": "7.40"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-CA",
+"class": "standard",
+"date": "2026-06-14",
+"time": "19:29",
+"passengers": [
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "adult"
+},
+{
+"type": "infant",
+"age": 4
+},
+{
+"type": "disabled"
+}
+],
+"return": {
+"date": "2026-06-15",
+"time": "16:43"
+},
+"promo": "TROIA5"
+},
+"quote": {
+"total": "9.15",
+"legs": [
+{
+"date": "2026-06-14",
+"season": "low",
+"subtotal": "4.20"
+},
+{
+"date": "2026-06-15",
+"season": "high",
+"subtotal": "4.95"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "comfort",
+"date": "2026-04-25",
+"time": "17:00",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "senior",
+"age": 82
+},
+{
+"type": "infant",
+"age": 0
+},
+{
+"type": "child"
+},
+{
+"type": "companion"
+},
+{
+"type": "adult",
+"age": 17
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 15
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+}
+],
+"payment": "cash"
+},
+"quote": {
+"total": "46.90",
+"legs": [
+{
+"date": "2026-04-25",
+"season": "peak",
+"subtotal": "52.73"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CA-VI",
+"class": "standard",
+"date": "2026-09-03",
+"time": "17:51",
+"passengers": [
+{
+"type": "adult"
+}
+],
+"vehicles": [
+{
+"type": "van",
+"length_m": 5.0
+}
+],
+"return": {
+"date": "2026-10-18",
+"time": "15:59"
+},
+"promo": "ALGARVE20"
+},
+"quote": {
+"total": "44.23",
+"legs": [
+{
+"date": "2026-09-03",
+"season": "high",
+"subtotal": "24.13"
+},
+{
+"date": "2026-10-18",
+"season": "low",
+"subtotal": "19.60"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "FA-FA",
+"class": "standard",
+"date": "2026-08-14",
+"time": "17:33",
+"passengers": [
+{
+"type": "infant"
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "senior",
+"age": 70
+},
+{
+"type": "adult",
+"age": 72
+},
+{
+"type": "senior",
+"age": 82
+},
+{
+"type": "adult"
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 76
+},
+{
+"type": "child",
+"age": 5
+}
+],
+"return": {
+"date": "2026-08-14",
+"time": "09:29"
+},
+"promo": "EXPIRED",
+"payment": "cash"
+},
+"quote": {
+"total": "25.85",
+"legs": [
+{
+"date": "2026-08-14",
+"season": "high",
+"subtotal": "13.34"
+},
+{
+"date": "2026-08-14",
+"season": "high",
+"subtotal": "13.34"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "VR-AY",
+"class": "standard",
+"date": "2026-03-26",
+"time": "19:50",
+"passengers": [
+{
+"type": "adult",
+"age": 10
+},
+{
+"type": "student",
+"card": false
+},
+{
+"type": "adult",
+"age": 70
+},
+{
+"type": "infant"
+},
+{
+"type": "adult"
+},
+{
+"type": "infant",
+"age": 5
+}
+],
+"vehicles": [
+{
+"type": "car"
+},
+{
+"type": "van",
+"length_m": 7.0
+}
+],
+"channel": "counter"
+},
+"quote": {
+"total": "48.00",
+"legs": [
+{
+"date": "2026-03-26",
+"season": "low",
+"subtotal": "48.00"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "VR-AY",
+"class": "comfort",
+"date": "2026-08-02",
+"time": "05:00",
+"passengers": [
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 76
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+}
+],
+"return": {
+"date": "2026-08-07",
+"time": "02:55"
+}
+},
+"quote": {
+"total": "37.39",
+"legs": [
+{
+"date": "2026-08-02",
+"season": "high",
+"subtotal": "21.45"
+},
+{
+"date": "2026-08-07",
+"season": "high",
+"subtotal": "17.16"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR-X",
+"class": "standard",
+"date": "2026-12-24",
+"time": "07:00",
+"passengers": [
+{
+"type": "infant",
+"age": 5
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "senior",
+"age": 64
+},
+{
+"type": "adult",
+"age": 25
+},
+{
+"type": "adult",
+"age": 54
+},
+{
+"type": "child"
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "infant"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "senior",
+"age": 60
+}
+],
+"return": {
+"date": "2026-12-24",
+"time": "19:30"
+},
+"promo": "PARTNER45",
+"channel": "counter"
+},
+"quote": {
+"total": "87.61",
+"legs": [
+{
+"date": "2026-12-24",
+"season": "peak",
+"subtotal": "77.42"
+},
+{
+"date": "2026-12-24",
+"season": "peak",
+"subtotal": "68.60"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CS-SE",
+"class": "standard",
+"date": "2026-04-25",
+"time": "09:30",
+"passengers": [
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "adult",
+"age": 51
+},
+{
+"type": "adult"
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult",
+"age": 26
+},
+{
+"type": "infant",
+"age": 5
+},
+{
+"type": "companion"
+},
+{
+"type": "student",
+"card": false
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 24
+},
+{
+"type": "companion"
+},
+{
+"type": "student",
+"card": true
+}
+],
+"channel": "counter"
+},
+"quote": {
+"total": "29.48",
+"legs": [
+{
+"date": "2026-04-25",
+"season": "peak",
+"subtotal": "33.50"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"class": "standard",
+"date": "2026-12-24",
+"time": "08:27",
+"passengers": [
+{
+"type": "student",
+"card": true
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "disabled"
+}
+],
+"return": {
+"date": "2027-02-07",
+"time": "07:00"
+}
+},
+"quote": {
+"total": "21.10",
+"legs": [
+{
+"date": "2026-12-24",
+"season": "peak",
+"subtotal": "11.75"
+},
+{
+"date": "2027-02-07",
+"season": "low",
+"subtotal": "8.85"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-CA",
+"class": "standard",
+"date": "2026-09-02",
+"time": "06:59",
+"passengers": [
+{
+"type": "adult",
+"age": 66
+},
+{
+"type": "senior",
+"age": 60
+}
+],
+"return": {
+"date": "2026-10-02",
+"time": "07:00"
+},
+"promo": "NIGHTOWL"
+},
+"quote": {
+"total": "6.70",
+"legs": [
+{
+"date": "2026-09-02",
+"season": "high",
+"subtotal": "3.30"
+},
+{
+"date": "2026-10-02",
+"season": "low",
+"subtotal": "3.22"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-PO",
+"class": "standard",
+"date": "2026-01-12",
+"time": "09:30",
+"passengers": [
+{
+"type": "student",
+"card": true
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "adult"
+},
+{
+"type": "senior",
+"age": 82
+},
+{
+"type": "adult",
+"age": 18
+},
+{
+"type": "companion"
+},
+{
+"type": "infant"
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 44
+},
+{
+"type": "adult",
+"age": 62
+},
+{
+"type": "child",
+"age": 8
+}
+],
+"vehicles": [
+{
+"type": "motorcycle"
+}
+],
+"return": {
+"date": "2026-01-17",
+"time": "02:23"
+}
+},
+"quote": {
+"total": "29.85",
+"legs": [
+{
+"date": "2026-01-12",
+"season": "low",
+"subtotal": "16.13"
+},
+{
+"date": "2026-01-17",
+"season": "low",
+"subtotal": "14.69"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR",
+"class": "standard",
+"date": "2026-08-18",
+"time": "11:39",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "adult",
+"age": 57
+},
+{
+"type": "companion"
+}
+],
+"return": {
+"date": "2026-09-17",
+"time": "23:59"
+},
+"promo": "SUMMER10"
+},
+"quote": {
+"total": "43.54",
+"legs": [
+{
+"date": "2026-08-18",
+"season": "high",
+"subtotal": "30.60"
+},
+{
+"date": "2026-09-17",
+"season": "low",
+"subtotal": "19.13"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR",
+"class": "comfort",
+"date": "2026-06-13",
+"time": "19:29",
+"passengers": [
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult"
+},
+{
+"type": "disabled"
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "child",
+"age": 2
+},
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "adult"
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 31
+},
+{
+"type": "adult"
+}
+],
+"vehicles": [
+{
+"type": "van",
+"length_m": 8.95
+},
+{
+"type": "bicycle"
+}
+],
+"return": {
+"date": "2026-06-14",
+"time": "18:31"
+}
+},
+"quote": {
+"total": "220.14",
+"legs": [
+{
+"date": "2026-06-13",
+"season": "peak",
+"subtotal": "140.80"
+},
+{
+"date": "2026-06-14",
+"season": "low",
+"subtotal": "87.60"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"class": "standard",
+"date": "2026-11-02",
+"time": "15:26",
+"passengers": [
+{
+"type": "adult",
+"age": 27
+},
+{
+"type": "adult",
+"age": 33
+},
+{
+"type": "adult",
+"age": 32
+},
+{
+"type": "adult",
+"age": 53
+},
+{
+"type": "infant"
+},
+{
+"type": "adult",
+"age": 45
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "infant",
+"age": 2
+},
+{
+"type": "infant",
+"age": 0
+},
+{
+"type": "adult",
+"age": 13
+},
+{
+"type": "adult",
+"age": 63
+}
+],
+"return": {
+"date": "2026-11-03",
+"time": "00:52"
+},
+"channel": "counter"
+},
+"quote": {
+"total": "38.06",
+"legs": [
+{
+"date": "2026-11-02",
+"season": "low",
+"subtotal": "22.13"
+},
+{
+"date": "2026-11-03",
+"season": "low",
+"subtotal": "17.70"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CS-SE",
+"class": "standard",
+"date": "2026-06-16",
+"time": "16:16",
+"passengers": [
+{
+"type": "senior",
+"age": 64
+},
+{
+"type": "infant"
+},
+{
+"type": "adult",
+"age": 27
+},
+{
+"type": "senior",
+"age": 64
+},
+{
+"type": "infant",
+"age": 3
+},
+{
+"type": "student",
+"card": true
+}
+]
+},
+"quote": {
+"total": "11.56",
+"legs": [
+{
+"date": "2026-06-16",
+"season": "high",
+"subtotal": "11.06"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-MO",
+"class": "standard",
+"date": "2026-07-24",
+"time": "00:00",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "disabled"
+},
+{
+"type": "infant"
+}
+],
+"return": {
+"date": "2026-09-07",
+"time": "09:16"
+},
+"promo": "MINHO"
+},
+"quote": {
+"total": "24.92",
+"legs": [
+{
+"date": "2026-07-24",
+"season": "high",
+"subtotal": "10.36"
+},
+{
+"date": "2026-09-07",
+"season": "high",
+"subtotal": "14.06"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "VR-AY",
+"class": "comfort",
+"date": "2026-02-19",
+"time": "09:30",
+"passengers": [
+{
+"type": "adult",
+"age": 53
+}
+],
+"vehicles": [
+{
+"type": "bicycle"
+}
+],
+"return": {
+"date": "2026-02-20",
+"time": "07:00"
+},
+"channel": "counter"
+},
+"quote": {
+"total": "6.46",
+"legs": [
+{
+"date": "2026-02-19",
+"season": "low",
+"subtotal": "3.40"
+},
+{
+"date": "2026-02-20",
+"season": "low",
+"subtotal": "3.40"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "BE-TR",
+"class": "standard",
+"date": "2026-08-25",
+"time": "16:59",
+"passengers": [
+{
+"type": "adult",
+"age": 77
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 47
+},
+{
+"type": "disabled"
+},
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "adult",
+"age": 25
+},
+{
+"type": "adult",
+"age": 50
+},
+{
+"type": "adult",
+"age": 42
+},
+{
+"type": "adult",
+"age": 80
+},
+{
+"type": "infant",
+"age": 3
+},
+{
+"type": "senior",
+"age": 82
+},
+{
+"type": "adult",
+"age": 66
+}
+],
+"channel": "counter"
+},
+"quote": {
+"total": "14.81",
+"legs": [
+{
+"date": "2026-08-25",
+"season": "high",
+"subtotal": "16.83"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "SE-TR-X",
+"class": "comfort",
+"date": "2026-11-18",
+"time": "23:59",
+"passengers": [
+{
+"type": "adult",
+"age": 30
+}
+],
+"return": {
+"date": "2026-12-17",
+"time": "23:59"
+}
+},
+"quote": {
+"total": "17.79",
+"legs": [
+{
+"date": "2026-11-18",
+"season": "low",
+"subtotal": "9.10"
+},
+{
+"date": "2026-12-17",
+"season": "low",
+"subtotal": "9.10"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-TR",
+"class": "standard",
+"date": "2026-02-25",
+"time": "21:54",
+"passengers": [
+{
+"type": "companion"
+},
+{
+"type": "disabled"
+},
+{
+"type": "senior",
+"age": 82
+},
+{
+"type": "adult",
+"age": 64
+},
+{
+"type": "child"
+}
+],
+"vehicles": [
+{
+"type": "motorcycle"
+}
+],
+"payment": "cash"
+},
+"quote": {
+"total": "11.90",
+"legs": [
+{
+"date": "2026-02-25",
+"season": "low",
+"subtotal": "11.42"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "comfort",
+"date": "2026-09-30",
+"time": "05:00",
+"passengers": [
+{
+"type": "senior",
+"age": 82
+},
+{
+"type": "companion"
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 71
+}
+],
+"return": {
+"date": "2026-10-01",
+"time": "23:51"
+},
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "19.95",
+"legs": [
+{
+"date": "2026-09-30",
+"season": "low",
+"subtotal": "10.50"
+},
+{
+"date": "2026-10-01",
+"season": "low",
+"subtotal": "10.50"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "SE-TR",
+"class": "standard",
+"date": "2026-09-21",
+"time": "09:17",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 19
+},
+{
+"type": "adult"
+},
+{
+"type": "child"
+},
+{
+"type": "senior",
+"age": 70
+},
+{
+"type": "adult",
+"age": 15
+}
+],
+"return": {
+"date": "2026-11-05",
+"time": "04:59"
+},
+"promo": "PARTNER45"
+},
+"quote": {
+"total": "26.17",
+"legs": [
+{
+"date": "2026-09-21",
+"season": "low",
+"subtotal": "25.10"
+},
+{
+"date": "2026-11-05",
+"season": "low",
+"subtotal": "17.68"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-BA",
+"class": "comfort",
+"date": "2026-09-16",
+"time": "09:30",
+"passengers": [
+{
+"type": "adult",
+"age": 22
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+}
+],
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "16.65",
+"legs": [
+{
+"date": "2026-09-16",
+"season": "low",
+"subtotal": "16.63"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "TP-BA",
+"class": "standard",
+"date": "2026-11-12",
+"time": "19:30",
+"passengers": [
+{
+"type": "adult",
+"age": 35
+},
+{
+"type": "companion"
+},
+{
+"type": "companion"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 38
+},
+{
+"type": "adult",
+"age": 79
+},
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 72
+}
+],
+"return": {
+"date": "2026-12-11",
+"time": "21:47"
+},
+"promo": "NIGHTOWL",
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "42.05",
+"legs": [
+{
+"date": "2026-11-12",
+"season": "low",
+"subtotal": "22.13"
+},
+{
+"date": "2026-12-11",
+"season": "low",
+"subtotal": "22.13"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CS-SE",
+"class": "standard",
+"date": "2026-04-09",
+"time": "05:00",
+"passengers": [
+{
+"type": "child"
+},
+{
+"type": "senior",
+"age": 82
+}
+],
+"return": {
+"date": "2026-04-14",
+"time": "13:21"
+},
+"promo": "WINTER30"
+},
+"quote": {
+"total": "6.31",
+"legs": [
+{
+"date": "2026-04-09",
+"season": "low",
+"subtotal": "3.06"
+},
+{
+"date": "2026-04-14",
+"season": "low",
+"subtotal": "3.06"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-MO",
+"class": "comfort",
+"date": "2026-10-23",
+"time": "15:17",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "adult",
+"age": 67
+}
+],
+"return": {
+"date": "2026-10-23",
+"time": "19:30"
+},
+"promo": "TROIA5",
+"channel": "counter"
+},
+"quote": {
+"total": "48.92",
+"legs": [
+{
+"date": "2026-10-23",
+"season": "low",
+"subtotal": "25.75"
+},
+{
+"date": "2026-10-23",
+"season": "low",
+"subtotal": "25.75"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "BE-PO",
+"class": "standard",
+"date": "2026-06-15",
+"time": "17:06",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "adult",
+"age": 64
+},
+{
+"type": "infant",
+"age": 2
+}
+],
+"promo": "EXPIRED"
+},
+"quote": {
+"total": "8.07",
+"legs": [
+{
+"date": "2026-06-15",
+"season": "high",
+"subtotal": "7.57"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR",
+"class": "standard",
+"date": "2026-04-16",
+"time": "23:59",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "companion"
+},
+{
+"type": "adult"
+}
+],
+"promo": "MINHO",
+"payment": "cash"
+},
+"quote": {
+"total": "17.50",
+"legs": [
+{
+"date": "2026-04-16",
+"season": "low",
+"subtotal": "17.00"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR",
+"class": "standard",
+"date": "2026-08-01",
+"time": "22:08",
+"passengers": [
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 68
+},
+{
+"type": "infant",
+"age": 4
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult",
+"age": 27
+},
+{
+"type": "adult",
+"age": 15
+},
+{
+"type": "adult",
+"age": 24
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "adult"
+}
+],
+"vehicles": [
+{
+"type": "bicycle"
+}
+],
+"return": {
+"date": "2026-08-31",
+"time": "16:59"
+}
+},
+"quote": {
+"total": "104.60",
+"legs": [
+{
+"date": "2026-08-01",
+"season": "high",
+"subtotal": "56.40"
+},
+{
+"date": "2026-08-31",
+"season": "high",
+"subtotal": "53.00"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "comfort",
+"date": "2026-01-05",
+"time": "01:08",
+"passengers": [
+{
+"type": "student",
+"card": false
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "infant"
+},
+{
+"type": "adult",
+"age": 13
+},
+{
+"type": "adult",
+"age": 36
+}
+],
+"return": {
+"date": "2026-01-05",
+"time": "10:47"
+}
+},
+"quote": {
+"total": "36.20",
+"legs": [
+{
+"date": "2026-01-05",
+"season": "low",
+"subtotal": "16.80"
+},
+{
+"date": "2026-01-05",
+"season": "low",
+"subtotal": "21.00"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-MO",
+"class": "standard",
+"date": "2026-03-23",
+"time": "01:11",
+"passengers": [
+{
+"type": "disabled"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "companion"
+}
+],
+"promo": "WELCOME",
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "6.40",
+"legs": [
+{
+"date": "2026-03-23",
+"season": "low",
+"subtotal": "6.40"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "TP-BA",
+"class": "standard",
+"date": "2026-07-08",
+"time": "10:50",
+"passengers": [
+{
+"type": "infant",
+"age": 3
+},
+{
+"type": "adult",
+"age": 24
+},
+{
+"type": "infant",
+"age": 3
+},
+{
+"type": "companion"
+},
+{
+"type": "child",
+"age": 13
+},
+{
+"type": "adult"
+},
+{
+"type": "child"
+},
+{
+"type": "child",
+"age": 13
+},
+{
+"type": "adult",
+"age": 15
+},
+{
+"type": "disabled"
+}
+],
+"return": {
+"date": "2026-08-22",
+"time": "07:48"
+},
+"promo": "TROIA5",
+"channel": "counter"
+},
+"quote": {
+"total": "40.80",
+"legs": [
+{
+"date": "2026-07-08",
+"season": "high",
+"subtotal": "20.40"
+},
+{
+"date": "2026-08-22",
+"season": "high",
+"subtotal": "20.40"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "FA-FA",
+"class": "standard",
+"date": "2026-05-28",
+"time": "16:36",
+"passengers": [
+{
+"type": "student",
+"card": true
+},
+{
+"type": "senior",
+"age": 82
+},
+{
+"type": "infant",
+"age": 0
+},
+{
+"type": "infant"
+},
+{
+"type": "child",
+"age": 3
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 37
+},
+{
+"type": "adult",
+"age": 41
+},
+{
+"type": "student",
+"card": false
+},
+{
+"type": "child"
+},
+{
+"type": "adult",
+"age": 33
+},
+{
+"type": "adult",
+"age": 30
+}
+],
+"promo": "NIGHTOWL",
+"payment": "cash"
+},
+"quote": {
+"total": "16.15",
+"legs": [
+{
+"date": "2026-05-28",
+"season": "low",
+"subtotal": "15.65"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "standard",
+"date": "2026-11-11",
+"time": "07:00",
+"passengers": [
+{
+"type": "adult"
+}
+],
+"return": {
+"date": "2026-11-12",
+"time": "09:30"
+},
+"promo": "NIGHTOWL",
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "5.35",
+"legs": [
+{
+"date": "2026-11-11",
+"season": "low",
+"subtotal": "2.99"
+},
+{
+"date": "2026-11-12",
+"season": "low",
+"subtotal": "2.60"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"class": "standard",
+"date": "2026-06-14",
+"time": "06:59",
+"passengers": [
+{
+"type": "adult",
+"age": 61
+},
+{
+"type": "adult"
+},
+{
+"type": "child"
+},
+{
+"type": "child",
+"age": 13
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "adult",
+"age": 26
+},
+{
+"type": "adult"
+},
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "adult",
+"age": 24
+},
+{
+"type": "adult",
+"age": 21
+}
+],
+"promo": "WELCOME"
+},
+"quote": {
+"total": "22.32",
+"legs": [
+{
+"date": "2026-06-14",
+"season": "low",
+"subtotal": "25.67"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "LI-PO",
+"class": "standard",
+"date": "2026-09-15",
+"time": "15:55",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "adult"
+}
+],
+"return": {
+"date": "2026-10-16",
+"time": "20:17"
+},
+"payment": "cash"
+},
+"quote": {
+"total": "360.50",
+"legs": [
+{
+"date": "2026-09-15",
+"season": "high",
+"subtotal": "208.00"
+},
+{
+"date": "2026-10-16",
+"season": "low",
+"subtotal": "152.00"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "VR-AY",
+"class": "standard",
+"date": "2026-10-05",
+"time": "20:54",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "adult",
+"age": 53
+}
+],
+"return": {
+"date": "2026-11-05",
+"time": "08:29"
+},
+"promo": "PARTNER45"
+},
+"quote": {
+"total": "10.91",
+"legs": [
+{
+"date": "2026-10-05",
+"season": "peak",
+"subtotal": "9.45"
+},
+{
+"date": "2026-11-05",
+"season": "low",
+"subtotal": "7.90"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-CA",
+"class": "standard",
+"date": "2026-07-12",
+"time": "13:28",
+"passengers": [
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 61
+},
+{
+"type": "adult",
+"age": 80
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "infant",
+"age": 0
+},
+{
+"type": "companion"
+},
+{
+"type": "infant"
+},
+{
+"type": "adult",
+"age": 51
+},
+{
+"type": "infant",
+"age": 3
+}
+],
+"return": {
+"date": "2026-07-17",
+"time": "21:08"
+},
+"promo": "WELCOME"
+},
+"quote": {
+"total": "24.35",
+"legs": [
+{
+"date": "2026-07-12",
+"season": "high",
+"subtotal": "14.03"
+},
+{
+"date": "2026-07-17",
+"season": "high",
+"subtotal": "14.03"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"class": "standard",
+"date": "2026-03-11",
+"time": "12:58",
+"passengers": [
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "companion"
+},
+{
+"type": "adult"
+},
+{
+"type": "infant"
+},
+{
+"type": "adult"
+},
+{
+"type": "companion"
+},
+{
+"type": "senior",
+"age": 70
+},
+{
+"type": "adult",
+"age": 80
+},
+{
+"type": "disabled"
+}
+],
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "23.45",
+"legs": [
+{
+"date": "2026-03-11",
+"season": "low",
+"subtotal": "23.45"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "BE-PO",
+"class": "standard",
+"date": "2026-07-29",
+"time": "23:59",
+"passengers": [
+{
+"type": "adult",
+"age": 14
+},
+{
+"type": "adult",
+"age": 69
+},
+{
+"type": "adult"
+},
+{
+"type": "companion"
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 72
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult",
+"age": 66
+},
+{
+"type": "adult",
+"age": 63
+}
+]
+},
+"quote": {
+"total": "14.34",
+"legs": [
+{
+"date": "2026-07-29",
+"season": "high",
+"subtotal": "15.73"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "standard",
+"date": "2026-04-09",
+"time": "09:29",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "senior",
+"age": 82
+},
+{
+"type": "senior",
+"age": 64
+},
+{
+"type": "adult",
+"age": 35
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult",
+"age": 80
+},
+{
+"type": "adult",
+"age": 57
+},
+{
+"type": "child",
+"age": 5
+}
+],
+"return": {
+"date": "2026-05-24",
+"time": "09:30"
+},
+"promo": "NIGHTOWL",
+"channel": "counter"
+},
+"quote": {
+"total": "47.87",
+"legs": [
+{
+"date": "2026-04-09",
+"season": "low",
+"subtotal": "28.66"
+},
+{
+"date": "2026-05-24",
+"season": "low",
+"subtotal": "25.74"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CS-MO",
+"class": "standard",
+"date": "2026-04-06",
+"time": "11:08",
+"passengers": [
+{
+"type": "adult",
+"age": 20
+},
+{
+"type": "companion"
+},
+{
+"type": "adult",
+"age": 37
+},
+{
+"type": "student",
+"card": true
+}
+],
+"promo": "STUDENT5"
+},
+"quote": {
+"total": "12.50",
+"legs": [
+{
+"date": "2026-04-06",
+"season": "low",
+"subtotal": "12.00"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "LI-PO",
+"class": "standard",
+"date": "2026-11-20",
+"time": "09:30",
+"passengers": [
+{
+"type": "adult",
+"age": 67
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "child",
+"age": 13
+},
+{
+"type": "adult",
+"age": 33
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "companion"
+},
+{
+"type": "companion"
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "adult"
+},
+{
+"type": "disabled"
+}
+],
+"return": {
+"date": "2026-11-25",
+"time": "05:36"
+},
+"payment": "cash"
+},
+"quote": {
+"total": "542.00",
+"legs": [
+{
+"date": "2026-11-20",
+"season": "low",
+"subtotal": "285.00"
+},
+{
+"date": "2026-11-25",
+"season": "low",
+"subtotal": "285.00"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-SE",
+"class": "comfort",
+"date": "2026-08-09",
+"time": "16:23",
+"passengers": [
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult",
+"age": 44
+}
+],
+"return": {
+"date": "2026-09-09",
+"time": "12:27"
+},
+"promo": "ALGARVE20"
+},
+"quote": {
+"total": "18.31",
+"legs": [
+{
+"date": "2026-08-09",
+"season": "high",
+"subtotal": "9.50"
+},
+{
+"date": "2026-09-09",
+"season": "high",
+"subtotal": "8.31"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "FA-CU",
+"class": "standard",
+"date": "2026-03-17",
+"time": "19:43",
+"passengers": [
+{
+"type": "adult",
+"age": 30
+},
+{
+"type": "adult",
+"age": 51
+},
+{
+"type": "adult",
+"age": 45
+},
+{
+"type": "adult",
+"age": 79
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 33
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "adult",
+"age": 36
+},
+{
+"type": "companion"
+},
+{
+"type": "adult"
+},
+{
+"type": "child"
+},
+{
+"type": "student",
+"card": true
+}
+],
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "18.00",
+"legs": [
+{
+"date": "2026-03-17",
+"season": "low",
+"subtotal": "20.48"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "BE-TR",
+"class": "standard",
+"date": "2026-07-16",
+"time": "23:48",
+"passengers": [
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "companion"
+},
+{
+"type": "adult",
+"age": 16
+}
+],
+"return": {
+"date": "2026-08-14",
+"time": "23:31"
+},
+"promo": "EXPIRED",
+"channel": "counter"
+},
+"quote": {
+"total": "8.07",
+"legs": [
+{
+"date": "2026-07-16",
+"season": "high",
+"subtotal": "4.25"
+},
+{
+"date": "2026-08-14",
+"season": "high",
+"subtotal": "4.25"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CA-VI",
+"class": "standard",
+"date": "2026-04-25",
+"time": "12:30",
+"passengers": [
+{
+"type": "adult",
+"age": 53
+},
+{
+"type": "adult"
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "adult"
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "companion"
+},
+{
+"type": "adult",
+"age": 42
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "adult",
+"age": 17
+},
+{
+"type": "child",
+"age": 8
+}
+],
+"vehicles": [
+{
+"type": "bicycle"
+},
+{
+"type": "bicycle"
+}
+],
+"promo": "EXPIRED"
+},
+"quote": {
+"total": "19.55",
+"legs": [
+{
+"date": "2026-04-25",
+"season": "peak",
+"subtotal": "19.05"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-CA",
+"class": "standard",
+"date": "2026-10-03",
+"time": "08:25",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "infant"
+}
+],
+"promo": "PARTNER45",
+"channel": "counter"
+},
+"quote": {
+"total": "1.68",
+"legs": [
+{
+"date": "2026-10-03",
+"season": "low",
+"subtotal": "2.80"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "SE-TR",
+"class": "standard",
+"date": "2026-09-16",
+"time": "22:57",
+"passengers": [
+{
+"type": "companion"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 68
+},
+{
+"type": "infant",
+"age": 1
+},
+{
+"type": "disabled"
+},
+{
+"type": "child"
+},
+{
+"type": "adult"
+},
+{
+"type": "senior",
+"age": 82
+},
+{
+"type": "companion"
+}
+],
+"return": {
+"date": "2026-10-31",
+"time": "06:59"
+},
+"promo": "NOPE"
+},
+"quote": {
+"total": "48.96",
+"legs": [
+{
+"date": "2026-09-16",
+"season": "low",
+"subtotal": "24.23"
+},
+{
+"date": "2026-10-31",
+"season": "low",
+"subtotal": "24.23"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "VR-AY",
+"class": "comfort",
+"date": "2026-05-18",
+"time": "05:32",
+"passengers": [
+{
+"type": "senior",
+"age": 70
+}
+],
+"return": {
+"date": "2026-07-02",
+"time": "04:59"
+}
+},
+"quote": {
+"total": "7.02",
+"legs": [
+{
+"date": "2026-05-18",
+"season": "low",
+"subtotal": "3.40"
+},
+{
+"date": "2026-07-02",
+"season": "high",
+"subtotal": "3.12"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"class": "standard",
+"date": "2026-06-15",
+"time": "07:19",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "adult",
+"age": 48
+},
+{
+"type": "adult"
+}
+],
+"return": {
+"date": "2026-07-16",
+"time": "20:05"
+}
+},
+"quote": {
+"total": "29.74",
+"legs": [
+{
+"date": "2026-06-15",
+"season": "high",
+"subtotal": "15.64"
+},
+{
+"date": "2026-07-16",
+"season": "high",
+"subtotal": "13.60"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-BA",
+"class": "standard",
+"date": "2026-12-23",
+"time": "09:30",
+"passengers": [
+{
+"type": "senior",
+"age": 64
+},
+{
+"type": "adult",
+"age": 37
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 48
+},
+{
+"type": "adult"
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 68
+},
+{
+"type": "companion"
+},
+{
+"type": "senior",
+"age": 60
+}
+],
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "28.40",
+"legs": [
+{
+"date": "2026-12-23",
+"season": "low",
+"subtotal": "32.30"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "SE-TR-X",
+"class": "standard",
+"date": "2026-04-10",
+"time": "17:59",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "adult",
+"age": 51
+},
+{
+"type": "child",
+"age": 9
+}
+],
+"promo": "summer10"
+},
+"quote": {
+"total": "26.76",
+"legs": [
+{
+"date": "2026-04-10",
+"season": "low",
+"subtotal": "26.26"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-TR",
+"class": "standard",
+"date": "2026-01-01",
+"time": "23:44",
+"passengers": [
+{
+"type": "companion"
+},
+{
+"type": "adult",
+"age": 32
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 2
+},
+{
+"type": "adult",
+"age": 60
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "adult",
+"age": 65
+},
+{
+"type": "adult",
+"age": 48
+}
+],
+"return": {
+"date": "2026-01-30",
+"time": "23:47"
+},
+"promo": "FAMILY",
+"payment": "cash"
+},
+"quote": {
+"total": "17.05",
+"legs": [
+{
+"date": "2026-01-01",
+"season": "peak",
+"subtotal": "11.70"
+},
+{
+"date": "2026-01-30",
+"season": "low",
+"subtotal": "8.70"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR-X",
+"class": "standard",
+"date": "2026-04-29",
+"time": "19:24",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "adult",
+"age": 68
+},
+{
+"type": "infant",
+"age": 3
+}
+],
+"promo": "WINTER30",
+"payment": "cash"
+},
+"quote": {
+"total": "23.80",
+"legs": [
+{
+"date": "2026-04-29",
+"season": "low",
+"subtotal": "23.31"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-TR",
+"class": "standard",
+"date": "2026-09-24",
+"time": "06:59",
+"passengers": [
+{
+"type": "infant",
+"age": 2
+},
+{
+"type": "student",
+"card": false
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult",
+"age": 46
+},
+{
+"type": "adult"
+},
+{
+"type": "child"
+}
+],
+"vehicles": [
+{
+"type": "van",
+"length_m": 5.01
+},
+{
+"type": "car"
+}
+],
+"return": {
+"date": "2026-11-08",
+"time": "02:26"
+},
+"payment": "cash"
+},
+"quote": {
+"total": "89.90",
+"legs": [
+{
+"date": "2026-09-24",
+"season": "low",
+"subtotal": "45.16"
+},
+{
+"date": "2026-11-08",
+"season": "low",
+"subtotal": "44.22"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CA-VI",
+"class": "standard",
+"date": "2026-10-05",
+"time": "05:21",
+"passengers": [
+{
+"type": "adult",
+"age": 10
+}
+],
+"channel": "counter"
+},
+"quote": {
+"total": "1.08",
+"legs": [
+{
+"date": "2026-10-05",
+"season": "peak",
+"subtotal": "1.08"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "SE-TR",
+"class": "standard",
+"date": "2026-03-01",
+"time": "15:17",
+"passengers": [
+{
+"type": "adult",
+"age": 41
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 63
+},
+{
+"type": "child"
+},
+{
+"type": "adult",
+"age": 37
+},
+{
+"type": "adult",
+"age": 75
+},
+{
+"type": "child",
+"age": 12
+},
+{
+"type": "senior",
+"age": 70
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 51
+}
+],
+"promo": "ALGARVE20"
+},
+"quote": {
+"total": "33.04",
+"legs": [
+{
+"date": "2026-03-01",
+"season": "low",
+"subtotal": "36.98"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"class": "standard",
+"date": "2026-12-23",
+"time": "22:18",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "companion"
+},
+{
+"type": "senior",
+"age": 64
+},
+{
+"type": "adult"
+},
+{
+"type": "child"
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "adult",
+"age": 72
+},
+{
+"type": "adult"
+},
+{
+"type": "infant"
+},
+{
+"type": "senior",
+"age": 64
+},
+{
+"type": "disabled"
+},
+{
+"type": "infant",
+"age": 0
+}
+],
+"promo": "TEJO2"
+},
+"quote": {
+"total": "19.68",
+"legs": [
+{
+"date": "2026-12-23",
+"season": "low",
+"subtotal": "19.18"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "OL-AR",
+"class": "standard",
+"date": "2026-05-18",
+"time": "06:36",
+"passengers": [
+{
+"type": "disabled"
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 56
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 23
+},
+{
+"type": "adult",
+"age": 20
+}
+],
+"return": {
+"date": "2026-06-18",
+"time": "03:13"
+},
+"channel": "counter"
+},
+"quote": {
+"total": "16.88",
+"legs": [
+{
+"date": "2026-05-18",
+"season": "low",
+"subtotal": "8.78"
+},
+{
+"date": "2026-06-18",
+"season": "high",
+"subtotal": "8.10"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CS-SE",
+"class": "standard",
+"date": "2026-09-16",
+"time": "07:06",
+"passengers": [
+{
+"type": "adult",
+"age": 48
+},
+{
+"type": "adult",
+"age": 61
+}
+]
+},
+"quote": {
+"total": "6.37",
+"legs": [
+{
+"date": "2026-09-16",
+"season": "low",
+"subtotal": "5.87"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "VR-AY",
+"class": "standard",
+"date": "2026-09-15",
+"time": "22:10",
+"passengers": [
+{
+"type": "adult",
+"age": 53
+},
+{
+"type": "child"
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult"
+}
+],
+"vehicles": [
+{
+"type": "bicycle"
+},
+{
+"type": "motorcycle"
+}
+],
+"return": {
+"date": "2026-09-15",
+"time": "16:20"
+}
+},
+"quote": {
+"total": "34.51",
+"legs": [
+{
+"date": "2026-09-15",
+"season": "high",
+"subtotal": "17.90"
+},
+{
+"date": "2026-09-15",
+"season": "high",
+"subtotal": "17.90"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "comfort",
+"date": "2026-08-15",
+"time": "08:03",
+"passengers": [
+{
+"type": "companion"
+},
+{
+"type": "adult"
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult",
+"age": 72
+},
+{
+"type": "child",
+"age": 2
+},
+{
+"type": "disabled"
+},
+{
+"type": "child"
+},
+{
+"type": "infant"
+}
+],
+"promo": "NOPE",
+"channel": "counter"
+},
+"quote": {
+"total": "38.85",
+"legs": [
+{
+"date": "2026-08-15",
+"season": "peak",
+"subtotal": "38.85"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "standard",
+"date": "2026-08-11",
+"time": "20:46",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "adult",
+"age": 44
+},
+{
+"type": "infant",
+"age": 4
+}
+],
+"return": {
+"date": "2026-08-12",
+"time": "05:00"
+},
+"channel": "counter"
+},
+"quote": {
+"total": "25.65",
+"legs": [
+{
+"date": "2026-08-11",
+"season": "high",
+"subtotal": "13.50"
+},
+{
+"date": "2026-08-12",
+"season": "high",
+"subtotal": "13.50"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CA-VI",
+"class": "standard",
+"date": "2026-10-16",
+"time": "16:59",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 30
+},
+{
+"type": "adult",
+"age": 12
+},
+{
+"type": "disabled"
+},
+{
+"type": "student",
+"card": false
+},
+{
+"type": "companion"
+},
+{
+"type": "adult",
+"age": 55
+},
+{
+"type": "infant"
+},
+{
+"type": "child"
+},
+{
+"type": "adult"
+}
+],
+"return": {
+"date": "2026-10-16",
+"time": "09:30"
+},
+"promo": "WINTER30"
+},
+"quote": {
+"total": "21.78",
+"legs": [
+{
+"date": "2026-10-16",
+"season": "low",
+"subtotal": "11.20"
+},
+{
+"date": "2026-10-16",
+"season": "low",
+"subtotal": "11.20"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "standard",
+"date": "2026-09-30",
+"time": "07:00",
+"passengers": [
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult"
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 13
+},
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 54
+},
+{
+"type": "adult",
+"age": 31
+},
+{
+"type": "senior",
+"age": 82
+},
+{
+"type": "adult",
+"age": 55
+}
+],
+"payment": "cash"
+},
+"quote": {
+"total": "23.90",
+"legs": [
+{
+"date": "2026-09-30",
+"season": "low",
+"subtotal": "26.57"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-PO",
+"class": "standard",
+"date": "2026-10-25",
+"time": "19:30",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "adult",
+"age": 34
+}
+],
+"promo": "SUMMER10",
+"channel": "counter"
+},
+"quote": {
+"total": "5.80",
+"legs": [
+{
+"date": "2026-10-25",
+"season": "low",
+"subtotal": "5.80"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "standard",
+"date": "2026-04-30",
+"time": "11:11",
+"passengers": [
+{
+"type": "child"
+},
+{
+"type": "adult",
+"age": 30
+},
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "adult",
+"age": 37
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "senior",
+"age": 82
+},
+{
+"type": "child",
+"age": 13
+},
+{
+"type": "adult",
+"age": 75
+},
+{
+"type": "adult",
+"age": 32
+}
+],
+"channel": "counter"
+},
+"quote": {
+"total": "21.05",
+"legs": [
+{
+"date": "2026-04-30",
+"season": "low",
+"subtotal": "23.92"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "LI-PO",
+"class": "standard",
+"date": "2026-12-24",
+"time": "13:59",
+"passengers": [
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "adult",
+"age": 65
+}
+],
+"vehicles": [
+{
+"type": "car"
+}
+],
+"return": {
+"date": "2027-01-24",
+"time": "18:52"
+},
+"promo": "NIGHTOWL",
+"channel": "counter"
+},
+"quote": {
+"total": "144.37",
+"legs": [
+{
+"date": "2026-12-24",
+"season": "peak",
+"subtotal": "117.50"
+},
+{
+"date": "2027-01-24",
+"season": "low",
+"subtotal": "75.00"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CS-MO",
+"class": "standard",
+"date": "2026-01-29",
+"time": "18:39",
+"passengers": [
+{
+"type": "child",
+"age": 12
+}
+],
+"payment": "cash"
+},
+"quote": {
+"total": "4.20",
+"legs": [
+{
+"date": "2026-01-29",
+"season": "low",
+"subtotal": "3.68"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CA-VI",
+"class": "standard",
+"date": "2026-06-14",
+"time": "11:41",
+"passengers": [
+{
+"type": "adult"
+}
+]
+},
+"quote": {
+"total": "2.10",
+"legs": [
+{
+"date": "2026-06-14",
+"season": "low",
+"subtotal": "1.60"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR-X",
+"class": "standard",
+"date": "2026-04-20",
+"time": "09:59",
+"passengers": [
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "adult",
+"age": 54
+},
+{
+"type": "disabled"
+},
+{
+"type": "infant"
+},
+{
+"type": "child"
+}
+],
+"return": {
+"date": "2026-04-21",
+"time": "09:30"
+}
+},
+"quote": {
+"total": "34.13",
+"legs": [
+{
+"date": "2026-04-20",
+"season": "low",
+"subtotal": "17.70"
+},
+{
+"date": "2026-04-21",
+"season": "low",
+"subtotal": "17.70"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CA-VI",
+"class": "standard",
+"date": "2026-06-14",
+"time": "04:59",
+"passengers": [
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 28
+}
+],
+"vehicles": [
+{
+"type": "bicycle"
+}
+],
+"return": {
+"date": "2026-07-15",
+"time": "02:59"
+},
+"promo": "WINTER30"
+},
+"quote": {
+"total": "9.40",
+"legs": [
+{
+"date": "2026-06-14",
+"season": "low",
+"subtotal": "3.20"
+},
+{
+"date": "2026-07-15",
+"season": "high",
+"subtotal": "5.70"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR",
+"class": "comfort",
+"date": "2026-05-17",
+"time": "23:02",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 42
+}
+],
+"vehicles": [
+{
+"type": "car"
+}
+],
+"return": {
+"date": "2026-05-18",
+"time": "09:29"
+},
+"promo": "WELCOME"
+},
+"quote": {
+"total": "104.54",
+"legs": [
+{
+"date": "2026-05-17",
+"season": "low",
+"subtotal": "61.20"
+},
+{
+"date": "2026-05-18",
+"season": "low",
+"subtotal": "61.20"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "FA-FA",
+"class": "standard",
+"date": "2026-07-13",
+"time": "09:29",
+"passengers": [
+{
+"type": "adult",
+"age": 11
+}
+],
+"channel": "counter"
+},
+"quote": {
+"total": "1.20",
+"legs": [
+{
+"date": "2026-07-13",
+"season": "high",
+"subtotal": "1.20"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "standard",
+"date": "2026-12-10",
+"time": "00:00",
+"passengers": [
+{
+"type": "adult",
+"age": 71
+},
+{
+"type": "adult"
+},
+{
+"type": "infant"
+},
+{
+"type": "adult",
+"age": 69
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "child"
+},
+{
+"type": "senior",
+"age": 64
+},
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult",
+"age": 63
+}
+],
+"return": {
+"date": "2026-12-10",
+"time": "19:30"
+},
+"promo": "TEJO2"
+},
+"quote": {
+"total": "36.47",
+"legs": [
+{
+"date": "2026-12-10",
+"season": "low",
+"subtotal": "19.24"
+},
+{
+"date": "2026-12-10",
+"season": "low",
+"subtotal": "24.05"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"class": "standard",
+"date": "2026-02-23",
+"time": "06:59",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+}
+],
+"channel": "counter"
+},
+"quote": {
+"total": "11.80",
+"legs": [
+{
+"date": "2026-02-23",
+"season": "low",
+"subtotal": "11.80"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "FA-FA",
+"class": "standard",
+"date": "2026-01-09",
+"time": "00:27",
+"passengers": [
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 24
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 31
+},
+{
+"type": "adult",
+"age": 68
+},
+{
+"type": "adult",
+"age": 79
+},
+{
+"type": "adult",
+"age": 72
+},
+{
+"type": "disabled"
+},
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "adult"
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "adult",
+"age": 57
+}
+],
+"channel": "counter"
+},
+"quote": {
+"total": "15.08",
+"legs": [
+{
+"date": "2026-01-09",
+"season": "low",
+"subtotal": "17.14"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "BE-TR",
+"class": "standard",
+"date": "2026-03-04",
+"time": "07:12",
+"passengers": [
+{
+"type": "companion"
+},
+{
+"type": "companion"
+}
+],
+"promo": "ALGARVE20"
+},
+"quote": {
+"total": "3.84",
+"legs": [
+{
+"date": "2026-03-04",
+"season": "low",
+"subtotal": "3.34"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-TR",
+"class": "standard",
+"date": "2026-05-18",
+"time": "17:00",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "student",
+"card": false
+},
+{
+"type": "adult"
+}
+]
+},
+"quote": {
+"total": "7.17",
+"legs": [
+{
+"date": "2026-05-18",
+"season": "low",
+"subtotal": "6.67"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-PO",
+"class": "standard",
+"date": "2026-05-29",
+"time": "20:45",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "child"
+},
+{
+"type": "adult",
+"age": 17
+}
+]
+},
+"quote": {
+"total": "7.03",
+"legs": [
+{
+"date": "2026-05-29",
+"season": "low",
+"subtotal": "6.53"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR-X",
+"class": "comfort",
+"date": "2026-01-09",
+"time": "04:59",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 50
+}
+],
+"channel": "counter"
+},
+"quote": {
+"total": "36.40",
+"legs": [
+{
+"date": "2026-01-09",
+"season": "low",
+"subtotal": "36.40"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "VR-AY",
+"class": "comfort",
+"date": "2026-11-20",
+"time": "23:59",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "senior",
+"age": 64
+}
+],
+"vehicles": [
+{
+"type": "bicycle"
+}
+],
+"return": {
+"date": "2026-11-21",
+"time": "23:59"
+}
+},
+"quote": {
+"total": "36.03",
+"legs": [
+{
+"date": "2026-11-20",
+"season": "low",
+"subtotal": "18.70"
+},
+{
+"date": "2026-11-21",
+"season": "low",
+"subtotal": "18.70"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "FA-CU",
+"class": "standard",
+"date": "2026-09-24",
+"time": "07:00",
+"passengers": [
+{
+"type": "senior",
+"age": 82
+}
+]
+},
+"quote": {
+"total": "2.19",
+"legs": [
+{
+"date": "2026-09-24",
+"season": "low",
+"subtotal": "1.69"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-PO",
+"class": "standard",
+"date": "2026-12-30",
+"time": "10:00",
+"passengers": [
+{
+"type": "adult",
+"age": 27
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 23
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "adult"
+},
+{
+"type": "senior",
+"age": 82
+},
+{
+"type": "child",
+"age": 2
+},
+{
+"type": "adult"
+},
+{
+"type": "companion"
+},
+{
+"type": "adult",
+"age": 62
+},
+{
+"type": "adult",
+"age": 51
+}
+],
+"vehicles": [
+{
+"type": "bicycle"
+}
+],
+"return": {
+"date": "2027-02-13",
+"time": "07:00"
+},
+"promo": "EXPIRED",
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "29.30",
+"legs": [
+{
+"date": "2026-12-30",
+"season": "peak",
+"subtotal": "19.94"
+},
+{
+"date": "2027-02-13",
+"season": "low",
+"subtotal": "13.34"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CS-CA",
+"class": "standard",
+"date": "2026-10-16",
+"time": "14:05",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 31
+},
+{
+"type": "adult"
+},
+{
+"type": "senior",
+"age": 64
+},
+{
+"type": "senior",
+"age": 64
+},
+{
+"type": "adult",
+"age": 59
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "child",
+"age": 6
+}
+]
+},
+"quote": {
+"total": "12.20",
+"legs": [
+{
+"date": "2026-10-16",
+"season": "low",
+"subtotal": "13.30"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "standard",
+"date": "2026-02-01",
+"time": "02:32",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 23
+},
+{
+"type": "adult",
+"age": 63
+},
+{
+"type": "adult"
+}
+],
+"return": {
+"date": "2026-03-04",
+"time": "02:56"
+},
+"promo": "WINTER30"
+},
+"quote": {
+"total": "17.14",
+"legs": [
+{
+"date": "2026-02-01",
+"season": "low",
+"subtotal": "8.32"
+},
+{
+"date": "2026-03-04",
+"season": "low",
+"subtotal": "8.32"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "FA-FA",
+"class": "standard",
+"date": "2026-09-07",
+"time": "11:35",
+"passengers": [
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 55
+},
+{
+"type": "adult",
+"age": 74
+},
+{
+"type": "adult",
+"age": 71
+}
+],
+"promo": "FAMILY",
+"channel": "counter"
+},
+"quote": {
+"total": "5.40",
+"legs": [
+{
+"date": "2026-09-07",
+"season": "high",
+"subtotal": "8.40"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "SE-TR-X",
+"class": "comfort",
+"date": "2026-01-01",
+"time": "09:30",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "senior",
+"age": 82
+}
+],
+"return": {
+"date": "2026-01-31",
+"time": "00:00"
+},
+"promo": "NIGHTOWL",
+"payment": "cash"
+},
+"quote": {
+"total": "118.50",
+"legs": [
+{
+"date": "2026-01-01",
+"season": "peak",
+"subtotal": "81.95"
+},
+{
+"date": "2026-01-31",
+"season": "low",
+"subtotal": "40.04"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"class": "standard",
+"date": "2026-02-07",
+"time": "06:59",
+"passengers": [
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 66
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "disabled"
+},
+{
+"type": "companion"
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "infant"
+},
+{
+"type": "infant"
+}
+],
+"promo": "ALGARVE20",
+"channel": "counter"
+},
+"quote": {
+"total": "22.72",
+"legs": [
+{
+"date": "2026-02-07",
+"season": "low",
+"subtotal": "22.72"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "standard",
+"date": "2026-09-15",
+"time": "05:52",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "child"
+},
+{
+"type": "companion"
+},
+{
+"type": "adult",
+"age": 77
+}
+],
+"promo": "NOPE",
+"channel": "counter"
+},
+"quote": {
+"total": "12.75",
+"legs": [
+{
+"date": "2026-09-15",
+"season": "high",
+"subtotal": "12.75"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "FA-CU",
+"class": "standard",
+"date": "2026-09-13",
+"time": "09:29",
+"passengers": [
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult",
+"age": 16
+},
+{
+"type": "companion"
+}
+],
+"return": {
+"date": "2026-10-28",
+"time": "09:29"
+},
+"promo": "MINHO"
+},
+"quote": {
+"total": "14.34",
+"legs": [
+{
+"date": "2026-09-13",
+"season": "high",
+"subtotal": "7.20"
+},
+{
+"date": "2026-10-28",
+"season": "low",
+"subtotal": "6.64"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR-X",
+"class": "comfort",
+"date": "2026-02-12",
+"time": "15:55",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "infant",
+"age": 4
+},
+{
+"type": "senior",
+"age": 82
+},
+{
+"type": "infant",
+"age": 5
+},
+{
+"type": "adult",
+"age": 70
+},
+{
+"type": "student",
+"card": true
+}
+]
+},
+"quote": {
+"total": "43.73",
+"legs": [
+{
+"date": "2026-02-12",
+"season": "low",
+"subtotal": "43.23"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-CA",
+"class": "standard",
+"date": "2026-06-09",
+"time": "05:45",
+"passengers": [
+{
+"type": "adult",
+"age": 27
+},
+{
+"type": "adult",
+"age": 16
+},
+{
+"type": "student",
+"card": false
+}
+],
+"return": {
+"date": "2026-06-10",
+"time": "12:30"
+},
+"promo": "ALGARVE20",
+"payment": "cash"
+},
+"quote": {
+"total": "9.95",
+"legs": [
+{
+"date": "2026-06-09",
+"season": "low",
+"subtotal": "4.20"
+},
+{
+"date": "2026-06-10",
+"season": "peak",
+"subtotal": "5.85"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"class": "standard",
+"date": "2026-11-16",
+"time": "17:00",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child"
+},
+{
+"type": "student",
+"card": true
+}
+],
+"promo": "TROIA5",
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "13.75",
+"legs": [
+{
+"date": "2026-11-16",
+"season": "low",
+"subtotal": "13.75"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "FA-FA",
+"class": "standard",
+"date": "2026-01-11",
+"time": "04:59",
+"passengers": [
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "senior",
+"age": 82
+},
+{
+"type": "child"
+},
+{
+"type": "child"
+},
+{
+"type": "child"
+},
+{
+"type": "adult",
+"age": 42
+},
+{
+"type": "adult",
+"age": 20
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 79
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 33
+},
+{
+"type": "adult",
+"age": 46
+}
+]
+},
+"quote": {
+"total": "14.28",
+"legs": [
+{
+"date": "2026-01-11",
+"season": "low",
+"subtotal": "13.78"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-CA",
+"class": "standard",
+"date": "2026-02-12",
+"time": "00:16",
+"passengers": [
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 33
+},
+{
+"type": "child",
+"age": 3
+},
+{
+"type": "adult",
+"age": 14
+},
+{
+"type": "adult",
+"age": 43
+},
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "infant"
+},
+{
+"type": "adult"
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "companion"
+}
+],
+"return": {
+"date": "2026-03-15",
+"time": "07:15"
+}
+},
+"quote": {
+"total": "17.86",
+"legs": [
+{
+"date": "2026-02-12",
+"season": "low",
+"subtotal": "7.56"
+},
+{
+"date": "2026-03-15",
+"season": "low",
+"subtotal": "9.80"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "FA-CU",
+"class": "standard",
+"date": "2026-09-16",
+"time": "18:59",
+"passengers": [
+{
+"type": "senior",
+"age": 70
+},
+{
+"type": "adult",
+"age": 17
+},
+{
+"type": "adult"
+},
+{
+"type": "disabled"
+}
+],
+"promo": "WELCOME"
+},
+"quote": {
+"total": "8.07",
+"legs": [
+{
+"date": "2026-09-16",
+"season": "low",
+"subtotal": "7.57"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CA-VI",
+"class": "standard",
+"date": "2026-02-03",
+"time": "01:51",
+"passengers": [
+{
+"type": "senior",
+"age": 70
+}
+],
+"vehicles": [
+{
+"type": "bicycle"
+}
+],
+"return": {
+"date": "2026-03-04",
+"time": "09:29"
+},
+"promo": "FAMILY",
+"payment": "cash"
+},
+"quote": {
+"total": "1.80",
+"legs": [
+{
+"date": "2026-02-03",
+"season": "low",
+"subtotal": "0.90"
+},
+{
+"date": "2026-03-04",
+"season": "low",
+"subtotal": "1.29"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "standard",
+"date": "2026-09-15",
+"time": "01:41",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 47
+},
+{
+"type": "child",
+"age": 3
+},
+{
+"type": "senior",
+"age": 64
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "adult",
+"age": 22
+},
+{
+"type": "infant",
+"age": 0
+},
+{
+"type": "adult"
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "infant"
+},
+{
+"type": "infant",
+"age": 3
+}
+],
+"return": {
+"date": "2026-10-16",
+"time": "03:30"
+}
+},
+"quote": {
+"total": "31.86",
+"legs": [
+{
+"date": "2026-09-15",
+"season": "high",
+"subtotal": "16.80"
+},
+{
+"date": "2026-10-16",
+"season": "low",
+"subtotal": "14.56"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-PO",
+"class": "standard",
+"date": "2026-06-15",
+"time": "19:30",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "companion"
+},
+{
+"type": "adult",
+"age": 31
+}
+],
+"vehicles": [
+{
+"type": "van",
+"length_m": 5.0
+}
+],
+"payment": "cash"
+},
+"quote": {
+"total": "29.30",
+"legs": [
+{
+"date": "2026-06-15",
+"season": "high",
+"subtotal": "28.80"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-SE",
+"class": "comfort",
+"date": "2026-09-24",
+"time": "02:46",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "disabled"
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "adult",
+"age": 46
+},
+{
+"type": "child",
+"age": 12
+},
+{
+"type": "adult"
+},
+{
+"type": "child"
+},
+{
+"type": "adult",
+"age": 65
+},
+{
+"type": "child"
+},
+{
+"type": "adult",
+"age": 48
+}
+],
+"return": {
+"date": "2026-09-24",
+"time": "21:24"
+},
+"promo": "STUDENT5"
+},
+"quote": {
+"total": "47.11",
+"legs": [
+{
+"date": "2026-09-24",
+"season": "low",
+"subtotal": "26.24"
+},
+{
+"date": "2026-09-24",
+"season": "low",
+"subtotal": "32.80"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-CA",
+"class": "standard",
+"date": "2026-03-17",
+"time": "09:29",
+"passengers": [
+{
+"type": "child"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 51
+},
+{
+"type": "infant"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+}
+]
+},
+"quote": {
+"total": "7.64",
+"legs": [
+{
+"date": "2026-03-17",
+"season": "low",
+"subtotal": "7.14"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-TR",
+"class": "standard",
+"date": "2026-12-26",
+"time": "17:41",
+"passengers": [
+{
+"type": "companion"
+},
+{
+"type": "adult",
+"age": 43
+}
+],
+"vehicles": [
+{
+"type": "motorcycle"
+},
+{
+"type": "bicycle"
+}
+],
+"return": {
+"date": "2026-12-27",
+"time": "23:55"
+}
+},
+"quote": {
+"total": "31.66",
+"legs": [
+{
+"date": "2026-12-26",
+"season": "peak",
+"subtotal": "16.40"
+},
+{
+"date": "2026-12-27",
+"season": "peak",
+"subtotal": "16.40"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-BA",
+"class": "standard",
+"date": "2026-06-15",
+"time": "11:59",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "infant"
+},
+{
+"type": "adult",
+"age": 33
+}
+],
+"payment": "cash"
+},
+"quote": {
+"total": "9.70",
+"legs": [
+{
+"date": "2026-06-15",
+"season": "high",
+"subtotal": "9.18"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"class": "standard",
+"date": "2026-10-05",
+"time": "19:30",
+"passengers": [
+{
+"type": "companion"
+}
+],
+"return": {
+"date": "2026-10-06",
+"time": "09:29"
+}
+},
+"quote": {
+"total": "7.45",
+"legs": [
+{
+"date": "2026-10-05",
+"season": "peak",
+"subtotal": "3.90"
+},
+{
+"date": "2026-10-06",
+"season": "low",
+"subtotal": "3.39"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "OL-AR",
+"class": "standard",
+"date": "2026-04-30",
+"time": "18:16",
+"passengers": [
+{
+"type": "adult",
+"age": 76
+},
+{
+"type": "adult",
+"age": 35
+},
+{
+"type": "adult",
+"age": 62
+},
+{
+"type": "adult",
+"age": 75
+}
+],
+"return": {
+"date": "2026-05-30",
+"time": "14:09"
+}
+},
+"quote": {
+"total": "16.49",
+"legs": [
+{
+"date": "2026-04-30",
+"season": "low",
+"subtotal": "8.97"
+},
+{
+"date": "2026-05-30",
+"season": "low",
+"subtotal": "7.80"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-PO",
+"class": "standard",
+"date": "2026-03-21",
+"time": "19:30",
+"passengers": [
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "disabled"
+},
+{
+"type": "companion"
+}
+],
+"vehicles": [
+{
+"type": "car"
+}
+],
+"return": {
+"date": "2026-05-05",
+"time": "12:32"
+},
+"promo": "ALGARVE20"
+},
+"quote": {
+"total": "39.98",
+"legs": [
+{
+"date": "2026-03-21",
+"season": "low",
+"subtotal": "19.74"
+},
+{
+"date": "2026-05-05",
+"season": "low",
+"subtotal": "19.74"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-PO",
+"class": "standard",
+"date": "2026-02-28",
+"time": "09:30",
+"passengers": [
+{
+"type": "adult",
+"age": 56
+},
+{
+"type": "adult"
+},
+{
+"type": "companion"
+},
+{
+"type": "senior",
+"age": 65
+}
+],
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "5.35",
+"legs": [
+{
+"date": "2026-02-28",
+"season": "low",
+"subtotal": "5.37"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "BE-TR",
+"class": "standard",
+"date": "2026-04-25",
+"time": "20:02",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "student",
+"card": true
+}
+],
+"return": {
+"date": "2026-05-25",
+"time": "10:05"
+},
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "12.70",
+"legs": [
+{
+"date": "2026-04-25",
+"season": "peak",
+"subtotal": "7.80"
+},
+{
+"date": "2026-05-25",
+"season": "low",
+"subtotal": "5.44"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "SE-TR",
+"class": "standard",
+"date": "2026-11-22",
+"time": "15:08",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child"
+}
+],
+"return": {
+"date": "2026-12-21",
+"time": "09:29"
+},
+"promo": "NOPE",
+"channel": "counter"
+},
+"quote": {
+"total": "21.34",
+"legs": [
+{
+"date": "2026-11-22",
+"season": "low",
+"subtotal": "10.63"
+},
+{
+"date": "2026-12-21",
+"season": "low",
+"subtotal": "11.90"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "TP-BA",
+"class": "standard",
+"date": "2026-01-09",
+"time": "06:59",
+"passengers": [
+{
+"type": "infant",
+"age": 1
+}
+],
+"promo": "MINHO",
+"payment": "cash"
+},
+"quote": {
+"total": "2.00",
+"legs": [
+{
+"date": "2026-01-09",
+"season": "low",
+"subtotal": "1.48"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-MO",
+"class": "standard",
+"date": "2026-07-17",
+"time": "16:59",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "adult",
+"age": 21
+},
+{
+"type": "adult",
+"age": 35
+}
+],
+"channel": "counter"
+},
+"quote": {
+"total": "14.80",
+"legs": [
+{
+"date": "2026-07-17",
+"season": "high",
+"subtotal": "14.80"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "BE-PO",
+"class": "standard",
+"date": "2026-01-01",
+"time": "19:30",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "adult"
+}
+],
+"return": {
+"date": "2026-01-06",
+"time": "13:23"
+},
+"promo": "WINTER30"
+},
+"quote": {
+"total": "13.52",
+"legs": [
+{
+"date": "2026-01-01",
+"season": "peak",
+"subtotal": "7.80"
+},
+{
+"date": "2026-01-06",
+"season": "low",
+"subtotal": "5.80"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "OL-AR",
+"class": "standard",
+"date": "2026-04-16",
+"time": "01:45",
+"passengers": [
+{
+"type": "adult",
+"age": 42
+},
+{
+"type": "adult",
+"age": 29
+},
+{
+"type": "child"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 60
+},
+{
+"type": "adult",
+"age": 76
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 44
+},
+{
+"type": "adult",
+"age": 59
+},
+{
+"type": "child"
+},
+{
+"type": "adult"
+}
+],
+"return": {
+"date": "2026-05-31",
+"time": "07:00"
+},
+"payment": "cash"
+},
+"quote": {
+"total": "32.10",
+"legs": [
+{
+"date": "2026-04-16",
+"season": "low",
+"subtotal": "14.04"
+},
+{
+"date": "2026-05-31",
+"season": "low",
+"subtotal": "17.55"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "OL-AR",
+"class": "standard",
+"date": "2026-06-13",
+"time": "19:30",
+"passengers": [
+{
+"type": "adult",
+"age": 55
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 46
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult"
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "companion"
+},
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "companion"
+},
+{
+"type": "adult",
+"age": 52
+},
+{
+"type": "adult"
+}
+],
+"return": {
+"date": "2026-06-13",
+"time": "07:00"
+},
+"promo": "STUDENT5"
+},
+"quote": {
+"total": "36.07",
+"legs": [
+{
+"date": "2026-06-13",
+"season": "peak",
+"subtotal": "18.72"
+},
+{
+"date": "2026-06-13",
+"season": "peak",
+"subtotal": "18.72"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "FA-CU",
+"class": "standard",
+"date": "2026-09-16",
+"time": "15:20",
+"passengers": [
+{
+"type": "infant",
+"age": 5
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "companion"
+},
+{
+"type": "child",
+"age": 3
+}
+],
+"return": {
+"date": "2026-10-17",
+"time": "21:27"
+}
+},
+"quote": {
+"total": "10.48",
+"legs": [
+{
+"date": "2026-09-16",
+"season": "low",
+"subtotal": "4.73"
+},
+{
+"date": "2026-10-17",
+"season": "low",
+"subtotal": "5.25"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-CA",
+"class": "standard",
+"date": "2026-12-23",
+"time": "07:00",
+"passengers": [
+{
+"type": "student",
+"card": true
+},
+{
+"type": "child"
+}
+],
+"promo": "TROIA5",
+"payment": "cash"
+},
+"quote": {
+"total": "2.40",
+"legs": [
+{
+"date": "2026-12-23",
+"season": "low",
+"subtotal": "1.91"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "FA-CU",
+"class": "standard",
+"date": "2026-01-01",
+"time": "05:26",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+}
+],
+"return": {
+"date": "2026-01-30",
+"time": "20:05"
+},
+"promo": "BIKE",
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "18.75",
+"legs": [
+{
+"date": "2026-01-01",
+"season": "peak",
+"subtotal": "11.20"
+},
+{
+"date": "2026-01-30",
+"season": "low",
+"subtotal": "8.40"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "FA-CU",
+"class": "standard",
+"date": "2026-02-15",
+"time": "10:06",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "adult",
+"age": 30
+},
+{
+"type": "adult",
+"age": 14
+}
+],
+"promo": "TROIA5",
+"payment": "cash"
+},
+"quote": {
+"total": "9.95",
+"legs": [
+{
+"date": "2026-02-15",
+"season": "low",
+"subtotal": "9.45"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "LI-PO",
+"class": "standard",
+"date": "2026-06-14",
+"time": "00:13",
+"passengers": [
+{
+"type": "adult",
+"age": 67
+},
+{
+"type": "adult",
+"age": 34
+},
+{
+"type": "adult",
+"age": 70
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 43
+},
+{
+"type": "adult",
+"age": 18
+},
+{
+"type": "adult"
+}
+],
+"payment": "cash"
+},
+"quote": {
+"total": "274.10",
+"legs": [
+{
+"date": "2026-06-14",
+"season": "low",
+"subtotal": "273.60"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CA-VI",
+"class": "standard",
+"date": "2026-06-26",
+"time": "11:14",
+"passengers": [
+{
+"type": "child"
+},
+{
+"type": "infant"
+},
+{
+"type": "adult"
+},
+{
+"type": "student",
+"card": true
+}
+],
+"vehicles": [
+{
+"type": "bicycle"
+},
+{
+"type": "van",
+"length_m": 8.95
+}
+],
+"return": {
+"date": "2026-07-01",
+"time": "21:07"
+}
+},
+"quote": {
+"total": "76.80",
+"legs": [
+{
+"date": "2026-06-26",
+"season": "high",
+"subtotal": "40.16"
+},
+{
+"date": "2026-07-01",
+"season": "high",
+"subtotal": "40.16"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "FA-CU",
+"class": "standard",
+"date": "2026-04-19",
+"time": "01:39",
+"passengers": [
+{
+"type": "senior",
+"age": 82
+},
+{
+"type": "disabled"
+},
+{
+"type": "student",
+"card": true
+}
+],
+"return": {
+"date": "2026-04-20",
+"time": "05:00"
+},
+"promo": "STUDENT5"
+},
+"quote": {
+"total": "7.89",
+"legs": [
+{
+"date": "2026-04-19",
+"season": "low",
+"subtotal": "3.70"
+},
+{
+"date": "2026-04-20",
+"season": "low",
+"subtotal": "4.10"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-PO",
+"class": "standard",
+"date": "2026-01-22",
+"time": "16:59",
+"passengers": [
+{
+"type": "adult",
+"age": 71
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 12
+},
+{
+"type": "adult",
+"age": 28
+},
+{
+"type": "senior",
+"age": 70
+},
+{
+"type": "child"
+},
+{
+"type": "adult",
+"age": 78
+},
+{
+"type": "senior",
+"age": 70
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "adult",
+"age": 62
+}
+],
+"vehicles": [
+{
+"type": "car"
+},
+{
+"type": "bicycle"
+}
+],
+"return": {
+"date": "2026-01-27",
+"time": "17:00"
+},
+"promo": "EXPIRED",
+"channel": "counter"
+},
+"quote": {
+"total": "54.47",
+"legs": [
+{
+"date": "2026-01-22",
+"season": "low",
+"subtotal": "28.01"
+},
+{
+"date": "2026-01-27",
+"season": "low",
+"subtotal": "29.40"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CA-VI",
+"class": "standard",
+"date": "2026-03-19",
+"time": "05:34",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "infant",
+"age": 3
+},
+{
+"type": "adult"
+}
+],
+"vehicles": [
+{
+"type": "motorcycle"
+}
+],
+"return": {
+"date": "2026-03-19",
+"time": "02:18"
+},
+"promo": "BIKE",
+"channel": "counter"
+},
+"quote": {
+"total": "25.26",
+"legs": [
+{
+"date": "2026-03-19",
+"season": "low",
+"subtotal": "13.90"
+},
+{
+"date": "2026-03-19",
+"season": "low",
+"subtotal": "12.62"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "OL-AR",
+"class": "standard",
+"date": "2026-08-14",
+"time": "23:59",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "adult",
+"age": 38
+},
+{
+"type": "adult",
+"age": 39
+}
+]
+},
+"quote": {
+"total": "11.75",
+"legs": [
+{
+"date": "2026-08-14",
+"season": "high",
+"subtotal": "11.25"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR-X",
+"class": "standard",
+"date": "2026-10-14",
+"time": "09:30",
+"passengers": [
+{
+"type": "disabled"
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "adult",
+"age": 37
+}
+],
+"return": {
+"date": "2026-11-12",
+"time": "00:13"
+},
+"promo": "WELCOME"
+},
+"quote": {
+"total": "18.55",
+"legs": [
+{
+"date": "2026-10-14",
+"season": "low",
+"subtotal": "11.80"
+},
+{
+"date": "2026-11-12",
+"season": "low",
+"subtotal": "9.44"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-TR",
+"class": "standard",
+"date": "2026-01-01",
+"time": "10:06",
+"passengers": [
+{
+"type": "adult",
+"age": 29
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult",
+"age": 57
+},
+{
+"type": "student",
+"card": false
+},
+{
+"type": "companion"
+},
+{
+"type": "adult",
+"age": 13
+},
+{
+"type": "adult",
+"age": 13
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult",
+"age": 11
+},
+{
+"type": "infant",
+"age": 1
+}
+],
+"vehicles": [
+{
+"type": "car"
+}
+],
+"promo": "FAMILY",
+"payment": "cash"
+},
+"quote": {
+"total": "39.10",
+"legs": [
+{
+"date": "2026-01-01",
+"season": "peak",
+"subtotal": "41.60"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "FA-FA",
+"class": "standard",
+"date": "2026-07-03",
+"time": "13:41",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+}
+],
+"return": {
+"date": "2026-07-04",
+"time": "09:30"
+},
+"promo": "TROIA5"
+},
+"quote": {
+"total": "23.30",
+"legs": [
+{
+"date": "2026-07-03",
+"season": "high",
+"subtotal": "12.00"
+},
+{
+"date": "2026-07-04",
+"season": "high",
+"subtotal": "12.00"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-TR",
+"class": "standard",
+"date": "2026-06-14",
+"time": "18:08",
+"passengers": [
+{
+"type": "adult",
+"age": 55
+},
+{
+"type": "adult",
+"age": 23
+},
+{
+"type": "companion"
+},
+{
+"type": "adult",
+"age": 68
+},
+{
+"type": "adult",
+"age": 44
+},
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "adult"
+},
+{
+"type": "companion"
+},
+{
+"type": "infant",
+"age": 3
+},
+{
+"type": "child"
+}
+],
+"vehicles": [
+{
+"type": "bicycle"
+},
+{
+"type": "bicycle"
+}
+],
+"return": {
+"date": "2026-07-15",
+"time": "06:07"
+},
+"promo": "MINHO",
+"payment": "cash"
+},
+"quote": {
+"total": "30.35",
+"legs": [
+{
+"date": "2026-06-14",
+"season": "low",
+"subtotal": "11.89"
+},
+{
+"date": "2026-07-15",
+"season": "high",
+"subtotal": "17.94"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "OL-AR",
+"class": "standard",
+"date": "2026-09-16",
+"time": "08:41",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "adult",
+"age": 45
+},
+{
+"type": "adult"
+}
+],
+"return": {
+"date": "2026-09-17",
+"time": "00:00"
+},
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "16.25",
+"legs": [
+{
+"date": "2026-09-16",
+"season": "low",
+"subtotal": "9.95"
+},
+{
+"date": "2026-09-17",
+"season": "low",
+"subtotal": "7.02"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "LI-PO",
+"class": "comfort",
+"date": "2026-03-18",
+"time": "23:59",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "adult",
+"age": 25
+},
+{
+"type": "adult",
+"age": 19
+}
+],
+"vehicles": [
+{
+"type": "motorcycle"
+}
+],
+"promo": "EXPIRED"
+},
+"quote": {
+"total": "328.00",
+"legs": [
+{
+"date": "2026-03-18",
+"season": "low",
+"subtotal": "327.50"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-PO",
+"class": "standard",
+"date": "2026-01-10",
+"time": "16:59",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "student",
+"card": true
+}
+],
+"return": {
+"date": "2026-02-09",
+"time": "04:59"
+}
+},
+"quote": {
+"total": "12.45",
+"legs": [
+{
+"date": "2026-01-10",
+"season": "low",
+"subtotal": "7.25"
+},
+{
+"date": "2026-02-09",
+"season": "low",
+"subtotal": "5.22"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-TR",
+"class": "standard",
+"date": "2026-08-08",
+"time": "04:50",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "child",
+"age": 2
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child"
+}
+],
+"vehicles": [
+{
+"type": "van",
+"length_m": 5.0
+},
+{
+"type": "bicycle"
+}
+],
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "26.70",
+"legs": [
+{
+"date": "2026-08-08",
+"season": "high",
+"subtotal": "26.72"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "FA-FA",
+"class": "standard",
+"date": "2026-02-14",
+"time": "05:00",
+"passengers": [
+{
+"type": "adult",
+"age": 27
+},
+{
+"type": "adult"
+}
+],
+"promo": "WELCOME",
+"channel": "counter"
+},
+"quote": {
+"total": "4.20",
+"legs": [
+{
+"date": "2026-02-14",
+"season": "low",
+"subtotal": "4.20"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CA-VI",
+"class": "standard",
+"date": "2026-11-24",
+"time": "06:59",
+"passengers": [
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "adult"
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "adult",
+"age": 26
+}
+],
+"payment": "cash"
+},
+"quote": {
+"total": "3.70",
+"legs": [
+{
+"date": "2026-11-24",
+"season": "low",
+"subtotal": "3.20"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CA-VI",
+"class": "standard",
+"date": "2026-12-26",
+"time": "07:06",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "companion"
+}
+],
+"vehicles": [
+{
+"type": "bicycle"
+}
+],
+"payment": "cash"
+},
+"quote": {
+"total": "13.25",
+"legs": [
+{
+"date": "2026-12-26",
+"season": "peak",
+"subtotal": "12.75"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-BA",
+"class": "standard",
+"date": "2026-02-14",
+"time": "13:10",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "companion"
+}
+],
+"return": {
+"date": "2026-03-17",
+"time": "05:00"
+},
+"promo": "SUMMER10"
+},
+"quote": {
+"total": "27.06",
+"legs": [
+{
+"date": "2026-02-14",
+"season": "low",
+"subtotal": "13.28"
+},
+{
+"date": "2026-03-17",
+"season": "low",
+"subtotal": "13.28"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR",
+"class": "standard",
+"date": "2026-02-18",
+"time": "13:40",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "infant",
+"age": 4
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult",
+"age": 42
+},
+{
+"type": "infant"
+}
+],
+"vehicles": [
+{
+"type": "van",
+"length_m": 4.8
+}
+],
+"promo": "TROIA5",
+"payment": "cash"
+},
+"quote": {
+"total": "30.50",
+"legs": [
+{
+"date": "2026-02-18",
+"season": "low",
+"subtotal": "35.00"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR",
+"class": "standard",
+"date": "2026-06-14",
+"time": "02:40",
+"passengers": [
+{
+"type": "adult",
+"age": 50
+},
+{
+"type": "adult",
+"age": 59
+},
+{
+"type": "student",
+"card": true
+}
+],
+"vehicles": [
+{
+"type": "car"
+},
+{
+"type": "motorcycle"
+}
+],
+"return": {
+"date": "2026-06-15",
+"time": "21:33"
+},
+"promo": "EXPIRED",
+"payment": "cash"
+},
+"quote": {
+"total": "80.95",
+"legs": [
+{
+"date": "2026-06-14",
+"season": "low",
+"subtotal": "35.70"
+},
+{
+"date": "2026-06-15",
+"season": "high",
+"subtotal": "49.70"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "VR-AY",
+"class": "comfort",
+"date": "2026-01-14",
+"time": "19:30",
+"passengers": [
+{
+"type": "disabled"
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 2
+},
+{
+"type": "adult"
+}
+],
+"return": {
+"date": "2026-01-14",
+"time": "06:59"
+},
+"payment": "cash"
+},
+"quote": {
+"total": "13.40",
+"legs": [
+{
+"date": "2026-01-14",
+"season": "low",
+"subtotal": "6.80"
+},
+{
+"date": "2026-01-14",
+"season": "low",
+"subtotal": "6.80"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-SE",
+"class": "standard",
+"date": "2026-01-01",
+"time": "04:30",
+"passengers": [
+{
+"type": "adult",
+"age": 30
+}
+]
+},
+"quote": {
+"total": "3.18",
+"legs": [
+{
+"date": "2026-01-01",
+"season": "peak",
+"subtotal": "2.68"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "OL-AR",
+"class": "standard",
+"date": "2026-07-19",
+"time": "18:49",
+"passengers": [
+{
+"type": "student",
+"card": true
+}
+],
+"return": {
+"date": "2026-07-20",
+"time": "00:00"
+},
+"promo": "BIKE"
+},
+"quote": {
+"total": "2.96",
+"legs": [
+{
+"date": "2026-07-19",
+"season": "high",
+"subtotal": "2.25"
+},
+{
+"date": "2026-07-20",
+"season": "high",
+"subtotal": "1.35"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "FA-CU",
+"class": "standard",
+"date": "2026-03-09",
+"time": "19:29",
+"passengers": [
+{
+"type": "adult",
+"age": 50
+},
+{
+"type": "adult",
+"age": 68
+},
+{
+"type": "adult",
+"age": 63
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "infant",
+"age": 4
+},
+{
+"type": "infant",
+"age": 2
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "student",
+"card": false
+}
+],
+"payment": "cash"
+},
+"quote": {
+"total": "17.85",
+"legs": [
+{
+"date": "2026-03-09",
+"season": "low",
+"subtotal": "17.35"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "OL-AR",
+"class": "standard",
+"date": "2026-03-22",
+"time": "09:29",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 66
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "infant"
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "infant",
+"age": 1
+},
+{
+"type": "companion"
+},
+{
+"type": "child"
+}
+]
+},
+"quote": {
+"total": "15.13",
+"legs": [
+{
+"date": "2026-03-22",
+"season": "low",
+"subtotal": "14.63"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-CA",
+"class": "standard",
+"date": "2026-08-18",
+"time": "05:50",
+"passengers": [
+{
+"type": "infant",
+"age": 1
+},
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "adult",
+"age": 36
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 14
+},
+{
+"type": "companion"
+}
+],
+"promo": "STUDENT5",
+"channel": "counter"
+},
+"quote": {
+"total": "8.25",
+"legs": [
+{
+"date": "2026-08-18",
+"season": "high",
+"subtotal": "8.25"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "SE-TR-X",
+"class": "comfort",
+"date": "2026-02-19",
+"time": "17:00",
+"passengers": [
+{
+"type": "child"
+},
+{
+"type": "infant"
+},
+{
+"type": "adult"
+}
+]
+},
+"quote": {
+"total": "14.15",
+"legs": [
+{
+"date": "2026-02-19",
+"season": "low",
+"subtotal": "13.65"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "LI-PO",
+"class": "standard",
+"date": "2026-06-15",
+"time": "19:11",
+"passengers": [
+{
+"type": "adult",
+"age": 10
+},
+{
+"type": "companion"
+},
+{
+"type": "infant"
+},
+{
+"type": "adult",
+"age": 46
+},
+{
+"type": "companion"
+},
+{
+"type": "adult",
+"age": 29
+}
+],
+"vehicles": [
+{
+"type": "car"
+}
+]
+},
+"quote": {
+"total": "287.70",
+"legs": [
+{
+"date": "2026-06-15",
+"season": "high",
+"subtotal": "287.20"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-TR",
+"class": "standard",
+"date": "2026-02-06",
+"time": "07:00",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "adult",
+"age": 79
+},
+{
+"type": "child",
+"age": 11
+}
+],
+"vehicles": [
+{
+"type": "van",
+"length_m": 8.95
+},
+{
+"type": "motorcycle"
+}
+],
+"return": {
+"date": "2026-02-06",
+"time": "07:59"
+},
+"promo": "EXPIRED",
+"channel": "counter"
+},
+"quote": {
+"total": "84.89",
+"legs": [
+{
+"date": "2026-02-06",
+"season": "low",
+"subtotal": "44.68"
+},
+{
+"date": "2026-02-06",
+"season": "low",
+"subtotal": "44.68"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "SE-TR-X",
+"class": "standard",
+"date": "2026-07-20",
+"time": "21:32",
+"passengers": [
+{
+"type": "adult",
+"age": 76
+},
+{
+"type": "adult",
+"age": 77
+},
+{
+"type": "adult",
+"age": 58
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 16
+},
+{
+"type": "companion"
+}
+],
+"promo": "TEJO2",
+"channel": "counter"
+},
+"quote": {
+"total": "50.40",
+"legs": [
+{
+"date": "2026-07-20",
+"season": "high",
+"subtotal": "50.40"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CA-VI",
+"class": "standard",
+"date": "2026-04-04",
+"time": "13:05",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "child"
+},
+{
+"type": "adult",
+"age": 77
+},
+{
+"type": "adult"
+},
+{
+"type": "child"
+},
+{
+"type": "disabled"
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 20
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 77
+}
+],
+"return": {
+"date": "2026-05-04",
+"time": "07:09"
+}
+},
+"quote": {
+"total": "26.33",
+"legs": [
+{
+"date": "2026-04-04",
+"season": "low",
+"subtotal": "12.80"
+},
+{
+"date": "2026-05-04",
+"season": "low",
+"subtotal": "14.48"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "FA-CU",
+"class": "standard",
+"date": "2026-12-24",
+"time": "05:00",
+"passengers": [
+{
+"type": "disabled"
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 41
+}
+],
+"return": {
+"date": "2027-01-24",
+"time": "23:10"
+},
+"promo": "NIGHTOWL"
+},
+"quote": {
+"total": "10.30",
+"legs": [
+{
+"date": "2026-12-24",
+"season": "peak",
+"subtotal": "5.60"
+},
+{
+"date": "2027-01-24",
+"season": "low",
+"subtotal": "4.20"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-PO",
+"class": "standard",
+"date": "2026-06-14",
+"time": "14:19",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "adult"
+},
+{
+"type": "child"
+}
+],
+"promo": "WINTER30"
+},
+"quote": {
+"total": "4.85",
+"legs": [
+{
+"date": "2026-06-14",
+"season": "low",
+"subtotal": "4.35"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-PO",
+"class": "standard",
+"date": "2026-06-15",
+"time": "23:59",
+"passengers": [
+{
+"type": "infant",
+"age": 5
+},
+{
+"type": "companion"
+},
+{
+"type": "adult"
+},
+{
+"type": "infant",
+"age": 1
+}
+],
+"promo": "summer10",
+"payment": "cash"
+},
+"quote": {
+"total": "4.75",
+"legs": [
+{
+"date": "2026-06-15",
+"season": "high",
+"subtotal": "4.25"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CA-VI",
+"class": "standard",
+"date": "2026-01-01",
+"time": "05:00",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "adult"
+}
+],
+"return": {
+"date": "2026-01-02",
+"time": "19:30"
+},
+"promo": "PARTNER45",
+"channel": "counter"
+},
+"quote": {
+"total": "7.88",
+"legs": [
+{
+"date": "2026-01-01",
+"season": "peak",
+"subtotal": "7.53"
+},
+{
+"date": "2026-01-02",
+"season": "low",
+"subtotal": "5.60"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "standard",
+"date": "2026-01-24",
+"time": "23:59",
+"passengers": [
+{
+"type": "adult",
+"age": 51
+},
+{
+"type": "senior",
+"age": 70
+},
+{
+"type": "adult",
+"age": 54
+},
+{
+"type": "senior",
+"age": 64
+},
+{
+"type": "adult",
+"age": 21
+},
+{
+"type": "adult"
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult"
+},
+{
+"type": "companion"
+}
+],
+"promo": "WINTER30",
+"payment": "cash"
+},
+"quote": {
+"total": "23.10",
+"legs": [
+{
+"date": "2026-01-24",
+"season": "low",
+"subtotal": "22.62"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-SE",
+"class": "standard",
+"date": "2026-09-16",
+"time": "01:09",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 43
+},
+{
+"type": "adult",
+"age": 29
+},
+{
+"type": "disabled"
+},
+{
+"type": "disabled"
+},
+{
+"type": "senior",
+"age": 82
+}
+]
+},
+"quote": {
+"total": "10.09",
+"legs": [
+{
+"date": "2026-09-16",
+"season": "low",
+"subtotal": "9.59"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "VR-AY",
+"class": "standard",
+"date": "2026-01-06",
+"time": "09:30",
+"passengers": [
+{
+"type": "adult",
+"age": 34
+}
+],
+"vehicles": [
+{
+"type": "van",
+"length_m": 6.4
+},
+{
+"type": "van",
+"length_m": 8.95
+}
+],
+"return": {
+"date": "2026-02-20",
+"time": "19:19"
+},
+"payment": "cash"
+},
+"quote": {
+"total": "112.80",
+"legs": [
+{
+"date": "2026-01-06",
+"season": "low",
+"subtotal": "56.00"
+},
+{
+"date": "2026-02-20",
+"season": "low",
+"subtotal": "56.30"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "LI-PO",
+"class": "standard",
+"date": "2026-12-21",
+"time": "05:09",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 71
+}
+],
+"return": {
+"date": "2027-02-04",
+"time": "09:30"
+},
+"promo": "TROIA5",
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "342.00",
+"legs": [
+{
+"date": "2026-12-21",
+"season": "low",
+"subtotal": "171.00"
+},
+{
+"date": "2027-02-04",
+"season": "low",
+"subtotal": "171.00"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CS-SE",
+"class": "standard",
+"date": "2026-04-25",
+"time": "02:13",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 19
+}
+],
+"return": {
+"date": "2026-05-24",
+"time": "20:29"
+},
+"promo": "summer10"
+},
+"quote": {
+"total": "25.37",
+"legs": [
+{
+"date": "2026-04-25",
+"season": "peak",
+"subtotal": "13.40"
+},
+{
+"date": "2026-05-24",
+"season": "low",
+"subtotal": "12.75"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"class": "standard",
+"date": "2026-02-24",
+"time": "07:00",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "adult",
+"age": 20
+},
+{
+"type": "adult",
+"age": 17
+}
+],
+"return": {
+"date": "2026-03-26",
+"time": "09:43"
+},
+"promo": "summer10"
+},
+"quote": {
+"total": "30.29",
+"legs": [
+{
+"date": "2026-02-24",
+"season": "low",
+"subtotal": "16.52"
+},
+{
+"date": "2026-03-26",
+"season": "low",
+"subtotal": "14.75"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "LI-PO",
+"class": "comfort",
+"date": "2026-05-05",
+"time": "09:30",
+"passengers": [
+{
+"type": "adult",
+"age": 37
+},
+{
+"type": "companion"
+},
+{
+"type": "adult",
+"age": 39
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 23
+},
+{
+"type": "adult",
+"age": 24
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 25
+},
+{
+"type": "child",
+"age": 13
+},
+{
+"type": "infant"
+},
+{
+"type": "adult",
+"age": 26
+}
+],
+"vehicles": [
+{
+"type": "van",
+"length_m": 5.01
+},
+{
+"type": "car"
+}
+],
+"channel": "counter"
+},
+"quote": {
+"total": "555.28",
+"legs": [
+{
+"date": "2026-05-05",
+"season": "low",
+"subtotal": "631.00"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"class": "standard",
+"date": "2026-09-16",
+"time": "09:17",
+"passengers": [
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult"
+},
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "adult"
+}
+],
+"promo": "TROIA5"
+},
+"quote": {
+"total": "12.20",
+"legs": [
+{
+"date": "2026-09-16",
+"season": "low",
+"subtotal": "11.70"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"class": "standard",
+"date": "2026-11-23",
+"time": "08:46",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+}
+],
+"promo": "ALGARVE20"
+},
+"quote": {
+"total": "17.02",
+"legs": [
+{
+"date": "2026-11-23",
+"season": "low",
+"subtotal": "16.52"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "comfort",
+"date": "2026-06-13",
+"time": "19:29",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "adult",
+"age": 54
+},
+{
+"type": "disabled"
+}
+],
+"promo": "ALGARVE20"
+},
+"quote": {
+"total": "25.48",
+"legs": [
+{
+"date": "2026-06-13",
+"season": "peak",
+"subtotal": "24.98"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR-X",
+"class": "standard",
+"date": "2026-10-05",
+"time": "19:30",
+"passengers": [
+{
+"type": "child"
+},
+{
+"type": "infant",
+"age": 4
+},
+{
+"type": "adult",
+"age": 53
+}
+],
+"channel": "counter"
+},
+"quote": {
+"total": "19.60",
+"legs": [
+{
+"date": "2026-10-05",
+"season": "peak",
+"subtotal": "19.60"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "SE-TR",
+"class": "standard",
+"date": "2026-06-24",
+"time": "15:50",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "adult",
+"age": 33
+},
+{
+"type": "adult",
+"age": 71
+}
+],
+"promo": "EXPIRED",
+"channel": "counter"
+},
+"quote": {
+"total": "27.20",
+"legs": [
+{
+"date": "2026-06-24",
+"season": "high",
+"subtotal": "27.20"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "BE-PO",
+"class": "standard",
+"date": "2026-11-17",
+"time": "23:37",
+"passengers": [
+{
+"type": "companion"
+},
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "adult"
+}
+],
+"payment": "cash"
+},
+"quote": {
+"total": "4.85",
+"legs": [
+{
+"date": "2026-11-17",
+"season": "low",
+"subtotal": "4.35"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "standard",
+"date": "2026-12-23",
+"time": "13:20",
+"passengers": [
+{
+"type": "companion"
+},
+{
+"type": "child",
+"age": 13
+},
+{
+"type": "adult",
+"age": 52
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult"
+}
+],
+"promo": "ALGARVE20",
+"payment": "cash"
+},
+"quote": {
+"total": "9.60",
+"legs": [
+{
+"date": "2026-12-23",
+"season": "low",
+"subtotal": "9.10"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-PO",
+"class": "standard",
+"date": "2026-10-30",
+"time": "07:00",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "companion"
+},
+{
+"type": "child"
+}
+],
+"vehicles": [
+{
+"type": "van",
+"length_m": 5.0
+},
+{
+"type": "bicycle"
+}
+],
+"promo": "STUDENT5",
+"payment": "cash"
+},
+"quote": {
+"total": "23.05",
+"legs": [
+{
+"date": "2026-10-30",
+"season": "low",
+"subtotal": "23.73"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-CA",
+"class": "standard",
+"date": "2026-09-23",
+"time": "04:59",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 58
+},
+{
+"type": "adult",
+"age": 12
+},
+{
+"type": "companion"
+},
+{
+"type": "disabled"
+},
+{
+"type": "infant",
+"age": 3
+},
+{
+"type": "infant"
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 10
+}
+],
+"return": {
+"date": "2026-09-23",
+"time": "04:59"
+},
+"promo": "FAMILY"
+},
+"quote": {
+"total": "7.08",
+"legs": [
+{
+"date": "2026-09-23",
+"season": "low",
+"subtotal": "5.04"
+},
+{
+"date": "2026-09-23",
+"season": "low",
+"subtotal": "5.04"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"class": "standard",
+"date": "2026-09-15",
+"time": "20:32",
+"passengers": [
+{
+"type": "child"
+},
+{
+"type": "adult",
+"age": 23
+},
+{
+"type": "companion"
+},
+{
+"type": "adult",
+"age": 51
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult",
+"age": 31
+},
+{
+"type": "senior",
+"age": 82
+},
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "adult",
+"age": 74
+},
+{
+"type": "infant",
+"age": 5
+},
+{
+"type": "adult",
+"age": 19
+}
+],
+"return": {
+"date": "2026-09-16",
+"time": "22:35"
+},
+"payment": "cash"
+},
+"quote": {
+"total": "49.85",
+"legs": [
+{
+"date": "2026-09-15",
+"season": "high",
+"subtotal": "27.71"
+},
+{
+"date": "2026-09-16",
+"season": "low",
+"subtotal": "24.04"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR-X",
+"class": "standard",
+"date": "2026-06-13",
+"time": "09:44",
+"passengers": [
+{
+"type": "senior",
+"age": 82
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "infant",
+"age": 1
+},
+{
+"type": "companion"
+}
+],
+"promo": "NIGHTOWL",
+"channel": "counter"
+},
+"quote": {
+"total": "46.06",
+"legs": [
+{
+"date": "2026-06-13",
+"season": "peak",
+"subtotal": "46.06"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "standard",
+"date": "2026-06-22",
+"time": "23:59",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "companion"
+}
+],
+"promo": "SUMMER10",
+"payment": "cash"
+},
+"quote": {
+"total": "11.30",
+"legs": [
+{
+"date": "2026-06-22",
+"season": "high",
+"subtotal": "12.00"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CA-VI",
+"class": "standard",
+"date": "2026-06-15",
+"time": "22:20",
+"passengers": [
+{
+"type": "senior",
+"age": 64
+},
+{
+"type": "adult",
+"age": 78
+}
+],
+"vehicles": [
+{
+"type": "car"
+}
+],
+"channel": "counter"
+},
+"quote": {
+"total": "25.70",
+"legs": [
+{
+"date": "2026-06-15",
+"season": "high",
+"subtotal": "25.70"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "BE-TR",
+"class": "standard",
+"date": "2026-07-18",
+"time": "17:38",
+"passengers": [
+{
+"type": "adult",
+"age": 16
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "companion"
+},
+{
+"type": "adult"
+}
+],
+"vehicles": [
+{
+"type": "bicycle"
+}
+],
+"return": {
+"date": "2026-09-01",
+"time": "17:49"
+},
+"promo": "PARTNER45"
+},
+"quote": {
+"total": "11.38",
+"legs": [
+{
+"date": "2026-07-18",
+"season": "high",
+"subtotal": "8.80"
+},
+{
+"date": "2026-09-01",
+"season": "high",
+"subtotal": "9.33"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "FA-CU",
+"class": "standard",
+"date": "2026-06-09",
+"time": "11:45",
+"passengers": [
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "adult"
+},
+{
+"type": "student",
+"card": false
+},
+{
+"type": "adult",
+"age": 53
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "child",
+"age": 6
+}
+]
+},
+"quote": {
+"total": "10.90",
+"legs": [
+{
+"date": "2026-06-09",
+"season": "low",
+"subtotal": "10.40"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-BA",
+"class": "standard",
+"date": "2026-01-03",
+"time": "13:03",
+"passengers": [
+{
+"type": "adult",
+"age": 56
+},
+{
+"type": "adult"
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 79
+},
+{
+"type": "disabled"
+},
+{
+"type": "infant"
+},
+{
+"type": "companion"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 13
+},
+{
+"type": "child",
+"age": 9
+}
+],
+"return": {
+"date": "2026-02-17",
+"time": "14:47"
+},
+"promo": "STUDENT5"
+},
+"quote": {
+"total": "45.03",
+"legs": [
+{
+"date": "2026-01-03",
+"season": "low",
+"subtotal": "19.18"
+},
+{
+"date": "2026-02-17",
+"season": "peak",
+"subtotal": "25.35"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "standard",
+"date": "2026-06-19",
+"time": "15:52",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 49
+}
+],
+"return": {
+"date": "2026-07-19",
+"time": "00:00"
+},
+"promo": "BIKE",
+"payment": "cash"
+},
+"quote": {
+"total": "22.70",
+"legs": [
+{
+"date": "2026-06-19",
+"season": "high",
+"subtotal": "13.50"
+},
+{
+"date": "2026-07-19",
+"season": "high",
+"subtotal": "10.80"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "LI-PO",
+"class": "standard",
+"date": "2026-03-19",
+"time": "17:27",
+"passengers": [
+{
+"type": "adult",
+"age": 56
+},
+{
+"type": "adult",
+"age": 45
+},
+{
+"type": "adult",
+"age": 29
+},
+{
+"type": "adult"
+},
+{
+"type": "companion"
+},
+{
+"type": "disabled"
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "senior",
+"age": 64
+},
+{
+"type": "disabled"
+}
+]
+},
+"quote": {
+"total": "276.00",
+"legs": [
+{
+"date": "2026-03-19",
+"season": "low",
+"subtotal": "275.50"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "OL-AR",
+"class": "standard",
+"date": "2026-09-12",
+"time": "06:28",
+"passengers": [
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "disabled"
+},
+{
+"type": "adult",
+"age": 21
+},
+{
+"type": "adult",
+"age": 39
+},
+{
+"type": "adult",
+"age": 48
+}
+],
+"return": {
+"date": "2026-09-13",
+"time": "17:00"
+},
+"promo": "PARTNER45",
+"payment": "cash"
+},
+"quote": {
+"total": "12.65",
+"legs": [
+{
+"date": "2026-09-12",
+"season": "high",
+"subtotal": "10.13"
+},
+{
+"date": "2026-09-13",
+"season": "high",
+"subtotal": "10.13"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR",
+"class": "standard",
+"date": "2026-11-01",
+"time": "10:45",
+"passengers": [
+{
+"type": "senior",
+"age": 82
+}
+],
+"return": {
+"date": "2026-11-02",
+"time": "21:20"
+},
+"promo": "FAMILY",
+"payment": "cash"
+},
+"quote": {
+"total": "5.85",
+"legs": [
+{
+"date": "2026-11-01",
+"season": "peak",
+"subtotal": "5.67"
+},
+{
+"date": "2026-11-02",
+"season": "low",
+"subtotal": "2.98"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"class": "standard",
+"date": "2026-05-26",
+"time": "05:00",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 42
+},
+{
+"type": "adult",
+"age": 58
+},
+{
+"type": "disabled"
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "infant"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 29
+},
+{
+"type": "adult",
+"age": 51
+}
+],
+"promo": "summer10",
+"payment": "cash"
+},
+"quote": {
+"total": "21.15",
+"legs": [
+{
+"date": "2026-05-26",
+"season": "low",
+"subtotal": "20.65"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "standard",
+"date": "2026-04-19",
+"time": "12:59",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "child",
+"age": 9
+},
+{
+"type": "infant",
+"age": 4
+}
+]
+},
+"quote": {
+"total": "5.70",
+"legs": [
+{
+"date": "2026-04-19",
+"season": "low",
+"subtotal": "5.20"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"class": "standard",
+"date": "2026-11-06",
+"time": "14:45",
+"passengers": [
+{
+"type": "adult",
+"age": 14
+},
+{
+"type": "adult",
+"age": 28
+},
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult",
+"age": 78
+},
+{
+"type": "infant",
+"age": 4
+},
+{
+"type": "child",
+"age": 2
+},
+{
+"type": "disabled"
+},
+{
+"type": "child"
+},
+{
+"type": "companion"
+},
+{
+"type": "child",
+"age": 10
+}
+],
+"return": {
+"date": "2026-12-21",
+"time": "08:51"
+},
+"promo": "TEJO2"
+},
+"quote": {
+"total": "31.58",
+"legs": [
+{
+"date": "2026-11-06",
+"season": "low",
+"subtotal": "15.49"
+},
+{
+"date": "2026-12-21",
+"season": "low",
+"subtotal": "17.59"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "BE-PO",
+"class": "standard",
+"date": "2026-05-31",
+"time": "04:32",
+"passengers": [
+{
+"type": "child"
+},
+{
+"type": "adult",
+"age": 21
+}
+],
+"return": {
+"date": "2026-05-31",
+"time": "05:00"
+}
+},
+"quote": {
+"total": "4.20",
+"legs": [
+{
+"date": "2026-05-31",
+"season": "low",
+"subtotal": "1.74"
+},
+{
+"date": "2026-05-31",
+"season": "low",
+"subtotal": "2.18"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "FA-CU",
+"class": "standard",
+"date": "2026-10-14",
+"time": "17:45",
+"passengers": [
+{
+"type": "disabled"
+},
+{
+"type": "child"
+},
+{
+"type": "adult",
+"age": 67
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "adult"
+},
+{
+"type": "infant",
+"age": 5
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 48
+},
+{
+"type": "adult",
+"age": 74
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "adult",
+"age": 51
+}
+],
+"payment": "cash"
+},
+"quote": {
+"total": "17.10",
+"legs": [
+{
+"date": "2026-10-14",
+"season": "low",
+"subtotal": "16.59"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-CA",
+"class": "standard",
+"date": "2026-10-14",
+"time": "08:06",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 5
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "adult"
+},
+{
+"type": "student",
+"card": false
+}
+],
+"return": {
+"date": "2026-10-19",
+"time": "13:52"
+}
+},
+"quote": {
+"total": "11.98",
+"legs": [
+{
+"date": "2026-10-14",
+"season": "low",
+"subtotal": "6.44"
+},
+{
+"date": "2026-10-19",
+"season": "low",
+"subtotal": "5.60"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR-X",
+"class": "comfort",
+"date": "2026-05-26",
+"time": "03:56",
+"passengers": [
+{
+"type": "student",
+"card": true
+},
+{
+"type": "student",
+"card": false
+},
+{
+"type": "adult"
+}
+],
+"promo": "FAMILY"
+},
+"quote": {
+"total": "17.52",
+"legs": [
+{
+"date": "2026-05-26",
+"season": "low",
+"subtotal": "20.02"
+}
+],
+"promo_applied": true,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR-X",
+"class": "standard",
+"date": "2026-07-23",
+"time": "23:59",
+"passengers": [
+{
+"type": "student",
+"card": true
+}
+],
+"return": {
+"date": "2026-08-23",
+"time": "17:29"
+},
+"promo": "NIGHTOWL"
+},
+"quote": {
+"total": "15.20",
+"legs": [
+{
+"date": "2026-07-23",
+"season": "high",
+"subtotal": "6.30"
+},
+{
+"date": "2026-08-23",
+"season": "high",
+"subtotal": "8.40"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"class": "standard",
+"date": "2026-04-25",
+"time": "14:02",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 8
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "child",
+"age": 10
+}
+],
+"return": {
+"date": "2026-04-25",
+"time": "16:59"
+},
+"channel": "counter"
+},
+"quote": {
+"total": "25.93",
+"legs": [
+{
+"date": "2026-04-25",
+"season": "peak",
+"subtotal": "13.65"
+},
+{
+"date": "2026-04-25",
+"season": "peak",
+"subtotal": "13.65"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CS-SE",
+"class": "standard",
+"date": "2026-03-28",
+"time": "04:54",
+"passengers": [
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "disabled"
+},
+{
+"type": "companion"
+},
+{
+"type": "adult",
+"age": 39
+},
+{
+"type": "student",
+"card": false
+},
+{
+"type": "adult",
+"age": 50
+},
+{
+"type": "adult",
+"age": 72
+},
+{
+"type": "child",
+"age": 12
+},
+{
+"type": "adult",
+"age": 31
+},
+{
+"type": "adult",
+"age": 29
+}
+],
+"promo": "summer10"
+},
+"quote": {
+"total": "17.23",
+"legs": [
+{
+"date": "2026-03-28",
+"season": "low",
+"subtotal": "16.73"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "SE-TR-X",
+"class": "standard",
+"date": "2026-09-08",
+"time": "05:10",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "child",
+"age": 4
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult",
+"age": 50
+}
+],
+"promo": "NIGHTOWL",
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "31.50",
+"legs": [
+{
+"date": "2026-09-08",
+"season": "high",
+"subtotal": "31.50"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CA-VI",
+"class": "standard",
+"date": "2026-12-24",
+"time": "00:19",
+"passengers": [
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult",
+"age": 80
+},
+{
+"type": "senior",
+"age": 65
+},
+{
+"type": "student",
+"card": true
+},
+{
+"type": "adult",
+"age": 13
+},
+{
+"type": "adult",
+"age": 44
+},
+{
+"type": "adult",
+"age": 24
+},
+{
+"type": "infant",
+"age": 1
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "adult"
+},
+{
+"type": "senior",
+"age": 60
+},
+{
+"type": "disabled"
+}
+],
+"vehicles": [
+{
+"type": "bicycle"
+}
+],
+"promo": "BIKE"
+},
+"quote": {
+"total": "16.18",
+"legs": [
+{
+"date": "2026-12-24",
+"season": "peak",
+"subtotal": "17.82"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.50"
+}
+},
+{
+"booking": {
+"route": "TP-SE",
+"class": "standard",
+"date": "2026-12-18",
+"time": "11:26",
+"passengers": [
+{
+"type": "companion"
+},
+{
+"type": "senior",
+"age": 82
+}
+],
+"channel": "counter"
+},
+"quote": {
+"total": "4.42",
+"legs": [
+{
+"date": "2026-12-18",
+"season": "low",
+"subtotal": "4.42"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "CS-MO",
+"class": "standard",
+"date": "2026-06-14",
+"time": "17:43",
+"passengers": [
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 40
+},
+{
+"type": "child",
+"age": 11
+},
+{
+"type": "child",
+"age": 6
+},
+{
+"type": "child",
+"age": 7
+},
+{
+"type": "child",
+"age": 10
+},
+{
+"type": "adult",
+"age": 64
+},
+{
+"type": "adult"
+}
+],
+"return": {
+"date": "2026-06-14",
+"time": "19:30"
+},
+"promo": "summer10",
+"channel": "counter"
+},
+"quote": {
+"total": "27.36",
+"legs": [
+{
+"date": "2026-06-14",
+"season": "low",
+"subtotal": "14.40"
+},
+{
+"date": "2026-06-14",
+"season": "low",
+"subtotal": "14.40"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "TP-BA",
+"class": "standard",
+"date": "2026-12-24",
+"time": "05:41",
+"passengers": [
+{
+"type": "companion"
+},
+{
+"type": "companion"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult"
+},
+{
+"type": "adult",
+"age": 38
+},
+{
+"type": "adult"
+},
+{
+"type": "infant",
+"age": 1
+},
+{
+"type": "adult",
+"age": 39
+},
+{
+"type": "adult"
+}
+],
+"return": {
+"date": "2026-12-29",
+"time": "05:10"
+},
+"channel": "counter"
+},
+"quote": {
+"total": "59.28",
+"legs": [
+{
+"date": "2026-12-24",
+"season": "peak",
+"subtotal": "31.20"
+},
+{
+"date": "2026-12-29",
+"season": "peak",
+"subtotal": "31.20"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "TP-BA",
+"class": "comfort",
+"date": "2026-10-08",
+"time": "09:30",
+"passengers": [
+{
+"type": "student",
+"card": false
+}
+],
+"promo": "NIGHTOWL",
+"channel": "counter",
+"payment": "cash"
+},
+"quote": {
+"total": "4.75",
+"legs": [
+{
+"date": "2026-10-08",
+"season": "low",
+"subtotal": "4.75"
+}
+],
+"promo_applied": false,
+"booking_fee": "0.00"
+}
+},
+{
+"booking": {
+"route": "XX-YY",
+"date": "2026-05-05",
+"time": "10:00",
+"passengers": [
+{
+"type": "adult"
+}
+]
+},
+"quote": {
+"error": "ValueError"
+}
+},
+{
+"booking": {
+"route": "CS-CA",
+"class": "comfort",
+"date": "2026-05-05",
+"time": "10:00",
+"passengers": [
+{
+"type": "adult"
+}
+]
+},
+"quote": {
+"error": "ValueError"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"date": "2026-05-05",
+"time": "10:00",
+"passengers": [
+{
+"type": "adult"
+}
+],
+"vehicles": [
+{
+"type": "car"
+}
+]
+},
+"quote": {
+"error": "ValueError"
+}
+},
+{
+"booking": {
+"route": "BE-TR",
+"date": "2026-05-05",
+"time": "10:00",
+"passengers": [
+{
+"type": "adult"
+}
+],
+"vehicles": [
+{
+"type": "tractor"
+}
+]
+},
+"quote": {
+"error": "ValueError"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"date": "2026-05-05",
+"time": "10:00",
+"passengers": []
+},
+"quote": {
+"error": "ValueError"
+}
+},
+{
+"booking": {
+"route": "CS-BA",
+"date": "2026-05-05",
+"time": "10:00",
+"return": {
+"date": "2026-05-04",
+"time": "10:00"
+},
+"passengers": [
+{
+"type": "adult"
+}
+]
+},
+"quote": {
+"error": "ValueError"
+}
+}
+]

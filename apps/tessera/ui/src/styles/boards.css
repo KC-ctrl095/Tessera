@@ -1,0 +1,727 @@
+/* ── Whiteboards ─────────────────────────────────────────────────────────
+   A board tile is a slab like a chat: header, an optional address bar, the
+   content (isolated frames, notes, an image) and a docked question. */
+.board {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.board-head .title-static {
+  font-family: var(--font);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding-left: 6px;
+}
+.board-head .head-title {
+  gap: 6px;
+}
+.board-kind {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  margin-left: 2px;
+  border-radius: var(--r-sm);
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.28);
+}
+.board-sub {
+  gap: 5px;
+}
+.board-sub .dot-sep {
+  color: var(--faint);
+}
+.shown-by {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  overflow: hidden;
+}
+.board-sub-kind {
+  flex: none;
+}
+/* Long names end in an ellipsis instead of being cut off. */
+.board-sub .sub-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.needs-you {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 19px;
+  padding: 0 7px 0 6px;
+  border-radius: var(--r-xs);
+  font-size: 0.68rem;
+  font-weight: 620;
+  letter-spacing: 0.02em;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.45);
+  white-space: nowrap;
+}
+.needs-you i {
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--accent);
+  animation: needs-pulse 1.6s var(--ease-in-out) infinite;
+}
+@keyframes needs-pulse {
+  50% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .needs-you i {
+    animation: none;
+  }
+}
+@container pane (max-width: 480px) {
+  .board-act {
+    display: none;
+  }
+  .needs-you {
+    padding: 0 5px;
+    font-size: 0;
+    gap: 0;
+  }
+  .board-sub .dot-sep,
+  .board-sub .board-sub-kind {
+    display: none;
+  }
+}
+
+.board-body {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+.board-frame {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* Phones and foldables: a grab bar to swipe a framed board to the next tile. */
+.board-grip {
+  flex: none;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  touch-action: none;
+  background: var(--stone);
+  box-shadow: 0 -1px 0 var(--hairline);
+}
+.board-grip i {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--faint);
+  opacity: 0.6;
+}
+.board-iframe {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  border: 0;
+  display: block;
+  background: transparent;
+  opacity: 0;
+  transition: opacity 260ms var(--ease-out);
+}
+.board-frame.ready .board-iframe {
+  opacity: 1;
+}
+.board-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 0.78rem;
+  color: var(--faint);
+  pointer-events: none;
+  animation: fade-in 200ms var(--ease) both;
+}
+.board-loading.paused {
+  opacity: 0.7;
+}
+.board-foot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 6px 7px 12px;
+  background: var(--sunken);
+  box-shadow: 0 -1px 0 var(--hairline);
+}
+.board-foot-icon {
+  flex: none;
+  color: var(--faint);
+}
+.board-foot-text {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+.board-foot-text .link-btn {
+  font-size: inherit;
+  white-space: nowrap;
+}
+.inline-icon {
+  display: inline-flex;
+  vertical-align: -2px;
+  color: var(--text-2);
+}
+.board-foot-x {
+  flex: none;
+}
+.board-prose {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  padding: 18px clamp(16px, 5cqw, 40px) 28px;
+}
+.board-prose .md {
+  max-width: 72ch;
+  margin: 0 auto;
+}
+/* Phones and foldables: it scrolls up and down; sideways strokes turn the page (Workspace.tsx). */
+.workspace[data-mode="mobile"] .board-prose,
+.workspace[data-mode="dual"] .board-prose {
+  touch-action: pan-y pinch-zoom;
+}
+
+/* A calm card for "can't show this" and friends. */
+.board-note {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 24px;
+  text-align: center;
+  animation: fade-in 200ms var(--ease) both;
+}
+.board-note-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 6px;
+  border-radius: var(--r);
+  color: var(--muted);
+  background: var(--raised);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+}
+.board-note h3 {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+.board-note p {
+  margin: 0;
+  max-width: 44ch;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.board-note-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.board-note.err {
+  color: var(--err);
+}
+
+/* ── Image boards: fit, zoom and pan ──────────────────────────────────── */
+.img-view {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  touch-action: none;
+  cursor: zoom-in;
+  background:
+    radial-gradient(circle at 1px 1px, var(--hairline) 1px, transparent 1.5px) 0 0 / 14px 14px,
+    var(--sunken);
+}
+.img-view.zoomed {
+  cursor: grab;
+}
+.img-view.zoomed:active {
+  cursor: grabbing;
+}
+.img-view img {
+  grid-area: 1 / 1;
+  max-width: none;
+  border-radius: var(--r-xs);
+  box-shadow: 0 12px 30px -18px rgba(0, 0, 0, 0.6);
+  transform-origin: center;
+  will-change: transform;
+  opacity: 0;
+  transition: opacity 240ms var(--ease-out);
+  -webkit-user-drag: none;
+  user-select: none;
+}
+.img-view.ready img {
+  opacity: 1;
+}
+.img-tools {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--r-sm);
+  background: var(--overlay);
+  box-shadow: 0 0 0 1px var(--hairline-strong), var(--shadow-pop);
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity var(--t) var(--ease),
+    transform var(--t) var(--ease);
+  cursor: default;
+}
+.img-view:hover .img-tools,
+.img-view.zoomed .img-tools,
+.img-tools:focus-within {
+  opacity: 1;
+  transform: none;
+}
+@media (pointer: coarse) {
+  .img-tools {
+    opacity: 1;
+    transform: none;
+  }
+}
+.img-pct {
+  min-width: 40px;
+  text-align: center;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+/* An answered question: one quiet line. */
+.ask-done {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 8px 12px;
+  border-radius: var(--r);
+  background: var(--raised);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  font-size: 0.82rem;
+  color: var(--muted);
+  min-width: 0;
+}
+.ask-done-mark {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-xs);
+  background: rgba(var(--ok-rgb), 0.16);
+  color: var(--ok);
+}
+.ask-done-label {
+  flex: none;
+  font-weight: 600;
+  color: var(--text);
+}
+.ask-done-prompt {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ── In the chat: the board a tool call showed, and a mirrored question ── */
+.board-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(100%, 460px);
+  padding: 10px 10px 10px 10px;
+  border-radius: var(--r);
+  background: var(--raised);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+  text-align: left;
+  transition:
+    box-shadow var(--t-fast),
+    background var(--t-fast);
+}
+.board-card:hover {
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.5);
+}
+.board-card-art {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-sm);
+  color: var(--accent-text);
+  background:
+    linear-gradient(135deg, rgba(var(--accent-rgb), 0.22), rgba(var(--accent-rgb), 0.06)),
+    var(--sunken);
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.3);
+  overflow: hidden;
+}
+.board-card-art::after {
+  /* Two tiny tesserae in the corner: the mosaic's signature. */
+  content: "";
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  background: var(--accent);
+  box-shadow: -7px 0 0 var(--lapis);
+  opacity: 0.8;
+}
+.board-card-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.board-card-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.board-card-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.board-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  color: var(--muted);
+  min-width: 0;
+}
+.board-card-meta .needs-you {
+  height: 17px;
+}
+.board-card-open {
+  flex: none;
+}
+.board-card-outcome {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ok);
+  font-weight: 560;
+}
+.board-card.gone {
+  opacity: 0.7;
+}
+/* An image an agent shared shows in the chat itself; a tap views it full size. */
+.board-inline-image {
+  display: block;
+  margin-top: 6px;
+  padding: 0;
+  max-width: min(100%, 460px);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r);
+  overflow: hidden;
+  background: var(--sunken);
+  cursor: zoom-in;
+}
+.board-inline-image img {
+  display: block;
+  max-width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+}
+/* A browser step's picture of the page (the agent works in the background);
+   on the latest step, a tap watches it live. */
+.tool-thumb {
+  flex: none;
+  width: 52px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-xs);
+  overflow: hidden;
+  background: var(--sunken);
+  transition: border-color var(--t-fast);
+}
+.tool-thumb:hover {
+  border-color: rgba(var(--accent-rgb), 0.6);
+}
+.tool-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+.tool-watch[disabled] {
+  opacity: 0.6;
+}
+/* A folded run of steps keeps its browser's picture and Watch in view. */
+.steps-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.steps-row > .steps-head {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  margin-right: -8px;
+}
+.steps-row > .steps-head:not(:last-child) {
+  margin-right: 0;
+}
+/* An opened run with pages' pictures: steps without one keep their time in
+   line with the steps that have one (the picture and the gap before it). */
+.timeline:has(.tool-thumb) .tool-row:not(:has(.tool-thumb, .tool-show)) > .tool-head {
+  margin-right: 56px;
+}
+/* These rows fit themselves to their own width (a phone, a narrow tile, a
+   bot's indented reply): on narrow ones the run's detail text and the closed
+   chevron go, and Watch / Show tile keep only their icon; on the narrowest
+   the page's picture goes too. Nothing is drawn past the row. */
+.steps-row,
+.tool-browser > .tool-row {
+  container: steprow / inline-size;
+}
+@container steprow (max-width: 420px) {
+  .tool-show-label {
+    display: none;
+  }
+  .tool-show {
+    padding: 0 7px;
+  }
+  .steps-head {
+    gap: 7px;
+  }
+  .steps-detail,
+  .steps:not(.open) .steps-head .chev {
+    display: none;
+  }
+}
+@container steprow (max-width: 240px) {
+  .tool-thumb {
+    display: none;
+  }
+}
+.tool-images .tool-shot {
+  max-width: min(100%, 360px);
+}
+.chat-ask {
+  width: min(100%, var(--prose));
+  margin: 4px 0;
+}
+.chat-ask .ask {
+  max-width: 560px;
+}
+.chat-ask .ask-done {
+  margin: 0;
+}
+.ask-pointer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  max-width: 560px;
+  min-height: 36px;
+  padding: 6px 12px 6px 8px;
+  border-radius: var(--r);
+  background: var(--raised);
+  box-shadow:
+    inset 2px 0 0 var(--accent),
+    inset 0 0 0 1px var(--hairline);
+  font-size: 0.84rem;
+  min-width: 0;
+  animation: settle 200ms var(--ease-out) both;
+}
+/* The question comes first: in a narrow tile the two links drop to a line of their own
+   instead of squeezing it to a couple of letters. */
+.ask-pointer-text {
+  flex: 1 1 9em;
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  color: var(--text-2);
+}
+.ask-pointer .link-btn {
+  flex: none;
+  font-size: 0.8rem;
+}
+
+/* A menu or popover is open: taps on a board go to the app (and close it). See Popover. */
+body.layer-open .board-frame iframe {
+  pointer-events: none;
+}
+
+/* The agent just got a picture of this board from this device: said quietly, for a moment. */
+.looked {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--accent-text);
+  animation: fade-in 200ms var(--ease);
+}
+
+/* ── Snap assist: the space a snap layout left over offers what could fill it ── */
+.assist-tile {
+  background: color-mix(in srgb, var(--sunken) 70%, transparent);
+}
+.assist-body {
+  overflow: auto;
+  padding: 14px 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.assist-new {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.assist-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 11px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: 0.8rem;
+  transition:
+    border-color var(--t-fast),
+    color var(--t-fast);
+}
+.assist-btn:hover,
+.assist-btn:focus-visible {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.assist-head-line {
+  margin: 6px 0 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.assist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 8px;
+}
+.assist-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  padding: 10px 11px;
+  border-radius: var(--r);
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  text-align: left;
+  transition:
+    border-color var(--t-fast),
+    transform var(--t-fast),
+    box-shadow var(--t-fast);
+}
+.assist-card:hover,
+.assist-card:focus-visible {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-pop);
+  transform: translateY(-1px);
+}
+.assist-card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  color: var(--muted);
+}
+.assist-card-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.84rem;
+  font-weight: 560;
+  color: var(--text);
+}
+.assist-card-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.assist-card-when {
+  font-size: 0.7rem;
+  color: var(--faint);
+}
+@media (prefers-reduced-motion: reduce) {
+  .assist-card:hover {
+    transform: none;
+  }
+}
+
+/* A board's content stops short of the tile's rounded bottom corners, so a
+   picture of it (snapshots, lib/snapshot.ts) has no grout in its corners. */
+.workspace.framed .board:not(.note-tile):not(.file-tile):not(.assist-tile):not(.web-view) > .board-body:last-child {
+  margin-bottom: var(--tile-r);
+}
+
+/* A card's buttons work (the loading layer itself lets touches through). */
+.board-loading .board-note-actions {
+  pointer-events: auto;
+}

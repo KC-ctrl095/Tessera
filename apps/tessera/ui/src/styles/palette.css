@@ -1,0 +1,111 @@
+/* ── Command palette (CommandPalette.tsx), loaded with it ──────────────── */
+.modal-backdrop:has(.palette) {
+  align-items: flex-start;
+  padding-top: max(12vh, calc(16px + var(--safe-t)));
+}
+.palette {
+  max-width: 640px;
+}
+@media (max-width: 700px) {
+  .modal-backdrop:has(.palette) {
+    align-items: flex-start;
+    padding: calc(8px + var(--safe-t)) 8px 8px;
+  }
+  .palette.modal-md {
+    border-radius: var(--r-lg);
+    animation: rise-spring 320ms var(--spring) both;
+  }
+}
+.palette-input {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 54px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--hairline);
+  color: var(--muted);
+  flex: none;
+}
+.palette-input input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 1.02rem;
+}
+.palette-input input::placeholder {
+  color: var(--faint);
+}
+.palette-list {
+  overflow-y: auto;
+  max-height: min(60vh, 520px);
+  padding: 4px 6px 6px;
+}
+.palette-group + .palette-group {
+  margin-top: 4px;
+}
+.palette-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: var(--r-xs);
+  text-align: left;
+  color: var(--text-2);
+  font-size: 0.9rem;
+}
+.palette-item .icon {
+  color: var(--muted);
+}
+.palette-item.active {
+  background: var(--hover);
+  color: var(--text);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+.palette-item.active .icon {
+  color: var(--accent-text);
+}
+.palette-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.palette-sub {
+  font-size: 0.78rem;
+  color: var(--faint);
+  max-width: 40%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.palette-foot {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 14px;
+  border-top: 1px solid var(--hairline);
+  font-size: 0.74rem;
+  color: var(--faint);
+}
+.palette-foot[hidden] {
+  display: none;
+}
+.palette-foot span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+@media (pointer: coarse) {
+  .palette-foot {
+    display: none;
+  }
+  .palette-item {
+    height: 48px;
+  }
+}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The only files the app hands to other apps by address: a photo the camera app
+     writes for the chat (RustWebChromeClient.createImageFile). -->
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+  <cache-path name="camera" path="camera/" />
+</paths>

@@ -1,0 +1,6 @@
+=== template
+{% for o in orders %}#{{ o.id }} {{ o.customer.name|upper }}; {% endfor %}
+=== context
+{"orders": [{"id": 7, "customer": {"name": "lee"}}, {"id": 9, "customer": {"name": "mo & co"}}]}
+=== expected
+#7 LEE; #9 MO &amp; CO; 

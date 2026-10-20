@@ -1,0 +1,9 @@
+title = "Add EU reverse charge to an unfamiliar 70-file invoicing app"
+tier = "hard2"
+difficulty = "hard"
+category = "feature"
+tags = ["hard2", "python", "explore", "multi-file"]
+time_limit = 1800
+prompt = """
+We need EU reverse-charge invoicing in ledgerly. When the customer is a business in another EU country (not our own country) and has a valid VAT ID, the invoice must not charge VAT: every line at 0% VAT, plus the note "Reverse charge: VAT to be accounted for by the recipient (Article 196, Directive 2006/112/EC)." and the customer's VAT ID printed on the invoice. The invoice JSON from the API should also get "reverse_charge": true (false for all other invoices). Everything else must keep working as it does today: domestic customers, consumers, businesses without a valid VAT ID, and customers outside the EU. Please add tests too.
+"""

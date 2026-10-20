@@ -1,0 +1,24 @@
+[package]
+name = "tessera-client"
+description = "Client for Tessera servers: endpoint switching, proxy headers, reconnect and resync"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+tessera-proto.workspace = true
+tessera-secure.workspace = true
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+futures.workspace = true
+reqwest.workspace = true
+tokio-tungstenite.workspace = true
+tracing.workspace = true
+parking_lot.workspace = true
+url.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util"] }
+tracing-subscriber.workspace = true

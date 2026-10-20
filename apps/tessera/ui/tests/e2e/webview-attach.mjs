@@ -1,0 +1,36 @@
+import { check, device, finish, mock, run, signIn } from './cdp.mjs';
+run(async () => {
+  await mock('/__mock/reset');
+  const p = await device();
+  await signIn(p,'Web attachment races');
+  check(await p.eval(`!performance.getEntriesByType('resource').some(e=>new URL(e.name).pathname==='/src/lib/browserView.ts')`),'frame/input handlers are not loaded by a chat-only first screen');
+  const r = await p.eval(`Promise.all([__mod('lib/browserView.ts'),__mod('lib/backend.ts')]).then(async ([b,{backend}]) => {
+    const call = backend.call.bind(backend);
+    let frames = 0, reject, resolve;
+    backend.call = req => req.method === 'browser_attach' ? new Promise((yes,no) => {resolve=yes; reject=no;}) : Promise.resolve(null);
+    const size = {width:100,height:100,dpr:1,mobile:false};
+    const handlers = {frame:async () => {frames++;}};
+    const first = b.attach('failed-view',size,handlers).catch(() => null);
+    await new Promise(r => setTimeout(r,100));
+    reject({code:'transport'}); await first;
+    backend.events.emit({type:'browser_frame',board_id:'failed-view',frame:1,data:'',mime:'image/png'});
+    const failed = frames;
+    const c = new AbortController();
+    const old = b.attach('overlap-view',size,handlers,c.signal).catch(() => null);
+    await new Promise(r => setTimeout(r,20)); const late = resolve;
+    c.abort();
+    const fresh = b.attach('overlap-view',size,handlers);
+    await new Promise(r => setTimeout(r,20)); resolve(null); const live = await fresh;
+    late(null); await old;
+    backend.events.emit({type:'browser_frame',board_id:'overlap-view',frame:2,data:'',mime:'image/png'});
+    const overlap = frames;
+    b.detach(live.view);
+    backend.events.emit({type:'browser_frame',board_id:'overlap-view',frame:3,data:'',mime:'image/png'});
+    backend.call = call;
+    return {failed,overlap,closed:frames};
+  })`);
+  check(r.failed === 0,'failed attach unregisters its frame handler',r);
+  check(r.overlap === 1,'overlapping cancelled attach leaves only the latest handler',r);
+  check(r.closed === 1,'disposed attachment has no frame handler',r);
+  await p.close(); finish();
+});

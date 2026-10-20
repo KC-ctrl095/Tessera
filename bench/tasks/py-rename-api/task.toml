@@ -1,0 +1,8 @@
+title = "Rename across a package, keeping deprecated aliases (Python)"
+difficulty = "medium"
+category = "refactor"
+tags = ["python", "multi-file", "public-api"]
+time_limit = 900
+prompt = """
+Please rename get_usr to get_user and UsrRecord to UserRecord everywhere in this project (code, tests and docs). Other teams still call shopkit.get_usr() and use shopkit.UsrRecord, so keep those two old names working from the shopkit package for now as deprecated aliases: calling get_usr should give a DeprecationWarning.
+"""

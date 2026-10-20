@@ -1,0 +1,33 @@
+/* Phone controls only; kept separate from transcript/performance styles. */
+.title-fast {
+  flex: none;
+}
+.opt-model > .fast-mark {
+  color: var(--accent-text);
+  align-self: center;
+}
+/* Flat options keep their hints but drop wasted space, not capabilities. */
+:root[data-touch] .tile-opts .opt-sec {
+  padding: 6px 8px;
+}
+:root[data-touch] .tile-opts .opt-row {
+  padding: 3px;
+}
+:root[data-touch] .tile-opts .opt-line {
+  min-height: 34px;
+  gap: 7px;
+}
+:root[data-touch] .tile-opts .opt-hint {
+  font-size: 0.72rem;
+}
+:root[data-touch] .helper-row .agent-time {
+  min-width: 0;
+}
+:root[data-touch] .helper-row .agent-go {
+  display: none;
+}
+/* Let the tile's gesture handler scroll attachment rows, not swipe to the next chat. */
+.workspace[data-mode="mobile"] .composer .attachments,
+.workspace[data-mode="dual"] .composer .attachments {
+  touch-action: pan-y;
+}

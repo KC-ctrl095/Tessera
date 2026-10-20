@@ -1,0 +1,6 @@
+=== template
+{% for u in users %}{% if u.active %}{{ u.name|upper }}{% else %}({{ u.name }}){% endif %}{% if not loop.last %} {% endif %}{% endfor %}
+=== context
+{"users": [{"name": "ana", "active": true}, {"name": "bo", "active": false}, {"name": "cy", "active": true}]}
+=== expected
+ANA (bo) CY

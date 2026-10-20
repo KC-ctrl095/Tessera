@@ -1,0 +1,8 @@
+title = "Fix quoting in a backup script"
+difficulty = "medium"
+category = "bugfix"
+tags = ["shell", "failing-test"]
+time_limit = 900
+prompt = """
+backup.sh breaks when folder names have spaces, and it says done even when the source folder doesn't exist. tests/run_tests.sh shows the problem. Can you fix the script?
+"""

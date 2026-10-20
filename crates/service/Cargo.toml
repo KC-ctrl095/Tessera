@@ -1,0 +1,13 @@
+[package]
+name = "tessera-service"
+description = "Runs Tessera in the background on Windows, without a window (started at sign-in)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "tessera-service"
+path = "src/main.rs"
+
+# Nothing but the standard library: it only starts tessera.exe and waits.
+[dependencies]

@@ -1,0 +1,8 @@
+title = "Fix price formatting (JavaScript)"
+difficulty = "easy"
+category = "bugfix"
+tags = ["javascript", "node", "failing-test"]
+time_limit = 600
+prompt = """
+formatPrice in money.js prints things like $1.5 and $-5.00. money.test.js shows what it should print. Please fix it.
+"""

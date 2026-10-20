@@ -1,0 +1,8 @@
+title = "Fix several subtle bugs in a TTL/LRU cache (Python)"
+difficulty = "hard"
+category = "bugfix"
+tags = ["python", "subtle", "spec"]
+time_limit = 1200
+prompt = """
+Our TTLCache in cache.py misbehaves in production: entries we read all the time get evicted, and stored zeros come back as missing. test_cache.py has a couple of cases. Please fix cache.py so it really does what its docstring says; there may be more wrong than those two things.
+"""

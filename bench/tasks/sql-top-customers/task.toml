@@ -1,0 +1,8 @@
+title = "Top customers by spend (SQL)"
+difficulty = "hard"
+category = "data"
+tags = ["sql", "sqlite"]
+time_limit = 1200
+prompt = """
+In top_customers.sql, write a SQLite query for the 5 customers who spent the most in 2025, counting only paid orders. Columns: name and total (in dollars, rounded to 2 decimals), biggest first. The data is in shop.db.
+"""

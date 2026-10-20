@@ -1,0 +1,61 @@
+month,region,tea,units,revenue_eur
+2023-04,North,Sencha,347,2074.03
+2023-04,North,Assam,258,1230.66
+2023-04,North,Rooibos,263,1083.42
+2023-04,North,Earl Grey,121,627.51
+2023-04,North,Oolong,244,2125.14
+2023-04,East,Sencha,306,1815.50
+2023-04,East,Assam,26,122.97
+2023-04,East,Rooibos,259,1030.21
+2023-04,East,Earl Grey,394,2065.83
+2023-04,East,Oolong,168,1356.05
+2023-04,South,Sencha,92,579.82
+2023-04,South,Assam,112,521.92
+2023-04,South,Rooibos,184,738.39
+2023-04,South,Earl Grey,397,2037.60
+2023-04,South,Oolong,380,3080.66
+2023-04,West,Sencha,117,718.51
+2023-04,West,Assam,49,236.68
+2023-04,West,Rooibos,339,1398.97
+2023-04,West,Earl Grey,171,866.97
+2023-04,West,Oolong,91,753.77
+2023-05,North,Sencha,265,1587.12
+2023-05,North,Assam,316,1450.97
+2023-05,North,Rooibos,289,1152.06
+2023-05,North,Earl Grey,63,331.82
+2023-05,North,Oolong,382,3248.54
+2023-05,East,Sencha,165,979.31
+2023-05,East,Assam,173,827.95
+2023-05,East,Rooibos,322,1258.77
+2023-05,East,Earl Grey,43,210.69
+2023-05,East,Oolong,276,2409.12
+2023-05,South,Sencha,371,2197.95
+2023-05,South,Assam,36,175.35
+2023-05,South,Rooibos,181,750.78
+2023-05,South,Earl Grey,319,1668.57
+2023-05,South,Oolong,242,1994.44
+2023-05,West,Sencha,291,1794.18
+2023-05,West,Assam,171,790.51
+2023-05,West,Rooibos,71,283.95
+2023-05,West,Earl Grey,383,1907.85
+2023-05,West,Oolong,286,2395.00
+2023-06,North,Sencha,309,1905.25
+2023-06,North,Assam,52,254.28
+2023-06,North,Rooibos,238,979.57
+2023-06,North,Earl Grey,244,1269.59
+2023-06,North,Oolong,108,890.64
+2023-06,East,Sencha,285,1791.60
+2023-06,East,Assam,344,1641.69
+2023-06,East,Rooibos,216,849.06
+2023-06,East,Earl Grey,254,1307.74
+2023-06,East,Oolong,246,2068.35
+2023-06,South,Sencha,233,1381.46
+2023-06,South,Assam,390,1827.82
+2023-06,South,Rooibos,75,308.83
+2023-06,South,Earl Grey,125,641.10
+2023-06,South,Oolong,199,1641.45
+2023-06,West,Sencha,275,1640.06
+2023-06,West,Assam,340,1648.02
+2023-06,West,Rooibos,113,438.97
+2023-06,West,Earl Grey,378,1873.49
+2023-06,West,Oolong,209,1808.69

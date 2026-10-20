@@ -1,0 +1,6 @@
+=== template
+{{ user.name }} ({{ user.email }})
+=== context
+{"user": {"name": "Joao", "email": "joao@example.org"}}
+=== expected
+Joao (joao@example.org)

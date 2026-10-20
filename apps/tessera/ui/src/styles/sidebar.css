@@ -1,0 +1,317 @@
+/* ── Sidebar sections as tabs (components/Sidebar.tsx) ─────────────────────
+   One section at a time under the search box. The chosen tab shows its
+   name; the others are icons with their news (needs you, working, due). */
+.sidebar {
+  container: sb / inline-size;
+}
+
+.sb-tabs {
+  flex: none;
+  display: flex;
+  gap: 2px;
+  margin: 0 8px 6px;
+  padding: 2px;
+  border-radius: var(--r-xs);
+  background: var(--stone);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+.sidebar.drawer .sb-tabs {
+  background: var(--sunken);
+}
+.sb-tab {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 30px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 6px;
+  border-radius: calc(var(--r-xs) - 1px);
+  color: var(--faint);
+  font-size: 0.78rem;
+  font-weight: 540;
+  white-space: nowrap;
+  transition:
+    background var(--t-fast) var(--ease),
+    color var(--t-fast) var(--ease);
+}
+.sidebar.drawer .sb-tab {
+  height: 44px;
+}
+@media (hover: hover) {
+  .sb-tab:hover {
+    color: var(--text-2);
+    background: var(--hairline-soft);
+  }
+}
+.sb-tab:focus-visible {
+  outline: 1.5px solid var(--accent);
+  outline-offset: -1.5px;
+}
+.sb-tab.on {
+  flex: 0 0 auto;
+  padding: 0 10px;
+  color: var(--text);
+  background: var(--hover);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+}
+[data-theme="light"] .sb-tab.on {
+  background: var(--raised);
+}
+.sb-tab-label {
+  display: none;
+}
+.sb-tab.on .sb-tab-label {
+  display: inline;
+}
+/* Room for every name (a wide drawer): all of them, evenly. */
+@container sb (min-width: 400px) {
+  .sb-tab,
+  .sb-tab.on {
+    flex: 1 1 auto;
+  }
+  .sb-tab-label {
+    display: inline;
+  }
+}
+.sb-tab-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+/* Waiting for you (approvals, asks) or new from agents: a number on the icon. */
+.sb-tab-badge {
+  position: absolute;
+  top: -8px;
+  left: calc(100% - 3px);
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  border-radius: 7px;
+  font-size: 0.6rem;
+  font-weight: 650;
+  line-height: 14px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 2px var(--stone);
+}
+.sidebar.drawer .sb-tab-badge {
+  box-shadow: 0 0 0 2px var(--sunken);
+}
+.sb-tab-badge.need {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+.sb-tab-badge.fresh {
+  background: var(--lapis);
+  color: var(--stone);
+}
+/* A job due soon (gilded) or a failed run (terracotta): one tessera. */
+.sb-tab-dot {
+  position: absolute;
+  top: -3px;
+  right: -4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--stone);
+}
+.sb-tab-dot.failed {
+  background: var(--terracotta);
+}
+.sb-tab-busy {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+}
+/* The chosen tab already has its list beside it: no second marker next to the name. */
+.sb-tab.on .sb-tab-busy {
+  display: none;
+}
+/* Room for the number between the icon and the name. */
+.sb-tab.on .sb-tab-icon:has(.sb-tab-badge) {
+  margin-right: 8px;
+}
+/* Searching: how many matches each section has. */
+.sb-tab-n {
+  font-size: 0.66rem;
+  font-weight: 560;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.sb-tabs.searching .sb-tab:not(.on) {
+  gap: 3px;
+  padding: 0 4px;
+}
+.sb-tab.empty {
+  opacity: 0.45;
+}
+
+/* What the section holds, and how to add one. */
+.sb-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 30px;
+  padding: 0 0 0 10px;
+}
+.sb-panel-head.with-action {
+  height: auto;
+  min-height: 44px;
+  gap: 6px;
+  padding: 4px 6px 4px 10px;
+}
+.sb-panel-add {
+  flex: none;
+}
+.sb-panel-count {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.74rem;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Search results, grouped by section. */
+.sb-group {
+  scroll-margin-top: 4px;
+}
+
+/* ── Notes (components/notes/NotesList.tsx) ─────────────────────────────── */
+.nl-filter {
+  display: flex;
+  gap: 4px;
+  padding: 0 4px 6px 8px;
+}
+.nl-chip {
+  height: 22px;
+  padding: 0 9px;
+  border-radius: var(--r-pill);
+  font-size: 0.74rem;
+  color: var(--muted);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  transition:
+    background var(--t-fast) var(--ease),
+    color var(--t-fast) var(--ease);
+}
+.sidebar.drawer .nl-chip {
+  height: 28px;
+  padding: 0 12px;
+}
+.nl-chip:hover {
+  color: var(--text);
+}
+.nl-chip.on {
+  color: var(--text);
+  background: var(--hover);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+}
+.nrow {
+  align-items: flex-start;
+}
+.nrow .nrow-main {
+  height: auto;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  padding: 7px 4px 8px 10px;
+}
+.nrow-loading .nrow-preview {
+  visibility: hidden;
+}
+.nrow-loading .nrow-by::before {
+  content: "";
+  width: 13px;
+  height: 13px;
+  flex: none;
+}
+.nrow-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.nrow-title {
+  font-weight: 540;
+  color: var(--text);
+}
+.srow:hover .nrow-time {
+  display: inline;
+}
+.nrow-preview {
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--muted);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.nrow-by {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  font-size: 0.72rem;
+  color: var(--faint);
+}
+.nrow-by .icon {
+  flex: none;
+}
+.nrow-by-label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* A note kept from agents: a quiet mark after who wrote it. */
+.nrow-kept {
+  display: inline-flex;
+  flex: none;
+  margin-left: 2px;
+  color: var(--faint);
+}
+.nrow .srow-more {
+  margin-top: 6px;
+}
+.sb-note-empty {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  color: var(--faint);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+.sb-note-empty p {
+  margin: 0;
+}
+.sb-note-empty .icon {
+  flex: none;
+  margin-top: 1px;
+}
+
+/* Windowed chat list (components/WindowedRows.tsx): fixed heights. */
+.vrows {
+  box-sizing: border-box;
+}
+.vrows > .srow {
+  height: var(--row-h);
+}
+.sb-sub.vsub {
+  height: 26px;
+  box-sizing: border-box;
+  padding-top: 8px;
+  line-height: 15px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* "New mosaic" lives in the sidebar (the top bar keeps the mosaic pills). */
+.sb-ws .ws-add {
+  display: none;
+}

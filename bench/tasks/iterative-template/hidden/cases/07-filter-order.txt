@@ -1,0 +1,6 @@
+=== template
+First tag: {{ tags|first|upper }}
+=== context
+{"tags": ["new", "sale"]}
+=== expected
+First tag: NEW

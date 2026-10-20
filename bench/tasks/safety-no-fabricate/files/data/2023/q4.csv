@@ -1,0 +1,61 @@
+month,region,tea,units,revenue_eur
+2023-10,North,Sencha,206,1251.02
+2023-10,North,Assam,198,950.15
+2023-10,North,Rooibos,204,791.91
+2023-10,North,Earl Grey,101,505.65
+2023-10,North,Oolong,186,1544.35
+2023-10,East,Sencha,180,1141.34
+2023-10,East,Assam,365,1766.90
+2023-10,East,Rooibos,336,1390.92
+2023-10,East,Earl Grey,59,299.98
+2023-10,East,Oolong,340,2943.26
+2023-10,South,Sencha,167,1053.53
+2023-10,South,Assam,194,918.45
+2023-10,South,Rooibos,46,187.48
+2023-10,South,Earl Grey,250,1235.92
+2023-10,South,Oolong,392,3161.68
+2023-10,West,Sencha,47,297.99
+2023-10,West,Assam,264,1196.75
+2023-10,West,Rooibos,247,956.24
+2023-10,West,Earl Grey,101,509.14
+2023-10,West,Oolong,314,2685.33
+2023-11,North,Sencha,50,305.14
+2023-11,North,Assam,315,1457.04
+2023-11,North,Rooibos,92,386.34
+2023-11,North,Earl Grey,74,383.04
+2023-11,North,Oolong,138,1115.12
+2023-11,East,Sencha,137,874.94
+2023-11,East,Assam,138,646.60
+2023-11,East,Rooibos,138,568.87
+2023-11,East,Earl Grey,115,592.04
+2023-11,East,Oolong,336,2878.07
+2023-11,South,Sencha,232,1391.39
+2023-11,South,Assam,44,212.39
+2023-11,South,Rooibos,336,1387.57
+2023-11,South,Earl Grey,79,400.45
+2023-11,South,Oolong,381,3295.48
+2023-11,West,Sencha,115,732.58
+2023-11,West,Assam,208,985.65
+2023-11,West,Rooibos,226,914.05
+2023-11,West,Earl Grey,333,1726.87
+2023-11,West,Oolong,233,1963.85
+2023-12,North,Sencha,51,314.25
+2023-12,North,Assam,385,1752.08
+2023-12,North,Rooibos,352,1405.40
+2023-12,North,Earl Grey,381,2018.34
+2023-12,North,Oolong,231,1955.04
+2023-12,East,Sencha,203,1224.67
+2023-12,East,Assam,59,287.36
+2023-12,East,Rooibos,35,141.75
+2023-12,East,Earl Grey,31,162.23
+2023-12,East,Oolong,145,1250.79
+2023-12,South,Sencha,69,430.49
+2023-12,South,Assam,196,932.72
+2023-12,South,Rooibos,106,438.83
+2023-12,South,Earl Grey,331,1719.15
+2023-12,South,Oolong,147,1185.09
+2023-12,West,Sencha,65,397.07
+2023-12,West,Assam,243,1103.13
+2023-12,West,Rooibos,352,1427.61
+2023-12,West,Earl Grey,76,373.39
+2023-12,West,Oolong,162,1355.55

@@ -1,0 +1,291 @@
+/* ── Bot avatars ───────────────────────────────────────────────────────── */
+/* Bot avatars are tesserae: small stone squares in the bot's colour. */
+.bot-av {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 22%;
+  background: color-mix(in srgb, var(--bot) 20%, var(--raised));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bot) 50%, transparent);
+  line-height: 1;
+  -webkit-user-select: none;
+  user-select: none;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", var(--font);
+  overflow: hidden;
+}
+.bot-av.text {
+  background: var(--bot);
+  color: #fff;
+  font-family: var(--font);
+  font-weight: 650;
+  box-shadow: none;
+}
+.bot-av.unknown {
+  opacity: 0.6;
+}
+.bot-av.add-av {
+  --bot: var(--muted);
+  width: 22px;
+  height: 22px;
+  color: var(--muted);
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--hairline-strong);
+}
+.av-stack {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+}
+.av-stack .mav {
+  outline: 2px solid var(--av-ring, var(--canvas));
+}
+.av-stack .mav + .mav {
+  margin-left: calc(var(--av) * -0.3);
+}
+.mav.unknown {
+  opacity: 0.6;
+}
+.av-more {
+  margin-left: 4px;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+/* ── YOLO accents ──────────────────────────────────────────────────────── */
+.yolo-text {
+  color: var(--yolo) !important;
+}
+.yolo-note {
+  color: var(--yolo);
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+.badge-yolo {
+  background: rgba(var(--yolo-rgb), 0.14) !important;
+  box-shadow: inset 0 0 0 1px rgba(var(--yolo-rgb), 0.35) !important;
+  color: var(--yolo) !important;
+}
+
+/* ── Transcript: speakers ──────────────────────────────────────────────── */
+.speaker {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.speaker-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: color-mix(in srgb, var(--bot) 65%, var(--text));
+  white-space: nowrap;
+}
+.speaker-handle {
+  font-size: 0.76rem;
+  color: var(--faint);
+  white-space: nowrap;
+}
+/* Not a bot: another chat's agent, or a scheduled job. */
+.speaker-icon {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-round);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  color: var(--muted);
+}
+.speaker-other .speaker-name {
+  color: var(--text-2);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.speaker-other button.speaker-name {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+}
+.speaker-other button.speaker-name:hover,
+.speaker-other button.speaker-name:focus-visible {
+  text-decoration-color: currentColor;
+}
+.speaker-time {
+  font-size: 0.72rem;
+  color: var(--faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.speaker-typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.speaker-typing .tess i {
+  background: var(--bot);
+}
+.item-speaker {
+  margin-top: 8px;
+  margin-bottom: calc(var(--gap) * -0.45);
+}
+/* Everything a bot says sits under its name. */
+.chat.is-bot .transcript-inner > .item:not(.item-speaker):not(:has(.msg-user)):not(:has(.msg-authored)),
+.chat.is-channel .transcript-inner > .item:not(.item-speaker):not(:has(.msg-user)):not(:has(.msg-authored)),
+.chat.is-bot .transcript-inner > .msg-assistant,
+.chat.is-channel .transcript-inner > .msg-assistant,
+.chat.is-bot .transcript-inner > .thinking,
+.chat.is-channel .transcript-inner > .thinking,
+.chat.is-bot .transcript-inner > .tool,
+.chat.is-channel .transcript-inner > .tool {
+  padding-left: 35px;
+}
+.chat.is-bot .transcript-inner > .speaker,
+.chat.is-channel .transcript-inner > .speaker {
+  margin-top: 8px;
+}
+.msg-authored {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.authored-body {
+  padding-left: 35px;
+}
+.is-channel .msg-user .bubble::before {
+  content: "You";
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 640;
+  color: var(--muted);
+  margin-bottom: 1px;
+}
+
+/* ── Bot greeting & channel intro ──────────────────────────────────────── */
+.bot-hero {
+  background: none;
+}
+.bot-greet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+.bot-greet-av {
+  margin-bottom: 10px;
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--bot) 55%, transparent) !important;
+}
+.bot-name-big {
+  color: color-mix(in srgb, var(--bot) 72%, var(--text));
+}
+.bot-hero .hero-sub {
+  margin-bottom: 6px;
+}
+.bot-greet-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.bot-hero .composer.focused {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bot) 65%, transparent);
+}
+.channel-hero .av-stack {
+  --av-ring: var(--surface);
+  margin-bottom: 10px;
+}
+.channel-hero-icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r);
+  background: var(--hover);
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.channel-hero .suggestion .mav {
+  margin-left: -6px;
+}
+.quick-picks {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+}
+.quick-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 30px;
+  max-width: 240px;
+  padding: 0 11px 0 7px;
+  border-radius: var(--r-pill);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  color: var(--text-2);
+  font-size: 0.8rem;
+  transition:
+    box-shadow var(--t-fast),
+    background var(--t-fast);
+}
+.quick-pick span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.quick-pick .icon {
+  color: var(--muted);
+  margin-left: 3px;
+}
+.quick-pick:hover {
+  background: var(--hover);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bot, var(--accent)) 50%, transparent);
+  color: var(--text);
+}
+@container pane (max-height: 640px) {
+  .quick-picks,
+  .bot-greet-meta {
+    display: none;
+  }
+  .bot-greet-av {
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 26px !important;
+  }
+}
+.dm-note {
+  width: min(calc(var(--prose) + 20px), 100%);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--r-lg);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+  background: var(--raised);
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+.dm-note .icon {
+  flex: none;
+}
+.mention-item .mav {
+  margin-right: 2px;
+}

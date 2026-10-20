@@ -1,0 +1,8 @@
+title = "Add a service to a JSON config"
+difficulty = "easy"
+category = "config"
+tags = ["json", "edit"]
+time_limit = 600
+prompt = """
+In config/services.json, please add a service named billing: url https://billing.internal:8443, timeout_ms 5000, retries 3, tags ["payments"]. Also raise the search service's timeout_ms to 15000. Nothing else should change.
+"""

@@ -1,0 +1,10 @@
+title = "Migrate a project from an old database helper to a new API (Python, many files)"
+tier = "hard2"
+difficulty = "hard"
+category = "refactor"
+tags = ["python", "hard2", "long-task", "multi-file", "sql", "spec"]
+time_limit = 1800
+check_timeout = 120
+prompt = """
+Please migrate the project from legacy_db to the new db.Repo API as described in MIGRATION.md, then delete legacy_db.py. All tests must still pass.
+"""

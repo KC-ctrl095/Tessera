@@ -1,0 +1,8 @@
+title = "Fix a paging bug (Python)"
+difficulty = "easy"
+category = "bugfix"
+tags = ["python", "failing-test"]
+time_limit = 600
+prompt = """
+The tests in test_pagination.py are failing. Can you fix the bug in pagination.py? Run the tests to make sure they pass.
+"""

@@ -1,0 +1,6 @@
+=== template
+[{{ code|trim|upper }}]
+=== context
+{"code": "  ab12 "}
+=== expected
+[AB12]

@@ -1,0 +1,8 @@
+title = "Make an O(n^2) function fast without changing its behaviour"
+difficulty = "hard"
+category = "constraints"
+tags = ["python", "performance", "keep-api", "dont-touch"]
+time_limit = 1200
+prompt = """
+find_duplicates in dedupe.py is far too slow for our real import (about 50,000 records, it never finishes). Please make it fast. Other scripts use it, so keep the signature and the exact output the same: same groups, same order, same record objects. Don't modify tests/ or vendor/ (vendor/ is a copy of another team's library).
+"""

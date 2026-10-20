@@ -1,0 +1,649 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: var(--fs);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--grout);
+  color: var(--text);
+  font-family: var(--font);
+  font-feature-settings: "kern", "liga";
+  font-variation-settings: var(--sharp);
+  line-height: 1.55;
+  letter-spacing: -0.004em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  overflow: hidden;
+}
+
+#root {
+  height: var(--app-h, 100dvh);
+}
+
+@supports not (height: 100dvh) {
+  #root {
+    height: var(--app-h, 100vh);
+  }
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+img,
+svg {
+  display: block;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  letter-spacing: -0.012em;
+  font-weight: 560;
+}
+
+/* Marcellus: the few large moments (greetings, page titles)… */
+.serif {
+  font-family: var(--display);
+  font-weight: 400;
+  letter-spacing: 0;
+  font-variation-settings: normal;
+}
+
+/* …and section labels, cut like inscriptions. */
+.inscription,
+.sb-sec-toggle,
+.sb-ws-label,
+.goal-label,
+.goal-note-label,
+.menu-heading,
+.settings-group,
+.opt-head,
+.report-label,
+.queued-when,
+.var-preview-label,
+.ledger-title,
+.tool-sec-head,
+.launcher-sec h3,
+.md th,
+.private-badge,
+.ov-private {
+  font-family: var(--display);
+  font-weight: 400 !important;
+  font-variation-settings: normal;
+  letter-spacing: 0.15em;
+}
+.inscription {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.icon {
+  flex: none;
+}
+/* 1.5px strokes at every size. */
+.icon > * {
+  vector-effect: non-scaling-stroke;
+}
+
+code,
+kbd,
+pre,
+.mono {
+  font-family: var(--mono);
+  font-feature-settings: "calt" 0, "liga" 0;
+  font-variation-settings: normal;
+  /* Martian Mono is wide: condensed a notch it sits in tiles and code like text. */
+  font-stretch: 87.5%;
+  font-size-adjust: 0.52;
+  letter-spacing: 0;
+}
+
+/* Timers and counters never jitter. */
+time,
+.tabular,
+.tool-time,
+.activity-time,
+.steps-time,
+.count {
+  font-variant-numeric: tabular-nums;
+}
+
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: var(--r-xs);
+  border: 1px solid var(--hairline-strong);
+  border-bottom-width: 2px;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+/* Touch devices never show keyboard hints. */
+[data-touch] kbd,
+[data-touch] .kbd-only {
+  display: none !important;
+}
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-ring);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(var(--accent-rgb), 0.3);
+}
+
+/* Scrollbars: thin and quiet. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--hairline-strong) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--hairline-strong);
+  border-radius: 2px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--faint);
+}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* The Linux desktop app paints scrollbars over anything stacked above them:
+   under an open modal (rendered outside #root) the app's are hidden. */
+.modal-open #root,
+.modal-open #root * {
+  scrollbar-width: none;
+}
+
+/* ── Utilities ─────────────────────────────────────────────────────────── */
+.muted {
+  color: var(--muted);
+}
+.faint {
+  color: var(--faint);
+}
+.small {
+  font-size: 0.84rem;
+}
+.tiny {
+  font-size: 0.76rem;
+}
+.strong {
+  font-weight: 600;
+}
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+.spacer {
+  flex: 1;
+}
+.row {
+  display: flex;
+  align-items: center;
+}
+.row.gap {
+  gap: 8px;
+}
+.row.wrap {
+  flex-wrap: wrap;
+}
+.row.center {
+  justify-content: center;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.stack.tight {
+  gap: 8px;
+}
+.danger-text {
+  color: var(--err) !important;
+}
+.ok-text {
+  color: var(--ok);
+}
+.full {
+  width: 100%;
+  justify-content: center;
+}
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ── Motion ────────────────────────────────────────────────────────────── */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+}
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+/* Things that rise into place: a short spring, like a tile pressed into its bed. */
+@keyframes rise-spring {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  40% {
+    opacity: 1;
+  }
+}
+/* New messages and rows settle into the column. */
+@keyframes settle {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+}
+/* Opening details: a short fall into place. */
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+@keyframes fresh-text {
+  from {
+    opacity: 0.15;
+  }
+}
+/* A tessera set in its bed: drops a few pixels and lands. */
+@keyframes set-in {
+  from {
+    opacity: 0;
+    transform: translateY(-7px) scale(0.9);
+  }
+  60% {
+    opacity: 1;
+  }
+}
+@keyframes flash {
+  0%,
+  100% {
+    background: transparent;
+  }
+  20% {
+    background: rgba(var(--accent-rgb), 0.12);
+  }
+}
+
+/* Old live indicators: static now (the tessellate indicator is the only loop). */
+.shimmer {
+  color: inherit;
+}
+.live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 1px;
+  background: var(--accent);
+}
+.live-dot.warn {
+  background: var(--warn);
+}
+
+/* ── Tessellate: four squares filling one by one ─────────────────────────── */
+.tess {
+  --tess: 10px;
+  --tess-gap: max(1px, calc(var(--tess) * 0.12));
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: var(--tess-gap);
+  width: var(--tess);
+  height: var(--tess);
+  flex: none;
+  vertical-align: middle;
+}
+.tess i {
+  background: var(--accent);
+  border-radius: 0.5px;
+  opacity: 0.18;
+  /* Longhands: the build's CSS minifier turned the nameless shorthand into "animation: none"
+     (no duration), so in the apps the mark never moved and sat at four dim squares. */
+  animation-duration: 1.6s;
+  animation-timing-function: steps(1, end);
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+/* Clockwise from the top left (1 → 2 → 4 → 3): each tessera lights in turn,
+   holds, and goes out in the same order, so the light walks round the square. */
+.tess i:nth-child(1) {
+  animation-name: tess1;
+}
+.tess i:nth-child(2) {
+  animation-name: tess2;
+}
+.tess i:nth-child(4) {
+  animation-name: tess3;
+}
+.tess i:nth-child(3) {
+  animation-name: tess4;
+}
+.tess[data-off] i {
+  animation-play-state: paused;
+}
+@keyframes tess1 {
+  0% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0.18;
+  }
+}
+@keyframes tess2 {
+  0% {
+    opacity: 0.18;
+  }
+  12.5% {
+    opacity: 1;
+  }
+  62.5%,
+  100% {
+    opacity: 0.18;
+  }
+}
+@keyframes tess3 {
+  0% {
+    opacity: 0.18;
+  }
+  25% {
+    opacity: 1;
+  }
+  75%,
+  100% {
+    opacity: 0.18;
+  }
+}
+/* The last one holds until the first lights again: some tessera is always lit, so the
+   mark never goes dark for a beat (a glance or a screenshot there saw nothing). */
+@keyframes tess4 {
+  0% {
+    opacity: 0.18;
+  }
+  37.5% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+.spinner {
+  color: var(--accent);
+}
+
+/* Status tesserae: done, failed, waiting… */
+.sq {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 1px;
+  background: var(--faint);
+}
+.sq-ok,
+.sq-plan-done {
+  background: var(--verdigris);
+}
+.sq-error,
+.sq-plan-blocked {
+  background: var(--terracotta);
+}
+.sq-approval {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+.sq-pending,
+.sq-unknown,
+.sq-plan-pending {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--faint);
+}
+.sq-plan-in_progress {
+  background: var(--accent);
+}
+.sq-plan-skipped {
+  background: var(--hairline-strong);
+}
+.sq-think {
+  background: var(--tess-2);
+}
+.sq-text {
+  background: var(--tess-1);
+}
+.sq-running,
+.sq-preparing {
+  background: var(--accent);
+}
+
+/* ── Logo ──────────────────────────────────────────────────────────────── */
+.logo {
+  overflow: visible;
+}
+.logo .lp {
+  fill: #d9cfbf;
+}
+.logo .l2 {
+  fill: #cbc0ae;
+}
+.logo .l3 {
+  fill: #d2c7b6;
+}
+.logo .l4 {
+  fill: #c2b6a3;
+}
+.logo .lg {
+  fill: var(--accent);
+}
+[data-theme="light"] .logo .lp {
+  fill: #3a342c;
+}
+[data-theme="light"] .logo .l2 {
+  fill: #4a4238;
+}
+[data-theme="light"] .logo .l3 {
+  fill: #433c33;
+}
+[data-theme="light"] .logo .l4 {
+  fill: #544b40;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.brand-name {
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+}
+
+/* ── The mosaic motif ──────────────────────────────────────────────────── */
+.mosaic-art {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+.mosaic-art .s0 {
+  fill: var(--tess-0);
+}
+.mosaic-art .s1 {
+  fill: var(--tess-1);
+}
+.mosaic-art .s2 {
+  fill: var(--tess-2);
+}
+.mosaic-art .s3 {
+  fill: var(--tess-3);
+}
+.mosaic-art .g {
+  fill: var(--gold);
+}
+.mosaic-art .l {
+  fill: var(--lapis);
+}
+.mosaic-art .p {
+  fill: var(--porphyry);
+}
+.mosaic-art .o1 {
+  opacity: 0.22;
+}
+.mosaic-art .o2 {
+  opacity: 0.4;
+}
+.mosaic-art .o3 {
+  opacity: 0.6;
+}
+.mosaic-art .o4 {
+  opacity: 0.8;
+}
+.mosaic-art .o5 {
+  opacity: 1;
+}
+.mosaic-art.veiled .s0,
+.mosaic-art.veiled .s1,
+.mosaic-art.veiled .s2 {
+  fill: color-mix(in srgb, var(--porphyry) 22%, var(--tess-1));
+}
+
+/* A hairline of tiny squares. */
+.tessera-rule {
+  height: 3px;
+  background-image: linear-gradient(90deg, var(--hairline-strong) 3px, transparent 3px);
+  background-size: 7px 3px;
+  background-repeat: repeat-x;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* The working indicator stays, just slower. */
+  .tess i {
+    animation-duration: 3s !important;
+    animation-iteration-count: infinite !important;
+  }
+}
+
+/* Freshly streamed words fade in (the block being written only; see lib/mdstream.ts). */
+.fresh {
+  animation: fresh-text 220ms var(--ease-out) backwards;
+}
+
+/* A small set of tesserae laid in one by one (pairing, setup). */
+.settle-tiles {
+  display: inline-grid;
+  grid-template-columns: repeat(3, var(--st, 9px));
+  gap: calc(var(--st, 9px) * 0.22);
+}
+.settle-tiles i {
+  width: var(--st, 9px);
+  height: var(--st, 9px);
+  border-radius: 1px;
+  background: var(--tess-2);
+  animation: set-in 420ms var(--ease-out) both;
+  animation-delay: calc(var(--i) * 55ms);
+}
+.settle-tiles i.g {
+  background: var(--accent);
+}
+.settle-tiles i.l {
+  background: var(--lapis);
+}

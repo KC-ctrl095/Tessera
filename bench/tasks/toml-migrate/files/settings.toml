@@ -1,0 +1,52 @@
+# Settings for the ledger API server.
+# Changes take effect after a restart.
+
+[server]
+# Address and port to listen on.
+listen = "0.0.0.0:8080"
+# How long a request may take before the server gives up, in seconds.
+timeout = 45
+workers = 8
+# Requests with a bigger body are refused (bytes).
+max_body = 10485760
+
+[database]
+url = "postgres://ledger@db.internal:5432/ledger"
+pool_size = 20
+# Seconds to wait for a free connection from the pool.
+timeout = 10
+ssl = true
+
+[cache]
+enabled = true
+# Entries expire after this many seconds.
+ttl = 300
+max_entries = 50_000
+
+[log]
+level = "info"
+format = "json"
+# Where the log goes; it is rotated every night.
+file = "/var/log/ledger/api.log"
+
+# Services we forward requests to, tried by weight.
+# Their timeouts are in seconds.
+[[upstream]]
+name = "rates"
+url = "https://rates.internal:9443"
+weight = 3
+timeout = 5
+
+[[upstream]]
+name = "fx-backup"
+url = "https://fx-backup.example.net"
+weight = 1
+timeout = 15
+headers = { "X-Client" = "ledger" }
+
+[[upstream]]
+name = "audit"
+url = "https://audit.internal:9443"
+weight = 1
+timeout = 30
+retry_on = [502, 503, 504]

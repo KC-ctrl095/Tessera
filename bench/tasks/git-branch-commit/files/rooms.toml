@@ -1,0 +1,8 @@
+[[room]]
+name = "builds"
+url = "https://chat.example.invalid/hooks/builds"
+
+[[room]]
+name = "alerts"
+url = "https://chat.example.invalid/hooks/alerts"
+only_failures = true

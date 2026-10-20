@@ -1,0 +1,6 @@
+=== template
+{{ q }}
+=== context
+{"q": "it's 5 > 3 & 2 < 4"}
+=== expected
+it&#39;s 5 &gt; 3 &amp; 2 &lt; 4

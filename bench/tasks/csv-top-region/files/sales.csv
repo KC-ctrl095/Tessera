@@ -1,0 +1,423 @@
+date,region,product,units,unit_price
+2026-01-02,East,"Monitor 27""",3,329.00
+2026-01-02,North,Laptop dock,24,189.00
+2026-01-02,North,Office chair,17,249.00
+2026-01-02,South,"Paper, A4 (5 reams)",2,24.75
+2026-01-02,West,"Monitor 27""",35,329.00
+2026-01-03,East,"Monitor 27""",24,329.00
+2026-01-03,West,"Paper, A4 (5 reams)",20,24.75
+2026-01-05,East,Standing desk,3,"1,299.00"
+2026-01-07,East,Conference camera,4,"1,049.00"
+2026-01-07,South,Keyboard,23,79.00
+2026-01-08,East,Keyboard,5,79.00
+2026-01-08,East,Office chair,14,249.00
+2026-01-08,North,"Monitor 27""",3,329.00
+2026-01-08,West,Laptop dock,11,189.00
+2026-01-10,North,Laptop 14in,1,"1,149.00"
+2026-01-10,South,"Monitor 27""",23,329.00
+2026-01-10,West,Office chair,2,249.00
+2026-01-13,East,USB-C cable,13,12.50
+2026-01-14,North,Conference camera,3,"1,049.00"
+2026-01-14,South,Desk lamp,14,39.90
+2026-01-15,South,"Paper, A4 (5 reams)",4,24.75
+2026-01-16,North,Keyboard,31,79.00
+2026-01-17,East,USB-C cable,3,12.50
+2026-01-17,West,Headset,7,99.50
+2026-01-17,West,Laptop dock,34,189.00
+2026-01-19,Central,Standing desk,1,"1,299.00"
+2026-01-19,North,Standing desk,1,"1,299.00"
+2026-01-20,North,"Monitor 27""",12,329.00
+2026-01-21,East,Keyboard,16,79.00
+2026-01-22,West,Desk lamp,12,39.90
+2026-01-23,North,"Paper, A4 (5 reams)",12,24.75
+2026-01-23,West,Conference camera,1,"1,049.00"
+2026-01-23,West,Standing desk,4,"1,299.00"
+2026-01-24,West,Headset,9,99.50
+2026-01-25,East,Laptop dock,16,189.00
+2026-01-25,West,Headset,20,99.50
+2026-01-26,Central,Keyboard,3,79.00
+2026-01-26,East,USB-C cable,20,12.50
+2026-01-29,North,Conference camera,2,"1,049.00"
+2026-01-29,West,"Monitor 27""",7,329.00
+2026-01-31,East,Conference camera,1,"1,049.00"
+2026-02-01,Central,Standing desk,1,"1,299.00"
+2026-02-01,North,USB-C cable,16,12.50
+2026-02-01,West,Headset,21,99.50
+2026-02-03,South,Standing desk,4,"1,299.00"
+2026-02-05,South,Keyboard,9,79.00
+2026-02-06,Central,USB-C cable,32,12.50
+2026-02-06,North,USB-C cable,4,12.50
+2026-02-07,South,Headset,3,99.50
+2026-02-10,East,USB-C cable,2,12.50
+2026-02-10,South,Headset,35,99.50
+2026-02-10,South,Laptop 14in,3,"1,149.00"
+2026-02-11,West,"Paper, A4 (5 reams)",37,24.75
+2026-02-12,Central,USB-C cable,13,12.50
+2026-02-13,South,"Paper, A4 (5 reams)",25,24.75
+2026-02-14,East,Standing desk,1,"1,299.00"
+2026-02-14,South,USB-C cable,34,12.50
+2026-02-16,West,USB-C cable,14,12.50
+2026-02-19,East,Keyboard,11,79.00
+2026-02-20,South,Conference camera,2,"1,049.00"
+2026-02-20,South,Office chair,16,249.00
+2026-02-20,West,Keyboard,3,79.00
+2026-02-21,South,Standing desk,4,"1,299.00"
+2026-02-22,West,Headset,25,99.50
+2026-02-22,West,Laptop dock,17,189.00
+2026-02-23,South,USB-C cable,9,12.50
+2026-02-25,East,Desk lamp,8,39.90
+2026-02-25,West,Laptop dock,16,189.00
+2026-02-26,East,Laptop 14in,1,"1,149.00"
+2026-02-26,North,Desk lamp,2,39.90
+2026-02-28,Central,Conference camera,4,"1,049.00"
+2026-02-28,Central,Laptop 14in,4,"1,149.00"
+2026-03-02,East,Standing desk,4,"1,299.00"
+2026-03-02,West,Office chair,11,249.00
+2026-03-04,North,Keyboard,15,79.00
+2026-03-08,North,Keyboard,35,79.00
+2026-03-10,East,Standing desk,4,"1,299.00"
+2026-03-10,South,Desk lamp,3,39.90
+2026-03-10,West,"Monitor 27""",24,329.00
+2026-03-11,West,Laptop dock,6,189.00
+2026-03-12,South,Standing desk,4,"1,299.00"
+2026-03-14,Central,Headset,2,99.50
+2026-03-16,South,Office chair,11,249.00
+2026-03-18,South,Headset,31,99.50
+2026-03-20,Central,Headset,34,99.50
+2026-03-20,Central,Laptop dock,20,189.00
+2026-03-20,North,"Monitor 27""",36,329.00
+2026-03-20,West,"Paper, A4 (5 reams)",34,24.75
+2026-03-21,East,Standing desk,1,"1,299.00"
+2026-03-24,Central,Laptop dock,17,189.00
+2026-03-24,North,Laptop 14in,4,"1,149.00"
+2026-03-25,South,Conference camera,2,"1,049.00"
+2026-03-25,South,Keyboard,35,79.00
+2026-03-26,East,Desk lamp,1,39.90
+2026-03-26,East,USB-C cable,14,12.50
+2026-03-26,South,Standing desk,2,"1,299.00"
+2026-03-27,South,Conference camera,3,"1,049.00"
+2026-03-28,East,Laptop 14in,1,"1,149.00"
+2026-03-28,North,Laptop dock,17,189.00
+2026-03-28,South,Keyboard,14,79.00
+2026-03-31,East,Desk lamp,17,39.90
+2026-04-01,South,Keyboard,39,79.00
+2026-04-01,South,Laptop 14in,2,"1,149.00"
+2026-04-01,West,Keyboard,31,79.00
+2026-04-02,Central,Laptop 14in,4,"1,149.00"
+2026-04-02,West,Laptop dock,32,189.00
+2026-04-03,South,Standing desk,1,"1,299.00"
+2026-04-04,East,USB-C cable,16,12.50
+2026-04-05,East,Laptop 14in,2,"1,149.00"
+2026-04-05,North,"Monitor 27""",38,329.00
+2026-04-06,East,Conference camera,3,"1,049.00"
+2026-04-07,South,Office chair,34,249.00
+2026-04-07,West,USB-C cable,9,12.50
+2026-04-08,East,Headset,15,99.50
+2026-04-08,West,Headset,36,99.50
+2026-04-09,East,Laptop 14in,4,"1,149.00"
+2026-04-09,West,Laptop 14in,2,"1,149.00"
+2026-04-09,West,"Monitor 27""",27,329.00
+2026-04-10,East,Laptop 14in,2,"1,149.00"
+2026-04-11,East,Desk lamp,14,39.90
+2026-04-11,North,Desk lamp,34,39.90
+2026-04-11,South,Standing desk,3,"1,299.00"
+2026-04-13,North,Laptop dock,4,189.00
+2026-04-14,West,USB-C cable,23,12.50
+2026-04-16,Central,Laptop 14in,3,"1,149.00"
+2026-04-18,East,"Monitor 27""",38,329.00
+2026-04-18,East,Office chair,26,249.00
+2026-04-18,West,Office chair,9,249.00
+2026-04-19,West,Headset,18,99.50
+2026-04-21,East,Laptop dock,14,189.00
+2026-04-21,West,Laptop 14in,4,"1,149.00"
+2026-04-22,Central,Office chair,3,249.00
+2026-04-22,South,Standing desk,4,"1,299.00"
+2026-04-24,West,Laptop 14in,2,"1,149.00"
+2026-04-27,South,Headset,19,99.50
+2026-04-27,West,Standing desk,4,"1,299.00"
+2026-04-28,West,Laptop dock,23,189.00
+2026-04-29,East,Standing desk,3,"1,299.00"
+2026-05-02,East,Office chair,34,249.00
+2026-05-02,South,Laptop dock,37,189.00
+2026-05-03,Central,Keyboard,37,79.00
+2026-05-03,East,Laptop dock,22,189.00
+2026-05-04,North,Laptop dock,36,189.00
+2026-05-04,North,Laptop dock,23,189.00
+2026-05-04,North,"Paper, A4 (5 reams)",3,24.75
+2026-05-04,South,Desk lamp,5,39.90
+2026-05-04,South,Headset,7,99.50
+2026-05-05,Central,Office chair,19,249.00
+2026-05-06,East,"Paper, A4 (5 reams)",25,24.75
+2026-05-06,South,Office chair,38,249.00
+2026-05-06,West,Laptop 14in,2,"1,149.00"
+2026-05-07,West,"Paper, A4 (5 reams)",13,24.75
+2026-05-09,South,"Paper, A4 (5 reams)",25,24.75
+2026-05-10,East,Conference camera,4,"1,049.00"
+2026-05-13,Central,USB-C cable,14,12.50
+2026-05-13,North,Laptop dock,19,189.00
+2026-05-14,North,Standing desk,4,"1,299.00"
+2026-05-15,East,"Paper, A4 (5 reams)",12,24.75
+2026-05-15,North,Headset,35,99.50
+2026-05-15,South,Headset,25,99.50
+2026-05-16,Central,Laptop dock,3,189.00
+2026-05-16,North,Headset,23,99.50
+2026-05-16,West,Laptop dock,30,189.00
+2026-05-17,South,Standing desk,3,"1,299.00"
+2026-05-18,North,Keyboard,26,79.00
+2026-05-18,West,Desk lamp,11,39.90
+2026-05-19,East,Standing desk,1,"1,299.00"
+2026-05-22,Central,Standing desk,2,"1,299.00"
+2026-05-24,East,Conference camera,3,"1,049.00"
+2026-05-26,East,Conference camera,3,"1,049.00"
+2026-05-27,West,Laptop 14in,4,"1,149.00"
+2026-05-28,Central,Office chair,18,249.00
+2026-05-28,West,Office chair,10,249.00
+2026-05-31,North,"Paper, A4 (5 reams)",25,24.75
+2026-06-02,East,USB-C cable,40,12.50
+2026-06-02,North,Office chair,38,249.00
+2026-06-03,South,Office chair,3,249.00
+2026-06-05,East,Keyboard,8,79.00
+2026-06-06,South,Desk lamp,20,39.90
+2026-06-07,Central,Keyboard,4,79.00
+2026-06-07,East,USB-C cable,6,12.50
+2026-06-07,West,Standing desk,3,"1,299.00"
+2026-06-08,North,Office chair,30,249.00
+2026-06-08,West,Office chair,27,249.00
+2026-06-09,East,Keyboard,16,79.00
+2026-06-09,East,Laptop 14in,4,"1,149.00"
+2026-06-10,South,Desk lamp,7,39.90
+2026-06-13,East,Laptop dock,11,189.00
+2026-06-16,North,Office chair,36,249.00
+2026-06-16,West,Laptop 14in,3,"1,149.00"
+2026-06-16,West,"Paper, A4 (5 reams)",20,24.75
+2026-06-17,Central,Headset,37,99.50
+2026-06-18,Central,Desk lamp,35,39.90
+2026-06-18,East,Headset,1,99.50
+2026-06-19,West,Office chair,4,249.00
+2026-06-20,North,"Monitor 27""",32,329.00
+2026-06-20,South,Standing desk,2,"1,299.00"
+2026-06-21,South,"Monitor 27""",24,329.00
+2026-06-22,North,"Monitor 27""",25,329.00
+2026-06-24,North,Keyboard,22,79.00
+2026-06-25,Central,Laptop dock,31,189.00
+2026-06-25,North,Laptop 14in,1,"1,149.00"
+2026-06-27,Central,Standing desk,1,"1,299.00"
+2026-06-28,Central,Conference camera,3,"1,049.00"
+2026-06-29,Central,Standing desk,3,"1,299.00"
+2026-06-29,Central,USB-C cable,4,12.50
+2026-06-30,Central,Headset,1,99.50
+2026-06-30,North,Standing desk,6,"1,299.00"
+2026-07-03,North,Laptop 14in,2,"1,149.00"
+2026-07-04,West,USB-C cable,6,12.50
+2026-07-05,Central,Laptop dock,1,189.00
+2026-07-05,East,Keyboard,17,79.00
+2026-07-05,South,Standing desk,3,"1,299.00"
+2026-07-09,Central,USB-C cable,37,12.50
+2026-07-11,North,Conference camera,4,"1,049.00"
+2026-07-12,Central,Headset,34,99.50
+2026-07-12,North,Keyboard,28,79.00
+2026-07-13,North,USB-C cable,24,12.50
+2026-07-13,West,Desk lamp,3,39.90
+2026-07-14,East,USB-C cable,34,12.50
+2026-07-15,East,Conference camera,3,"1,049.00"
+2026-07-15,South,Office chair,30,249.00
+2026-07-16,South,Laptop dock,16,189.00
+2026-07-17,East,"Paper, A4 (5 reams)",9,24.75
+2026-07-18,South,USB-C cable,18,12.50
+2026-07-19,West,Keyboard,3,79.00
+2026-07-20,Central,"Monitor 27""",28,329.00
+2026-07-23,Central,Conference camera,2,"1,049.00"
+2026-07-23,Central,"Monitor 27""",27,329.00
+2026-07-23,West,Laptop 14in,1,"1,149.00"
+2026-07-24,West,USB-C cable,19,12.50
+2026-07-25,East,Keyboard,25,79.00
+2026-07-26,South,Headset,29,99.50
+2026-07-26,South,"Paper, A4 (5 reams)",10,24.75
+2026-07-27,Central,Headset,40,99.50
+2026-07-27,West,Headset,4,99.50
+2026-07-28,East,Keyboard,13,79.00
+2026-07-30,South,Office chair,33,249.00
+2026-07-31,Central,Keyboard,15,79.00
+2026-08-03,East,Headset,16,99.50
+2026-08-03,South,Laptop dock,8,189.00
+2026-08-04,South,Laptop dock,32,189.00
+2026-08-05,East,Laptop 14in,3,"1,149.00"
+2026-08-05,North,Desk lamp,18,39.90
+2026-08-05,South,USB-C cable,25,12.50
+2026-08-05,West,Laptop 14in,2,"1,149.00"
+2026-08-06,South,Office chair,32,249.00
+2026-08-07,Central,Conference camera,2,"1,049.00"
+2026-08-09,West,Office chair,20,249.00
+2026-08-13,Central,Office chair,9,249.00
+2026-08-14,West,Office chair,10,249.00
+2026-08-15,East,USB-C cable,2,12.50
+2026-08-17,East,Keyboard,5,79.00
+2026-08-18,North,Standing desk,3,"1,299.00"
+2026-08-20,East,Headset,29,99.50
+2026-08-20,North,USB-C cable,16,12.50
+2026-08-20,South,Headset,19,99.50
+2026-08-23,West,"Monitor 27""",23,329.00
+2026-08-25,East,Standing desk,1,"1,299.00"
+2026-08-25,North,"Monitor 27""",32,329.00
+2026-08-26,South,Laptop dock,21,189.00
+2026-08-26,South,Office chair,7,249.00
+2026-08-27,East,"Paper, A4 (5 reams)",17,24.75
+2026-08-27,South,USB-C cable,21,12.50
+2026-08-29,Central,Laptop 14in,1,"1,149.00"
+2026-08-29,North,Conference camera,4,"1,049.00"
+2026-08-29,North,Desk lamp,5,39.90
+2026-08-30,Central,Headset,19,99.50
+2026-08-30,Central,Standing desk,2,"1,299.00"
+2026-08-30,South,Keyboard,27,79.00
+2026-09-02,East,USB-C cable,29,12.50
+2026-09-02,West,"Paper, A4 (5 reams)",39,24.75
+2026-09-03,North,Laptop 14in,2,"1,149.00"
+2026-09-03,South,"Monitor 27""",10,329.00
+2026-09-04,East,Laptop dock,34,189.00
+2026-09-04,North,Laptop 14in,1,"1,149.00"
+2026-09-05,East,Laptop dock,11,189.00
+2026-09-05,East,USB-C cable,35,12.50
+2026-09-06,North,Laptop dock,10,189.00
+2026-09-06,West,Headset,15,99.50
+2026-09-06,West,USB-C cable,27,12.50
+2026-09-07,North,Keyboard,36,79.00
+2026-09-08,East,Desk lamp,23,39.90
+2026-09-08,East,Laptop 14in,3,"1,149.00"
+2026-09-09,South,"Paper, A4 (5 reams)",20,24.75
+2026-09-10,South,Desk lamp,19,39.90
+2026-09-11,East,Keyboard,27,79.00
+2026-09-12,Central,Office chair,1,249.00
+2026-09-13,North,Desk lamp,14,39.90
+2026-09-13,West,Desk lamp,16,39.90
+2026-09-14,West,Laptop dock,38,189.00
+2026-09-15,North,Office chair,18,249.00
+2026-09-16,South,Headset,5,99.50
+2026-09-16,South,USB-C cable,40,12.50
+2026-09-17,East,Keyboard,4,79.00
+2026-09-17,South,Conference camera,1,"1,049.00"
+2026-09-18,North,USB-C cable,18,12.50
+2026-09-20,Central,Laptop 14in,2,"1,149.00"
+2026-09-20,Central,"Monitor 27""",33,329.00
+2026-09-22,North,Conference camera,1,"1,049.00"
+2026-09-23,West,"Paper, A4 (5 reams)",13,24.75
+2026-09-24,Central,Standing desk,3,"1,299.00"
+2026-09-26,North,Laptop 14in,4,"1,149.00"
+2026-09-27,Central,Office chair,32,249.00
+2026-09-27,South,"Paper, A4 (5 reams)",4,24.75
+2026-09-29,Central,Standing desk,4,"1,299.00"
+2026-09-29,South,"Paper, A4 (5 reams)",19,24.75
+2026-09-30,East,Laptop 14in,1,"1,149.00"
+2026-09-30,South,"Paper, A4 (5 reams)",17,24.75
+2026-10-01,North,Laptop 14in,5,"1,149.00"
+2026-10-03,South,Conference camera,2,"1,049.00"
+2026-10-03,West,USB-C cable,1,12.50
+2026-10-05,East,Conference camera,2,"1,049.00"
+2026-10-06,North,Conference camera,4,"1,049.00"
+2026-10-06,North,Conference camera,3,"1,049.00"
+2026-10-06,North,"Monitor 27""",29,329.00
+2026-10-07,South,Standing desk,4,"1,299.00"
+2026-10-08,Central,Laptop dock,16,189.00
+2026-10-08,East,Conference camera,1,"1,049.00"
+2026-10-09,Central,Standing desk,4,"1,299.00"
+2026-10-10,North,Conference camera,1,"1,049.00"
+2026-10-10,South,Laptop 14in,3,"1,149.00"
+2026-10-10,South,"Monitor 27""",35,329.00
+2026-10-11,East,Standing desk,2,"1,299.00"
+2026-10-11,North,Conference camera,3,"1,049.00"
+2026-10-12,West,Headset,22,99.50
+2026-10-13,North,"Monitor 27""",13,329.00
+2026-10-14,East,Standing desk,2,"1,299.00"
+2026-10-15,South,Standing desk,2,"1,299.00"
+2026-10-16,Central,Office chair,6,249.00
+2026-10-18,West,Keyboard,36,79.00
+2026-10-18,West,Standing desk,1,"1,299.00"
+2026-10-22,Central,Conference camera,1,"1,049.00"
+2026-10-24,North,USB-C cable,23,12.50
+2026-10-26,North,Headset,13,99.50
+2026-10-28,East,Laptop dock,23,189.00
+2026-10-28,North,Laptop dock,25,189.00
+2026-10-28,South,"Paper, A4 (5 reams)",21,24.75
+2026-10-28,West,Conference camera,1,"1,049.00"
+2026-10-31,North,"Paper, A4 (5 reams)",7,24.75
+2026-10-31,West,Standing desk,4,"1,299.00"
+2026-11-01,Central,Conference camera,2,"1,049.00"
+2026-11-02,Central,Headset,2,99.50
+2026-11-02,East,Conference camera,2,"1,049.00"
+2026-11-03,South,Standing desk,3,"1,299.00"
+2026-11-03,West,Headset,1,99.50
+2026-11-04,North,Office chair,9,249.00
+2026-11-05,North,Conference camera,4,"1,049.00"
+2026-11-06,East,Headset,3,99.50
+2026-11-06,West,Standing desk,4,"1,299.00"
+2026-11-07,East,Keyboard,29,79.00
+2026-11-07,West,Laptop dock,36,189.00
+2026-11-07,West,Office chair,26,249.00
+2026-11-10,Central,Laptop dock,1,189.00
+2026-11-10,Central,"Monitor 27""",21,329.00
+2026-11-13,South,Keyboard,10,79.00
+2026-11-13,West,Conference camera,2,"1,049.00"
+2026-11-15,Central,USB-C cable,36,12.50
+2026-11-15,East,Laptop dock,10,189.00
+2026-11-15,South,Conference camera,3,"1,049.00"
+2026-11-15,South,USB-C cable,27,12.50
+2026-11-15,West,Laptop dock,24,189.00
+2026-11-16,North,Laptop 14in,4,"1,149.00"
+2026-11-17,West,Headset,36,99.50
+2026-11-18,South,Keyboard,11,79.00
+2026-11-18,South,"Monitor 27""",30,329.00
+2026-11-18,South,USB-C cable,10,12.50
+2026-11-19,Central,USB-C cable,10,12.50
+2026-11-20,East,Headset,34,99.50
+2026-11-20,North,Keyboard,28,79.00
+2026-11-21,South,"Monitor 27""",11,329.00
+2026-11-22,Central,"Monitor 27""",26,329.00
+2026-11-22,North,Office chair,12,249.00
+2026-11-22,South,Office chair,11,249.00
+2026-11-22,South,Standing desk,1,"1,299.00"
+2026-11-23,South,Desk lamp,40,39.90
+2026-11-25,East,Laptop 14in,4,"1,149.00"
+2026-11-25,South,Headset,35,99.50
+2026-11-25,South,Keyboard,40,79.00
+2026-11-25,West,Office chair,13,249.00
+2026-11-26,Central,Conference camera,1,"1,049.00"
+2026-11-26,South,Office chair,25,249.00
+2026-11-27,South,Office chair,14,249.00
+2026-11-27,West,Standing desk,2,"1,299.00"
+2026-11-30,Central,USB-C cable,25,12.50
+2026-11-30,North,Conference camera,4,"1,049.00"
+2026-12-04,North,Headset,12,99.50
+2026-12-05,Central,Headset,16,99.50
+2026-12-05,West,Laptop dock,21,189.00
+2026-12-08,Central,Laptop dock,5,189.00
+2026-12-08,East,Headset,21,99.50
+2026-12-09,East,Conference camera,4,"1,049.00"
+2026-12-09,East,Desk lamp,36,39.90
+2026-12-09,South,"Paper, A4 (5 reams)",2,24.75
+2026-12-10,East,Standing desk,4,"1,299.00"
+2026-12-10,West,Laptop dock,28,189.00
+2026-12-11,East,Keyboard,2,79.00
+2026-12-11,West,Desk lamp,38,39.90
+2026-12-12,East,Conference camera,2,"1,049.00"
+2026-12-12,South,Laptop dock,40,189.00
+2026-12-12,West,Headset,11,99.50
+2026-12-13,East,Headset,2,99.50
+2026-12-13,South,"Paper, A4 (5 reams)",32,24.75
+2026-12-14,Central,Office chair,31,249.00
+2026-12-14,West,Laptop 14in,2,"1,149.00"
+2026-12-15,West,Headset,15,99.50
+2026-12-16,East,Laptop dock,35,189.00
+2026-12-17,South,USB-C cable,17,12.50
+2026-12-19,South,"Paper, A4 (5 reams)",38,24.75
+2026-12-20,East,Conference camera,2,"1,049.00"
+2026-12-20,North,Headset,28,99.50
+2026-12-21,East,Standing desk,1,"1,299.00"
+2026-12-23,West,Laptop dock,9,189.00
+2026-12-24,West,"Paper, A4 (5 reams)",38,24.75
+2026-12-25,East,Desk lamp,21,39.90
+2026-12-25,South,"Monitor 27""",4,329.00
+2026-12-26,West,"Paper, A4 (5 reams)",4,24.75
+2026-12-28,Central,"Monitor 27""",23,329.00
+2026-12-28,East,Keyboard,18,79.00
+2026-12-28,West,Laptop dock,3,189.00
+2026-12-30,East,Standing desk,3,"1,299.00"
+2026-12-31,North,"Paper, A4 (5 reams)",23,24.75

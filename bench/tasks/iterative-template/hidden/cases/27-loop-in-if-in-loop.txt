@@ -1,0 +1,6 @@
+=== template
+{% for g in groups %}{{ g.name }}:{% if g.items %}{% for i in g.items %}{{ i }}{% if not loop.last %},{% endif %}{% endfor %}{% else %}-{% endif %};{% endfor %}
+=== context
+{"groups": [{"name": "x", "items": [1, 2]}, {"name": "y", "items": []}]}
+=== expected
+x:1,2;y:-;

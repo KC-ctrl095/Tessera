@@ -1,0 +1,6 @@
+=== template
+{{ banner|safe }}
+=== context
+{"banner": "<b>Sale</b> & more"}
+=== expected
+<b>Sale</b> & more

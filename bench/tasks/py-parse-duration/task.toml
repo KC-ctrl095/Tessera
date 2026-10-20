@@ -1,0 +1,8 @@
+title = "Implement parse_duration from its spec (Python)"
+difficulty = "medium"
+category = "implement"
+tags = ["python", "spec"]
+time_limit = 900
+prompt = """
+Please implement parse_duration in durations.py. The docstring has the full spec. There are a few tests in test_durations.py, but they don't cover everything in the spec, so be careful.
+"""

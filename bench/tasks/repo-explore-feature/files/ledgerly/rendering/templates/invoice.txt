@@ -1,0 +1,18 @@
+{seller_name}
+{seller_address}
+VAT ID: {seller_vat_id}
+
+INVOICE {number}
+Issued: {issued_on}    Due: {due_on}
+
+Bill to:
+{customer_name}
+{customer_country}
+
+{lines}
+
+Net total:   {net_total}
+VAT:         {vat_total}
+Total:       {gross_total}
+
+{notes}

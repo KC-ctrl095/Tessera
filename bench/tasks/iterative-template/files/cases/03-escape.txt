@@ -1,0 +1,6 @@
+=== template
+Note: {{ note }}
+=== context
+{"note": "Tom & Jerry <3 \"quoted\""}
+=== expected
+Note: Tom &amp; Jerry &lt;3 &quot;quoted&quot;

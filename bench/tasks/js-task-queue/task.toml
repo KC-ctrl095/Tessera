@@ -1,0 +1,8 @@
+title = "Fix a promise queue's concurrency and error handling (JavaScript)"
+difficulty = "hard"
+category = "bugfix"
+tags = ["javascript", "async", "failing-test"]
+time_limit = 1200
+prompt = """
+Our TaskQueue in queue.js sometimes runs more jobs at once than the concurrency limit, and when a job throws, the whole queue gets stuck. queue.test.js has tests for it. Please fix queue.js.
+"""

@@ -1,0 +1,9 @@
+title = "Fix a six-stage data pipeline from an end-to-end diff"
+tier = "hard2"
+difficulty = "hard"
+category = "debugging"
+tags = ["hard2", "python", "iterative", "multi-file", "context-heavy"]
+time_limit = 1800
+prompt = """
+Our September bike-trip report is wrong. `python3 run_e2e.py` builds it and shows how it differs from the report finance signed off (expected/report.txt). Please fix the pipeline in tripstats/ so the report matches exactly. Don't change expected/ or data/. docs/PIPELINE.md describes what each stage should do.
+"""

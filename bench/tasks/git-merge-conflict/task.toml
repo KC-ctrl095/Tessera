@@ -1,0 +1,8 @@
+title = "Merge a branch with conflicts (git)"
+difficulty = "medium"
+category = "git"
+tags = ["git", "merge-conflict", "python"]
+time_limit = 900
+prompt = """
+Merge feature/retries into main. You'll get conflicts: keep main's TIMEOUT, take the new retry settings from the feature branch, and keep both changelog entries (newest first). Commit the merge.
+"""

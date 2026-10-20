@@ -1,0 +1,130 @@
+Bike trips, September 2026
+Trips counted: 3048 (dropped: 108 too short, 50 too long; duplicates replaced: 108)
+
+District         Started   Ended  Casual%        Km  Median min  Busiest
+Areeiro              388     395     26.8    1728.6        14.3    17:00
+Marvila              388     368     35.1    1856.3        14.1    14:00
+Parque das Nações     324     343     28.7    1512.7        13.2    00:00
+Avenidas Novas       293     329     27.0    1459.1        13.2    05:00
+Graça                287     337     29.6    1283.8        13.8    05:00
+Santos               287     255     27.9    1395.1        15.1    14:00
+Campo de Ourique     228     201     25.4    1134.3        14.9    18:00
+Baixa                197     193     33.0     896.8        13.4    16:00
+Estrela              170     171     30.0     818.9        13.6    09:00
+Belém                165     148     25.5     847.1        13.6    06:00
+Lumiar               164     177     33.5     771.6        13.6    00:00
+Alfama               126     131     27.8     580.6        14.1    15:00
+Unknown               31       0     45.2     153.1        11.2    01:00
+
+Station                           District         Started   Ended
+Rua Morais Soares North           Baixa                 77      71
+Rossio dos Olivais (Metro)        Estrela               74      70
+Avenida de Roma, Kiosk            Marvila               73      78
+Cais do Sodré, East               Areeiro               68      71
+Rua de Belém, East                Belém                 67      65
+Rua Augusta, East                 Marvila               65      52
+Rua da Junqueira, East            Graça                 64      77
+Rossio dos Olivais North          Parque das Nações      64      68
+Jardim da Estrela (Metro)         Campo de Ourique      64      50
+Rua da Prata, West                Marvila               62      48
+Praça do Comércio, Kiosk          Estrela               61      51
+Jardim da Estrela, East           Avenidas Novas        60      61
+Campo Grande, West                Santos                59      55
+Largo do Rato (Metro)             Parque das Nações      58      60
+Largo do Rato, Kiosk              Graça                 57      62
+Rua do Alecrim                    Avenidas Novas        56      57
+Calçada do Combro North           Campo de Ourique      56      34
+Campo Grande                      Marvila               53      56
+Rua Augusta                       Areeiro               52      61
+Rua Augusta North                 Areeiro               52      57
+Alameda das Linhas de Torres (Metro)Parque das Nações      51      55
+Cais do Sodré North               Avenidas Novas        50      62
+Campo Grande, Kiosk               Lumiar                49      49
+Campo Grande (Metro)              Baixa                 49      46
+Rua do Açúcar North               Santos                48      45
+Alameda das Linhas de Torres      Graça                 46      52
+Jardim da Estrela, West           Santos                46      49
+Rua Morais Soares, Kiosk          Marvila               46      42
+Avenida Almirante Reis (Metro)    Alfama                45      57
+Avenida de Roma, East             Areeiro               44      28
+Miradouro de Santa Luzia          Areeiro               43      53
+Largo do Rato, West               Avenidas Novas        43      44
+Alameda dos Oceanos, East         Avenidas Novas        40      43
+Doca de Alcântara North           Santos                39      24
+Rua de São Bento (Metro)          Parque das Nações      38      34
+Rua Ferreira Borges, Kiosk        Alfama                37      32
+Doca de Alcântara, Kiosk          Parque das Nações      37      27
+Rua da Prata, East                Santos                36      46
+Miradouro de Santa Luzia North    Campo de Ourique      33      31
+Praça do Comércio                 Santos                33      21
+Rua do Ouro, Kiosk                Marvila               32      47
+Praça da Figueira (Metro)         Belém                 32      31
+Praça do Comércio (Metro)         Graça                 31      35
+Rua do Alecrim North              Alfama                31      31
+Depot                             Unknown               31       0
+Alameda das Linhas de Torres NorthBaixa                 30      26
+Rossio dos Olivais, East          Areeiro               29      25
+Largo do Carmo North              Areeiro               26      20
+Avenida Almirante Reis, Kiosk     Campo de Ourique      24      21
+Rua do Alecrim (Metro)            Lumiar                23      27
+Praça do Comércio, East           Lumiar                23      14
+Rua das Janelas Verdes, West      Santos                23      13
+Rua do Ouro, East                 Baixa                 21      31
+Rua do Açúcar (Metro)             Belém                 21      22
+Cais do Sodré                     Campo de Ourique      19      18
+Praça da Figueira, East           Marvila               19       7
+Rua das Janelas Verdes (Metro)    Parque das Nações      18      36
+Rossio dos Olivais, West          Areeiro               18      15
+Rossio dos Olivais, Kiosk         Graça                 17      24
+Largo do Rato North               Belém                 17      16
+Rua da Junqueira                  Areeiro               17      14
+Alameda dos Oceanos North         Belém                 17       7
+Largo do Carmo, East              Lumiar                16       9
+Largo do Carmo, West              Avenidas Novas        15      27
+Largo da Graça, West              Lumiar                15      23
+Rua de São Bento, Kiosk           Marvila               15      13
+Rua das Janelas Verdes, Kiosk     Parque das Nações      15      10
+Praça de Londres (Metro)          Lumiar                14      22
+Praça de Londres, West            Parque das Nações      14      20
+Cais do Sodré, West               Areeiro               14      18
+Rua do Açúcar                     Baixa                 14      13
+Largo do Carmo (Metro)            Graça                 13      23
+Praça da Figueira, West           Campo de Ourique      13      14
+Avenida Infante Santo             Graça                 13      12
+Jardim da Estrela, Kiosk          Marvila               13       6
+Largo do Carmo                    Parque das Nações      12      16
+Rua de Belém North                Graça                 12      11
+Doca de Alcântara (Metro)         Areeiro               12      10
+Avenida de Roma (Metro)           Campo de Ourique      11      16
+Praça do Comércio, West           Belém                 11       7
+Calçada do Combro (Metro)         Marvila               10      19
+Alameda dos Oceanos, West         Areeiro               10      14
+Rua das Janelas Verdes North      Lumiar                10      12
+Calçada do Combro                 Avenidas Novas         9      18
+Alameda dos Oceanos (Metro)       Estrela                9      13
+Rua do Açúcar, Kiosk              Graça                  9       9
+Alameda das Linhas de Torres, WestAlfama                 9       6
+Avenida de Roma, West             Graça                  8      10
+Rua Ferreira Borges (Metro)       Estrela                8       9
+Rua do Açúcar, East               Avenidas Novas         8       8
+Campo Grande, East                Estrela                8       7
+Rua do Ouro                       Lumiar                 8       7
+Rua Ferreira Borges, West         Parque das Nações       8       3
+Miradouro de Santa Luzia, East    Graça                  7      15
+Rua Ferreira Borges, East         Estrela                7      14
+Rua Augusta (Metro)               Avenidas Novas         6       8
+Calçada do Combro, East           Baixa                  6       6
+Doca de Alcântara                 Graça                  6       5
+Rua do Ouro, West                 Avenidas Novas         6       1
+Rua da Prata (Metro)              Parque das Nações       5       2
+Rua do Alecrim, West              Campo de Ourique       4      11
+Jardim da Estrela                 Lumiar                 4       9
+Largo do Rato, East               Parque das Nações       4       8
+Avenida de Roma North             Campo de Ourique       4       6
+Avenida Almirante Reis, West      Alfama                 4       5
+Avenida da Liberdade (Metro)      Graça                  4       2
+Rua Augusta, West                 Areeiro                3       9
+Praça de Londres, Kiosk           Estrela                3       7
+Miradouro de Santa Luzia, West    Santos                 3       2
+Praça da Figueira, Kiosk          Lumiar                 2       5
+Praça da Figueira                 Parque das Nações       0       4

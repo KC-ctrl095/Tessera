@@ -1,0 +1,7 @@
+build/
+.cache/
+logs/
+data/*
+!data/README.md
+__pycache__/
+*.pyc

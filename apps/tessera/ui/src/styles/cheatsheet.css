@@ -1,0 +1,41 @@
+/* The keyboard cheatsheet (Cheatsheet.tsx), loaded with it. */
+.cheat-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 8px 32px;
+  align-content: start;
+}
+.cheatsheet.modal-lg {
+  height: auto;
+  max-height: min(760px, 100%);
+}
+.cheat-group h3 {
+  margin: 14px 0 8px;
+  font-size: 0.76rem;
+  font-weight: 620;
+  letter-spacing: 0;
+  color: var(--accent-text);
+}
+.cheat-group dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 14px;
+  align-items: center;
+}
+.cheat-group dt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: flex-end;
+}
+.cheat-group dd {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--text-2);
+}
+@media (max-width: 700px) {
+  .cheat-body {
+    grid-template-columns: 1fr;
+  }
+}

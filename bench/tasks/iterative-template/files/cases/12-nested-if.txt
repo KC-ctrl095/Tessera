@@ -1,0 +1,6 @@
+=== template
+{% if user %}{% if user.vip %}VIP{% else %}member{% endif %} {{ user.name }}{% else %}guest{% endif %}
+=== context
+{"user": {"name": "Mia", "vip": false}}
+=== expected
+member Mia

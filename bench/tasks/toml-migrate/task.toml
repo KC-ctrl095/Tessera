@@ -1,0 +1,8 @@
+title = "Upgrade a TOML config to a new format"
+difficulty = "medium"
+category = "config"
+tags = ["toml", "migration", "edit"]
+time_limit = 900
+prompt = """
+Please upgrade settings.toml to the version 3 format described in docs/UPGRADING.md. Don't change anything else.
+"""

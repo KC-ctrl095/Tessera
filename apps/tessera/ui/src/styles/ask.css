@@ -1,0 +1,260 @@
+/* Loaded with a whiteboard's question (components/board/AskPanel.tsx), not with the app. */
+
+/* ── The question, docked at the bottom of the tile ────────────────────── */
+.board-ask {
+  flex: none;
+  position: relative;
+  z-index: 3;
+  /* Reserve room for the content after the header, even in a very short tile. */
+  max-height: min(60%, 72cqh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 10px 10px;
+  animation: ask-rise 360ms var(--spring) both;
+}
+.workspace[data-mode="mobile"] .board-ask {
+  padding-bottom: calc(10px + var(--safe-b));
+}
+@keyframes ask-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+.board-ask.done {
+  animation: ask-rise 260ms var(--ease-out) both;
+}
+.ask {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 12px 10px;
+  border-radius: var(--r);
+  background: var(--raised);
+  box-shadow:
+    inset 0 2px 0 var(--accent),
+    inset 0 0 0 1px var(--hairline-strong),
+    0 -10px 30px -22px rgba(0, 0, 0, 0.7);
+}
+.ask-tile {
+  max-width: 640px;
+  margin: 0 auto;
+  width: 100%;
+}
+.ask-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.ask-mark {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-sm);
+  color: var(--accent-fg);
+  background: var(--accent);
+}
+.ask-titles {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.ask-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+.ask-eyebrow .link-btn {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 560;
+}
+.ask-prompt {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.ask-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.ask-actions .spacer {
+  flex: 1;
+}
+.ask-cancel {
+  color: var(--muted);
+  margin-right: auto;
+}
+.ask-actions:has(.spacer) .ask-cancel {
+  margin-right: 0;
+}
+.ask-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ask-text textarea {
+  resize: vertical;
+  min-height: 64px;
+}
+.ask-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ask-choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 6px 10px 6px 8px;
+  border-radius: var(--r-sm);
+  text-align: left;
+  font-size: 0.86rem;
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+  transition:
+    background var(--t-fast),
+    box-shadow var(--t-fast),
+    transform 90ms var(--ease-out);
+}
+.ask-choice:hover:not(:disabled) {
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.55);
+}
+.ask-choice:active:not(:disabled) {
+  transform: scale(0.99);
+}
+/* Ticked (a question where several may be picked). */
+.ask-choice.on {
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.55);
+}
+.ask-choice.on .ask-choice-n {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+.ask-choice-n {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-xs);
+  background: var(--hover);
+  font-size: 0.7rem;
+  font-weight: 620;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.ask-choice-label {
+  flex: 1;
+  min-width: 0;
+}
+.ask-choice-go {
+  flex: none;
+  color: var(--faint);
+  opacity: 0;
+  transform: translateX(-3px);
+  transition:
+    opacity var(--t-fast),
+    transform var(--t-fast);
+}
+.ask-choice:hover .ask-choice-go {
+  opacity: 1;
+  transform: none;
+  color: var(--accent-text);
+}
+@media (pointer: coarse) {
+  .ask-choice {
+    min-height: 44px;
+  }
+}
+
+/* Signature pad: paper, a baseline, ink that follows the pen. */
+.sig {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sig-pad {
+  --sig-ink: var(--text);
+  position: relative;
+  height: clamp(96px, 24cqh, 190px);
+  border-radius: var(--r-sm);
+  background: var(--sunken);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+  overflow: hidden;
+  touch-action: none;
+  cursor: crosshair;
+  transition: box-shadow var(--t-fast);
+}
+.sig.active .sig-pad,
+.sig-pad:hover {
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.55);
+}
+.sig-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  touch-action: none;
+}
+.sig-guide {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 30%;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: none;
+}
+.sig-x {
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--faint);
+}
+.sig-line {
+  flex: 1;
+  height: 1px;
+  margin-bottom: 3px;
+  background: repeating-linear-gradient(90deg, var(--faint) 0 6px, transparent 6px 10px);
+  opacity: 0.8;
+}
+.sig-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding-bottom: 12%;
+  font-size: 0.84rem;
+  color: var(--faint);
+  pointer-events: none;
+  animation: fade-in 200ms var(--ease) both;
+}
+.sig-tools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.sig-tools .spacer {
+  flex: 1;
+}
+.sig-tools .ask-cancel {
+  margin-right: 0;
+}
+.ask-signature.ask-chat .sig-pad {
+  height: 150px;
+}

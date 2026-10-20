@@ -1,0 +1,69 @@
+{
+  "version": 7,
+  "owner": "platform-team",
+  "defaults": {
+    "timeout_ms": 3000,
+    "retries": 2,
+    "backoff": {
+      "initial_ms": 200,
+      "max_ms": 5000,
+      "multiplier": 1.5
+    }
+  },
+  "services": [
+    {
+      "name": "auth",
+      "url": "https://auth.internal:8443",
+      "timeout_ms": 2000,
+      "retries": 2,
+      "tags": ["core", "security"]
+    },
+    {
+      "name": "catalog",
+      "url": "https://catalog.internal:8443",
+      "timeout_ms": 4000,
+      "retries": 2,
+      "tags": ["core", "read-heavy"]
+    },
+    {
+      "name": "search",
+      "url": "https://search.internal:9200",
+      "timeout_ms": 8000,
+      "retries": 1,
+      "tags": ["read-heavy"]
+    },
+    {
+      "name": "search-indexer",
+      "url": "https://search-indexer.internal:9300",
+      "timeout_ms": 8000,
+      "retries": 0,
+      "tags": ["batch"]
+    },
+    {
+      "name": "inventory",
+      "url": "https://inventory.internal:8443",
+      "timeout_ms": 3000,
+      "retries": 3,
+      "tags": ["core"]
+    },
+    {
+      "name": "notifications",
+      "url": "https://notify.internal:8080",
+      "timeout_ms": 10000,
+      "retries": 5,
+      "tags": ["async", "email", "sms"]
+    },
+    {
+      "name": "reports",
+      "url": "https://reports.internal:8443",
+      "timeout_ms": 30000,
+      "retries": 0,
+      "tags": ["batch", "internal"]
+    }
+  ],
+  "routing": {
+    "prefer_zone": "eu-central-1a",
+    "fallback_zones": ["eu-central-1b", "eu-central-1c"],
+    "sticky_sessions": false
+  }
+}

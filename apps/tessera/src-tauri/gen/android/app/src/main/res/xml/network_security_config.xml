@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The app talks to its server over its own end-to-end encrypted channel
+     (native sockets, not affected by this file). This only concerns what the
+     web view loads: whiteboard frames can show pages on the local network
+     (e.g. a homelab dashboard on plain http) and the device-side proxy on
+     127.0.0.1 for web apps running on the server. Certificates are still
+     checked against the system store only. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

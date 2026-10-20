@@ -1,0 +1,8 @@
+title = "Fix stock reservation bugs (TypeScript)"
+difficulty = "medium"
+category = "bugfix"
+tags = ["typescript", "failing-test"]
+time_limit = 900
+prompt = """
+node --test inventory.test.ts is failing. Can you find and fix the bugs in inventory.ts? Keep it in TypeScript.
+"""

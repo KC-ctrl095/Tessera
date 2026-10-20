@@ -1,0 +1,8 @@
+title = "Get a slow release build to succeed"
+difficulty = "medium"
+category = "long-command"
+tags = ["shell", "slow-command", "build"]
+time_limit = 1200
+prompt = """
+Please run the release build (./build.sh) and get it to succeed. I need the package in dist/. Heads up: it's slow, about half a minute per run. Please don't change build.sh or anything in tools/.
+"""

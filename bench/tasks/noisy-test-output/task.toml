@@ -1,0 +1,10 @@
+title = "Find and fix three failing tests in a huge, noisy test output"
+tier = "hard2"
+difficulty = "hard"
+category = "output-handling"
+tags = ["hard2", "python", "huge-output", "debugging", "multi-module"]
+time_limit = 1800
+check_timeout = 180
+prompt = """
+The test suite (python3 run_tests.py) fails, but the output is enormous and I can't find what's wrong. Please find the failing tests and fix the code, not the tests.
+"""

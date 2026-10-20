@@ -1,0 +1,6 @@
+=== template
+{% for row in rows %}<{% for cell in row.cells %}{{ cell }};{% endfor %}>{% endfor %}
+=== context
+{"rows": [{"cells": [1, 2]}, {"cells": [3]}, {"cells": []}]}
+=== expected
+<1;2;><3;><>

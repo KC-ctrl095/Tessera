@@ -1,0 +1,6 @@
+=== template
+{% if a %}{% if b %}AB{% else %}A{% endif %}{% else %}{% if b %}B{% else %}none{% endif %}{% endif %}
+=== context
+{"a": false, "b": false}
+=== expected
+none

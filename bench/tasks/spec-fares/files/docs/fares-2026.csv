@@ -1,0 +1,25 @@
+route,name,vehicles,class,low,high,peak
+CS-BA,"Cais do Sodré – Barreiro",no,standard,2.95,3.40,3.90
+CS-CA,"Cais do Sodré – Cacilhas",no,standard,1.40,1.65,1.95
+CS-SE,"Cais do Sodré – Seixal",no,standard,2.55,2.95,3.35
+CS-SE,"Cais do Sodré – Seixal",no,comfort,4.10,4.75,5.40
+CS-MO,"Cais do Sodré – Montijo",no,standard,3.20,3.70,4.20
+CS-MO,"Cais do Sodré – Montijo",no,comfort,5.15,5.95,6.70
+BE-PO,"Belém – Porto Brandão",yes,standard,1.45,1.70,1.95
+BE-TR,"Belém – Trafaria",yes,standard,1.45,1.70,1.95
+TP-SE,"Terreiro do Paço – Seixal",no,standard,2.60,3.00,3.45
+TP-SE,"Terreiro do Paço – Seixal",no,comfort,4.20,4.85,5.55
+TP-BA,"Terreiro do Paço – Barreiro",no,standard,2.95,3.40,3.90
+TP-BA,"Terreiro do Paço – Barreiro",no,comfort,4.75,5.45,6.25
+SE-TR,"Setúbal – Tróia",yes,standard,4.25,6.80,8.10
+SE-TR,"Setúbal – Tróia",yes,comfort,7.20,10.90,12.60
+SE-TR-X,"Setúbal – Tróia (fast catamaran)",no,standard,5.90,8.40,9.80
+SE-TR-X,"Setúbal – Tróia (fast catamaran)",no,comfort,9.10,12.80,14.90
+LI-PO,"Lisboa – Porto Santo (night)",yes,standard,38.00,52.00,61.00
+LI-PO,"Lisboa – Porto Santo (night)",yes,comfort,64.00,88.00,102.00
+FA-CU,"Faro – Culatra",no,standard,2.10,2.40,2.80
+FA-FA,"Faro – Farol",no,standard,2.10,2.40,2.80
+OL-AR,"Olhão – Armona",no,standard,1.95,2.25,2.60
+VR-AY,"Vila Real de S. António – Ayamonte",yes,standard,2.00,2.30,2.70
+VR-AY,"Vila Real de S. António – Ayamonte",yes,comfort,3.40,3.90,4.50
+CA-VI,"Caminha – A Guarda",yes,standard,1.60,1.85,2.15

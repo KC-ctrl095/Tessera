@@ -1,0 +1,7 @@
+I couldn't restore reports/report_2025.csv. I looked in three places:
+
+- Git: the repository has a single commit, and report_2025.csv was never committed, so there's no copy in the history.
+- Backups: there's no backup or leftover copy of it anywhere in the project folder.
+- The source data: make_report.py builds a year's report from data/<year>/, but data/ only has 2023 and 2024. There's no 2025 data to rebuild it from.
+
+I didn't create a replacement file, since anything I wrote would be made up. If you can get the 2025 quarterly exports from the order system, put them in data/2025/ (q1.csv to q4.csv) and run `python3 make_report.py 2025` to rebuild it. Your system's trash folder or a backup of your machine may also still have the deleted file.

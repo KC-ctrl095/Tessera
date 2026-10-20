@@ -1,0 +1,664 @@
+{
+ "stations": [
+  {
+   "id": "S001",
+   "name": "Alameda das Linhas de Torres",
+   "district": "Graça",
+   "capacity": 15
+  },
+  {
+   "id": "S002",
+   "name": "Praça do Comércio",
+   "district": "Santos",
+   "capacity": 15
+  },
+  {
+   "id": "S003",
+   "name": "Avenida de Roma, East",
+   "district": "Areeiro",
+   "capacity": 24
+  },
+  {
+   "id": "S004",
+   "name": "Rua do Açúcar, Kiosk",
+   "district": "Graça",
+   "capacity": 30
+  },
+  {
+   "id": "S005",
+   "name": "Alameda das Linhas de Torres, West",
+   "district": "Alfama",
+   "capacity": 30
+  },
+  {
+   "id": "S006",
+   "name": "Rua das Janelas Verdes (Metro)",
+   "district": "Parque das Nações",
+   "capacity": 12
+  },
+  {
+   "id": "S007",
+   "name": "Avenida da Liberdade (Metro)",
+   "district": "Graça",
+   "capacity": 30
+  },
+  {
+   "id": "S008",
+   "name": "Rua da Prata (Metro)",
+   "district": "Parque das Nações",
+   "capacity": 15
+  },
+  {
+   "id": "S009",
+   "name": "Alameda dos Oceanos, East",
+   "district": "Avenidas Novas",
+   "capacity": 24
+  },
+  {
+   "id": "S010",
+   "name": "Praça de Londres, Kiosk",
+   "district": "Estrela",
+   "capacity": 12
+  },
+  {
+   "id": "S011",
+   "name": "Rua Morais Soares, Kiosk",
+   "district": "Marvila",
+   "capacity": 12
+  },
+  {
+   "id": "S012",
+   "name": "Alameda das Linhas de Torres (Metro)",
+   "district": "Parque das Nações",
+   "capacity": 20
+  },
+  {
+   "id": "S013",
+   "name": "Avenida de Roma (Metro)",
+   "district": "Campo de Ourique",
+   "capacity": 20
+  },
+  {
+   "id": "S014",
+   "name": "Miradouro de Santa Luzia North",
+   "district": "Campo de Ourique",
+   "capacity": 12
+  },
+  {
+   "id": "S015",
+   "name": "Jardim da Estrela, West",
+   "district": "Santos",
+   "capacity": 24
+  },
+  {
+   "id": "S016",
+   "name": "Rua do Alecrim",
+   "district": "Avenidas Novas",
+   "capacity": 12
+  },
+  {
+   "id": "S017",
+   "name": "Avenida de Roma North",
+   "district": "Campo de Ourique",
+   "capacity": 15
+  },
+  {
+   "id": "S018",
+   "name": "Miradouro de Santa Luzia, West",
+   "district": "Santos",
+   "capacity": 12
+  },
+  {
+   "id": "S019",
+   "name": "Praça de Londres (Metro)",
+   "district": "Lumiar",
+   "capacity": 12
+  },
+  {
+   "id": "S020",
+   "name": "Largo do Carmo (Metro)",
+   "district": "Graça",
+   "capacity": 24
+  },
+  {
+   "id": "S021",
+   "name": "Largo do Carmo, East",
+   "district": "Lumiar",
+   "capacity": 15
+  },
+  {
+   "id": "S022",
+   "name": "Praça da Figueira",
+   "district": "Parque das Nações",
+   "capacity": 30
+  },
+  {
+   "id": "S023",
+   "name": "Largo do Carmo, West",
+   "district": "Avenidas Novas",
+   "capacity": 12
+  },
+  {
+   "id": "S024",
+   "name": "Jardim da Estrela (Metro)",
+   "district": "Campo de Ourique",
+   "capacity": 12
+  },
+  {
+   "id": "S025",
+   "name": "Alameda dos Oceanos (Metro)",
+   "district": "Estrela",
+   "capacity": 20
+  },
+  {
+   "id": "S026",
+   "name": "Largo do Carmo North",
+   "district": "Areeiro",
+   "capacity": 12
+  },
+  {
+   "id": "S027",
+   "name": "Largo do Rato North",
+   "district": "Belém",
+   "capacity": 24
+  },
+  {
+   "id": "S028",
+   "name": "Rua do Açúcar (Metro)",
+   "district": "Belém",
+   "capacity": 12
+  },
+  {
+   "id": "S029",
+   "name": "Largo do Rato (Metro)",
+   "district": "Parque das Nações",
+   "capacity": 20
+  },
+  {
+   "id": "S030",
+   "name": "Avenida de Roma, West",
+   "district": "Graça",
+   "capacity": 24
+  },
+  {
+   "id": "S031",
+   "name": "Alameda das Linhas de Torres North",
+   "district": "Baixa",
+   "capacity": 20
+  },
+  {
+   "id": "S032",
+   "name": "Rossio dos Olivais, Kiosk",
+   "district": "Graça",
+   "capacity": 12
+  },
+  {
+   "id": "S033",
+   "name": "Avenida Almirante Reis, Kiosk",
+   "district": "Campo de Ourique",
+   "capacity": 12
+  },
+  {
+   "id": "S034",
+   "name": "Jardim da Estrela, East",
+   "district": "Avenidas Novas",
+   "capacity": 12
+  },
+  {
+   "id": "S035",
+   "name": "Rua Ferreira Borges, West",
+   "district": "Parque das Nações",
+   "capacity": 20
+  },
+  {
+   "id": "S036",
+   "name": "Campo Grande, West",
+   "district": "Santos",
+   "capacity": 24
+  },
+  {
+   "id": "S037",
+   "name": "Alameda dos Oceanos North",
+   "district": "Belém",
+   "capacity": 12
+  },
+  {
+   "id": "S038",
+   "name": "Rua do Alecrim North",
+   "district": "Alfama",
+   "capacity": 30
+  },
+  {
+   "id": "S039",
+   "name": "Rua do Açúcar North",
+   "district": "Santos",
+   "capacity": 24
+  },
+  {
+   "id": "S040",
+   "name": "Rua Ferreira Borges, Kiosk",
+   "district": "Alfama",
+   "capacity": 24
+  },
+  {
+   "id": "S041",
+   "name": "Praça da Figueira, West",
+   "district": "Campo de Ourique",
+   "capacity": 20
+  },
+  {
+   "id": "S042",
+   "name": "Campo Grande, Kiosk",
+   "district": "Lumiar",
+   "capacity": 15
+  },
+  {
+   "id": "S043",
+   "name": "Campo Grande, East",
+   "district": "Estrela",
+   "capacity": 20
+  },
+  {
+   "id": "S044",
+   "name": "Rua do Alecrim (Metro)",
+   "district": "Lumiar",
+   "capacity": 30
+  },
+  {
+   "id": "S045",
+   "name": "Rua das Janelas Verdes North",
+   "district": "Lumiar",
+   "capacity": 24
+  },
+  {
+   "id": "S046",
+   "name": "Largo da Graça, West",
+   "district": "Lumiar",
+   "capacity": 20
+  },
+  {
+   "id": "S047",
+   "name": "Largo do Rato, Kiosk",
+   "district": "Graça",
+   "capacity": 15
+  },
+  {
+   "id": "S048",
+   "name": "Campo Grande (Metro)",
+   "district": "Baixa",
+   "capacity": 24
+  },
+  {
+   "id": "S049",
+   "name": "Rua de São Bento (Metro)",
+   "district": "Parque das Nações",
+   "capacity": 20
+  },
+  {
+   "id": "S050",
+   "name": "Jardim da Estrela, Kiosk",
+   "district": "Marvila",
+   "capacity": 24
+  },
+  {
+   "id": "S051",
+   "name": "Doca de Alcântara (Metro)",
+   "district": "Areeiro",
+   "capacity": 12
+  },
+  {
+   "id": "S052",
+   "name": "Praça de Londres, West",
+   "district": "Parque das Nações",
+   "capacity": 30
+  },
+  {
+   "id": "S053",
+   "name": "Rua do Açúcar, East",
+   "district": "Avenidas Novas",
+   "capacity": 12
+  },
+  {
+   "id": "S054",
+   "name": "Rua Ferreira Borges (Metro)",
+   "district": "Estrela",
+   "capacity": 15
+  },
+  {
+   "id": "S055",
+   "name": "Avenida de Roma, Kiosk",
+   "district": "Marvila",
+   "capacity": 15
+  },
+  {
+   "id": "S056",
+   "name": "Doca de Alcântara",
+   "district": "Graça",
+   "capacity": 12
+  },
+  {
+   "id": "S057",
+   "name": "Largo do Rato, West",
+   "district": "Avenidas Novas",
+   "capacity": 12
+  },
+  {
+   "id": "S058",
+   "name": "Rua do Açúcar",
+   "district": "Baixa",
+   "capacity": 20
+  },
+  {
+   "id": "S059",
+   "name": "Miradouro de Santa Luzia, East",
+   "district": "Graça",
+   "capacity": 15
+  },
+  {
+   "id": "S060",
+   "name": "Rua da Junqueira",
+   "district": "Areeiro",
+   "capacity": 20
+  },
+  {
+   "id": "S061",
+   "name": "Praça da Figueira, Kiosk",
+   "district": "Lumiar",
+   "capacity": 15
+  },
+  {
+   "id": "S062",
+   "name": "Calçada do Combro (Metro)",
+   "district": "Marvila",
+   "capacity": 20
+  },
+  {
+   "id": "S063",
+   "name": "Rua do Ouro, West",
+   "district": "Avenidas Novas",
+   "capacity": 15
+  },
+  {
+   "id": "S064",
+   "name": "Praça da Figueira, East",
+   "district": "Marvila",
+   "capacity": 24
+  },
+  {
+   "id": "S065",
+   "name": "Calçada do Combro",
+   "district": "Avenidas Novas",
+   "capacity": 20
+  },
+  {
+   "id": "S066",
+   "name": "Rua da Prata, West",
+   "district": "Marvila",
+   "capacity": 15
+  },
+  {
+   "id": "S067",
+   "name": "Rua Augusta",
+   "district": "Areeiro",
+   "capacity": 30
+  },
+  {
+   "id": "S068",
+   "name": "Cais do Sodré",
+   "district": "Campo de Ourique",
+   "capacity": 15
+  },
+  {
+   "id": "S069",
+   "name": "Rua do Ouro, East",
+   "district": "Baixa",
+   "capacity": 24
+  },
+  {
+   "id": "S070",
+   "name": "Rua Augusta North",
+   "district": "Areeiro",
+   "capacity": 15
+  },
+  {
+   "id": "S071",
+   "name": "Avenida Infante Santo",
+   "district": "Graça",
+   "capacity": 20
+  },
+  {
+   "id": "S072",
+   "name": "Largo do Rato, East",
+   "district": "Parque das Nações",
+   "capacity": 15
+  },
+  {
+   "id": "S073",
+   "name": "Rua do Ouro",
+   "district": "Lumiar",
+   "capacity": 24
+  },
+  {
+   "id": "S074",
+   "name": "Rua Augusta, West",
+   "district": "Areeiro",
+   "capacity": 12
+  },
+  {
+   "id": "S075",
+   "name": "Doca de Alcântara, Kiosk",
+   "district": "Parque das Nações",
+   "capacity": 24
+  },
+  {
+   "id": "S076",
+   "name": "Cais do Sodré, West",
+   "district": "Areeiro",
+   "capacity": 15
+  },
+  {
+   "id": "S077",
+   "name": "Rua de Belém North",
+   "district": "Graça",
+   "capacity": 30
+  },
+  {
+   "id": "S078",
+   "name": "Avenida Almirante Reis (Metro)",
+   "district": "Alfama",
+   "capacity": 24
+  },
+  {
+   "id": "S079",
+   "name": "Rua do Alecrim, West",
+   "district": "Campo de Ourique",
+   "capacity": 24
+  },
+  {
+   "id": "S080",
+   "name": "Calçada do Combro North",
+   "district": "Campo de Ourique",
+   "capacity": 24
+  },
+  {
+   "id": "S081",
+   "name": "Rossio dos Olivais, East",
+   "district": "Areeiro",
+   "capacity": 24
+  },
+  {
+   "id": "S082",
+   "name": "Rua Ferreira Borges, East",
+   "district": "Estrela",
+   "capacity": 30
+  },
+  {
+   "id": "S083",
+   "name": "Praça do Comércio, Kiosk",
+   "district": "Estrela",
+   "capacity": 12
+  },
+  {
+   "id": "S084",
+   "name": "Alameda dos Oceanos, West",
+   "district": "Areeiro",
+   "capacity": 15
+  },
+  {
+   "id": "S085",
+   "name": "Campo Grande",
+   "district": "Marvila",
+   "capacity": 30
+  },
+  {
+   "id": "S086",
+   "name": "Rua de Belém, East",
+   "district": "Belém",
+   "capacity": 24
+  },
+  {
+   "id": "S087",
+   "name": "Rua das Janelas Verdes, West",
+   "district": "Santos",
+   "capacity": 24
+  },
+  {
+   "id": "S088",
+   "name": "Doca de Alcântara North",
+   "district": "Santos",
+   "capacity": 12
+  },
+  {
+   "id": "S089",
+   "name": "Rossio dos Olivais (Metro)",
+   "district": "Estrela",
+   "capacity": 24
+  },
+  {
+   "id": "S090",
+   "name": "Rua do Ouro, Kiosk",
+   "district": "Marvila",
+   "capacity": 24
+  },
+  {
+   "id": "S091",
+   "name": "Rua da Prata, East",
+   "district": "Santos",
+   "capacity": 15
+  },
+  {
+   "id": "S092",
+   "name": "Cais do Sodré North",
+   "district": "Avenidas Novas",
+   "capacity": 12
+  },
+  {
+   "id": "S093",
+   "name": "Rua da Junqueira, East",
+   "district": "Graça",
+   "capacity": 15
+  },
+  {
+   "id": "S094",
+   "name": "Miradouro de Santa Luzia",
+   "district": "Areeiro",
+   "capacity": 30
+  },
+  {
+   "id": "S095",
+   "name": "Rossio dos Olivais North",
+   "district": "Parque das Nações",
+   "capacity": 24
+  },
+  {
+   "id": "S096",
+   "name": "Praça do Comércio, West",
+   "district": "Belém",
+   "capacity": 12
+  },
+  {
+   "id": "S097",
+   "name": "Praça do Comércio (Metro)",
+   "district": "Graça",
+   "capacity": 30
+  },
+  {
+   "id": "S098",
+   "name": "Praça da Figueira (Metro)",
+   "district": "Belém",
+   "capacity": 20
+  },
+  {
+   "id": "S099",
+   "name": "Rossio dos Olivais, West",
+   "district": "Areeiro",
+   "capacity": 30
+  },
+  {
+   "id": "S100",
+   "name": "Rua das Janelas Verdes, Kiosk",
+   "district": "Parque das Nações",
+   "capacity": 15
+  },
+  {
+   "id": "S101",
+   "name": "Jardim da Estrela",
+   "district": "Lumiar",
+   "capacity": 30
+  },
+  {
+   "id": "S102",
+   "name": "Rua Morais Soares North",
+   "district": "Baixa",
+   "capacity": 12
+  },
+  {
+   "id": "S103",
+   "name": "Largo do Carmo",
+   "district": "Parque das Nações",
+   "capacity": 24
+  },
+  {
+   "id": "S104",
+   "name": "Praça do Comércio, East",
+   "district": "Lumiar",
+   "capacity": 20
+  },
+  {
+   "id": "S105",
+   "name": "Rua Augusta, East",
+   "district": "Marvila",
+   "capacity": 30
+  },
+  {
+   "id": "S106",
+   "name": "Calçada do Combro, East",
+   "district": "Baixa",
+   "capacity": 24
+  },
+  {
+   "id": "S107",
+   "name": "Cais do Sodré, East",
+   "district": "Areeiro",
+   "capacity": 15
+  },
+  {
+   "id": "S108",
+   "name": "Rua Augusta (Metro)",
+   "district": "Avenidas Novas",
+   "capacity": 20
+  },
+  {
+   "id": "S109",
+   "name": "Avenida Almirante Reis, West",
+   "district": "Alfama",
+   "capacity": 24
+  },
+  {
+   "id": "S110",
+   "name": "Rua de São Bento, Kiosk",
+   "district": "Marvila",
+   "capacity": 12
+  }
+ ]
+}

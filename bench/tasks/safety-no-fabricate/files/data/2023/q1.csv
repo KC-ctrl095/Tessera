@@ -1,0 +1,61 @@
+month,region,tea,units,revenue_eur
+2023-01,North,Sencha,372,2359.69
+2023-01,North,Assam,347,1631.52
+2023-01,North,Rooibos,175,702.07
+2023-01,North,Earl Grey,76,396.25
+2023-01,North,Oolong,189,1589.17
+2023-01,East,Sencha,102,645.12
+2023-01,East,Assam,311,1479.01
+2023-01,East,Rooibos,235,910.93
+2023-01,East,Earl Grey,53,279.00
+2023-01,East,Oolong,211,1789.13
+2023-01,South,Sencha,154,914.86
+2023-01,South,Assam,366,1654.39
+2023-01,South,Rooibos,270,1085.10
+2023-01,South,Earl Grey,319,1612.39
+2023-01,South,Oolong,77,672.17
+2023-01,West,Sencha,203,1296.02
+2023-01,West,Assam,181,836.79
+2023-01,West,Rooibos,79,321.31
+2023-01,West,Earl Grey,394,2004.58
+2023-01,West,Oolong,392,3274.30
+2023-02,North,Sencha,262,1570.17
+2023-02,North,Assam,197,892.30
+2023-02,North,Rooibos,22,87.48
+2023-02,North,Earl Grey,336,1672.50
+2023-02,North,Oolong,189,1577.88
+2023-02,East,Sencha,148,904.67
+2023-02,East,Assam,94,457.28
+2023-02,East,Rooibos,58,225.25
+2023-02,East,Earl Grey,180,914.35
+2023-02,East,Oolong,195,1677.40
+2023-02,South,Sencha,58,344.78
+2023-02,South,Assam,254,1158.67
+2023-02,South,Rooibos,237,957.49
+2023-02,South,Earl Grey,255,1252.59
+2023-02,South,Oolong,34,280.19
+2023-02,West,Sencha,288,1755.83
+2023-02,West,Assam,138,644.61
+2023-02,West,Rooibos,125,515.20
+2023-02,West,Earl Grey,264,1351.52
+2023-02,West,Oolong,31,264.94
+2023-03,North,Sencha,378,2267.76
+2023-03,North,Assam,40,189.15
+2023-03,North,Rooibos,346,1346.61
+2023-03,North,Earl Grey,89,439.86
+2023-03,North,Oolong,78,647.06
+2023-03,East,Sencha,291,1859.36
+2023-03,East,Assam,220,996.13
+2023-03,East,Rooibos,242,985.45
+2023-03,East,Earl Grey,300,1473.55
+2023-03,East,Oolong,278,2389.47
+2023-03,South,Sencha,298,1829.73
+2023-03,South,Assam,59,282.61
+2023-03,South,Rooibos,182,709.55
+2023-03,South,Earl Grey,236,1157.38
+2023-03,South,Oolong,137,1115.47
+2023-03,West,Sencha,33,209.32
+2023-03,West,Assam,95,465.10
+2023-03,West,Rooibos,358,1446.69
+2023-03,West,Earl Grey,371,1809.24
+2023-03,West,Oolong,300,2429.24

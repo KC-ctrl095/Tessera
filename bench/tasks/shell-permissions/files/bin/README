@@ -1,0 +1,7 @@
+Server scripts for the shop app.
+
+  deploy.sh [tag]     switch the live release (default: latest)
+  backup.sh [folder]  archive the uploads folder (default: BACKUP_DIR)
+
+Both read config/app.conf. Credentials live in secrets/ and are only
+needed by the app itself.

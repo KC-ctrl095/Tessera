@@ -1,0 +1,9 @@
+title = "Fix file permissions on a server folder"
+difficulty = "easy"
+category = "shell"
+tags = ["shell", "permissions"]
+time_limit = 600
+git = false
+prompt = """
+The scripts in bin/ won't run (permission denied), and the secrets folder is readable by everyone on this server. Make the scripts executable, and lock secrets/ down so only I can read it - the folder too.
+"""

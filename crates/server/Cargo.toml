@@ -1,0 +1,42 @@
+[package]
+name = "tessera-server"
+description = "HTTP/WebSocket front end for the Tessera engine"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+tessera-proto.workspace = true
+tessera-core.workspace = true
+tessera-secure.workspace = true
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tokio-util.workspace = true
+futures.workspace = true
+axum.workspace = true
+hyper.workspace = true
+hyper-util.workspace = true
+tower.workspace = true
+tracing.workspace = true
+parking_lot.workspace = true
+sha2.workspace = true
+# The web UI goes out gzip-compressed (pure Rust; already used by the CLI).
+flate2 = "1"
+
+[build-dependencies]
+# The web app built in (`TESSERA_WEB_APP`, see build.rs) is stored compressed.
+flate2 = "1"
+
+[dev-dependencies]
+tessera-client.workspace = true
+tempfile = "3"
+reqwest.workspace = true
+base64.workspace = true
+# The web view benchmark (tests/browser_perf.rs) reads the frames it gets.
+jpeg-decoder = "0.3"
+tracing-subscriber.workspace = true
+# Web browsers' keys and sockets in the tests (already built for TLS and the client).
+ring = "0.17"
+tokio-tungstenite.workspace = true

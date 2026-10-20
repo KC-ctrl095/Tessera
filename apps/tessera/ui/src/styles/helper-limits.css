@@ -1,0 +1,116 @@
+/* Helper limits: chat options (one summary line that opens in place) and Settings → Models. */
+.hl-sum .opt-line-label {
+  padding-left: 24px;
+}
+.hl-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 6px 4px 30px;
+}
+.hl-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  font-size: 0.82rem;
+  color: var(--text-2);
+}
+.hl-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.hl-label > span:first-child {
+  flex: none;
+  width: 76px;
+  font-weight: 560;
+}
+.hl-num.input {
+  flex: none;
+  width: 84px;
+  height: 40px;
+  padding: 0 8px;
+  font-size: 0.86rem;
+  font-variant-numeric: tabular-nums;
+}
+.hl-row.none .hl-num {
+  opacity: 0.45;
+}
+.hl-unit {
+  flex: none;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.hl-none {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  min-height: 40px;
+  min-width: 44px;
+  padding: 0 4px;
+  color: var(--text-2);
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+.hl-none input {
+  accent-color: var(--accent);
+  margin: 0;
+}
+.hl-warn,
+.hl-note {
+  margin: 0;
+  font-size: 0.74rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+.hl-warn {
+  color: var(--warn);
+}
+.hl-acts {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  padding-top: 2px;
+}
+/* Settings → Models uses the same explicit number/no-limit choices. */
+.helpers-card .hl-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.helpers-card .hl-label > span:first-child {
+  width: 150px;
+}
+.helpers-card .hl-acts {
+  justify-content: flex-start;
+}
+:root[data-touch] .hl-edit {
+  padding-left: 6px;
+}
+:root[data-touch] .tile-opts .hl-label > span:first-child {
+  width: 66px;
+}
+:root[data-touch] .hl-sum .opt-line-label {
+  padding-left: 22px;
+}
+:root[data-touch] .helpers-card .hl-label > span:first-child {
+  width: 100px;
+}
+.hl-sum,
+.hl-acts .btn {
+  min-height: 40px;
+  min-width: 44px;
+}
+:root[data-touch] .hl-num.input {
+  height: 44px;
+}
+:root[data-touch] .hl-none,
+:root[data-touch] .hl-sum,
+:root[data-touch] .hl-acts .btn {
+  min-height: 44px;
+}

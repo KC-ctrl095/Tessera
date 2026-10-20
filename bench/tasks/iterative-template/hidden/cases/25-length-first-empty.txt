@@ -1,0 +1,6 @@
+=== template
+{{ xs|length }} [{{ xs|first }}] {{ name|lower|first }}
+=== context
+{"xs": [], "name": "Zed"}
+=== expected
+0 [] z

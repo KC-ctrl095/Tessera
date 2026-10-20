@@ -1,0 +1,81 @@
+[package]
+name = "tessera-app"
+description = "Tessera desktop and mobile app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "tessera_app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+tessera-client.workspace = true
+tessera-proto.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+parking_lot.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+# Whiteboards: the device-side proxy for `local` boards and URL checks.
+axum.workspace = true
+reqwest.workspace = true
+base64.workspace = true
+rand.workspace = true
+url.workspace = true
+sha2.workspace = true
+futures.workspace = true
+# Device-local reset times in system notifications (already in the lockfile).
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+
+# Voice input on Linux: enable getUserMedia in WebKitGTK and answer its
+# microphone permission requests (same version wry uses).
+# Notifications on Linux go straight to D-Bus so a click can open the
+# session (zbus is already here through the opener plugin).
+[target.'cfg(target_os = "linux")'.dependencies]
+webkit2gtk = { version = "2", features = ["v2_38"] }
+zbus = "5"
+# A whiteboard tile's picture for the agent: crop and scale WebKitGTK's
+# snapshot (cairo) and encode it (gdk-pixbuf); same version webkit2gtk uses.
+gdk = "0.18"
+# Pasting an image into the composer: WebKitGTK doesn't hand it to the page,
+# so it is read from GTK's clipboard (same version wry uses).
+gtk = "0.18"
+
+# This computer's node (Settings → This computer): stop it with the app.
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+# Windows: no console windows for `tessera.exe`, a clean stop for it, and
+# the machine ending with the app (a Job Object). In the tree through Tauri.
+[target.'cfg(windows)'.dependencies]
+semver = "1"
+tessera-core = { path = "../../../crates/core" }
+windows = { version = "0.62", features = ["Data_Xml_Dom", "Foundation", "UI_Notifications", "Win32_System_WinRT", "Win32_UI_WindowsAndMessaging"] }
+webview2-com = "0.39"
+tempfile = "3"
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Security", "Win32_Storage_FileSystem", "Win32_System_JobObjects", "Win32_System_Threading", "Win32_System_SystemInformation"] }
+
+# Notifications on the other desktops.
+[target.'cfg(not(any(target_os = "linux", target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-notification = "2"
+
+# Phones pair by scanning a QR code; notifications and the keep-alive
+# service are our own plugin.
+[target.'cfg(any(target_os = "android", target_os = "ios"))'.dependencies]
+tauri-plugin-barcode-scanner = "2"
+tessera-background = { path = "plugins/background" }
+
+# The background check calls into the app's Rust side (same version Tauri uses).
+[target.'cfg(target_os = "android")'.dependencies]
+jni = "0.21"
+
+[dev-dependencies]
+tempfile = "3"
+semver = "1"

@@ -1,0 +1,3 @@
+# Python caches never belong in tasks (they would be copied into work dirs).
+__pycache__/
+*.pyc

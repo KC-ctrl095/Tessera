@@ -1,0 +1,16 @@
+{
+  "Bash": {"kind":"bash"}, "PowerShell": {"kind":"bash"},
+  "Read": {"kind":"read"}, "Write": {"kind":"write"},
+  "Edit": {"kind":"edit"}, "MultiEdit": {"kind":"edit"},
+  "Grep": {"kind":"grep"}, "Glob": {"kind":"glob"},
+  "WebSearch": {"kind":"web_search"}, "WebFetch": {"kind":"web_fetch"},
+  "AskUserQuestion": {"kind":"whiteboard", "action":"ask"},
+  "Task": {"kind":"agent", "helper":true}, "Agent": {"kind":"agent", "helper":true},
+  "TaskOutput": {"kind":"job", "action":"output"}, "BashOutput": {"kind":"job", "action":"output"},
+  "TaskStop": {"kind":"job", "action":"kill"}, "KillShell": {"kind":"job", "action":"kill"},
+  "tools": {"kind":"tools", "housekeeping":true}, "ToolSearch": {"kind":"tools", "housekeeping":true},
+  "TodoWrite": {"kind":"task", "housekeeping":true},
+  "TaskCreate": {"kind":"task", "housekeeping":true}, "TaskUpdate": {"kind":"task", "housekeeping":true},
+  "TaskGet": {"kind":"task", "housekeeping":true}, "TaskList": {"kind":"task", "housekeeping":true},
+  "task": {"kind":"task", "housekeeping":true}
+}

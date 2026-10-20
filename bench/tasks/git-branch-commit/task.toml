@@ -1,0 +1,8 @@
+title = "Fix README typos on a new branch (git)"
+difficulty = "easy"
+category = "git"
+tags = ["git", "docs"]
+time_limit = 600
+prompt = """
+Fix the 'recieve' typos in README.md on a new branch called fix/readme-typos and commit it there. Leave main as it is.
+"""

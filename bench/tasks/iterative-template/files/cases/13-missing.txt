@@ -1,0 +1,6 @@
+=== template
+[{{ nope }}|{{ user.nope }}|{{ nope.deeper }}]
+=== context
+{"user": {}}
+=== expected
+[||]

@@ -1,0 +1,8 @@
+title = "Top region by revenue in a quarter (CSV)"
+difficulty = "easy"
+category = "data"
+tags = ["csv", "analysis"]
+time_limit = 600
+prompt = """
+Which region had the most revenue (units x unit_price) in Q3 2026, so July through September? The data is in sales.csv. Please write the result to answer.json as {"region": "...", "revenue": number}.
+"""

@@ -1,0 +1,6 @@
+=== template
+Hi {{ name }}, your order shipped.
+=== context
+{"name": "Ana"}
+=== expected
+Hi Ana, your order shipped.

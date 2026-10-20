@@ -1,0 +1,10 @@
+title = "Fix a slow-starting API service whose integration checks fail"
+tier = "hard2"
+difficulty = "hard"
+category = "long-command"
+tags = ["hard2", "python", "http", "background-process", "slow-command", "server"]
+time_limit = 1800
+check_timeout = 150
+prompt = """
+Start the dev server (python3 -m parcelhub.serve; it takes about 15 seconds to come up and keeps running) and run tests/integration.py against it. Two checks fail. Please fix the service so all of them pass, and stop the server when you're done.
+"""

@@ -1,0 +1,8 @@
+title = "Add cursor pagination across handler, service and repository (Python)"
+difficulty = "hard"
+category = "feature"
+tags = ["python", "multi-file", "sql", "spec"]
+time_limit = 1200
+prompt = """
+Please implement docs/issues/142-pagination.md (paging for GET /books). Keep the existing behaviour otherwise, and update the tests.
+"""

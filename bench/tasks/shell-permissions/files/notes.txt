@@ -1,0 +1,2 @@
+Moved the shop app to this server on 2026-08-14.
+TODO: set up the nightly backup once the scripts work.

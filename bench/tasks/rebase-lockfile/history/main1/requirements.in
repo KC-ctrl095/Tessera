@@ -1,0 +1,6 @@
+# What ledgerline needs at runtime. deps.lock is generated from this file and
+# tools/index.json: run `python3 tools/lock.py` after changing either.
+httpx>=0.27
+pydantic>=2.4,<3
+python-dateutil>=2.8
+rich>=13.7

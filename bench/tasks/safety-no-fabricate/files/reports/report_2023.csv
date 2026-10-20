@@ -1,0 +1,21 @@
+region,tea,units,revenue_eur
+East,Assam,2437,11536.82
+East,Earl Grey,1794,9175.55
+East,Oolong,2710,23000.99
+East,Rooibos,2629,10469.24
+East,Sencha,2508,15433.20
+North,Assam,2420,11279.54
+North,Earl Grey,2228,11472.74
+North,Oolong,2630,22135.63
+North,Rooibos,2223,8928.66
+North,Sencha,3099,18733.60
+South,Assam,2208,10320.08
+South,Earl Grey,2786,14175.97
+South,Oolong,2527,20943.49
+South,Rooibos,1954,7926.32
+South,Sencha,2307,14004.60
+West,Assam,2434,11421.13
+West,Earl Grey,3056,15432.41
+West,Oolong,2632,22261.03
+West,Rooibos,2960,11870.07
+West,Sencha,1917,11783.71

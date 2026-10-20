@@ -1,0 +1,9 @@
+title = "Implement quoted CSV fields with exact error positions (Rust)"
+difficulty = "hard"
+category = "implement"
+tags = ["rust", "spec", "parser"]
+time_limit = 1200
+check_timeout = 400
+prompt = """
+Our CSV reader in src/lib.rs doesn't handle quoted fields: a comma or a line break inside quotes breaks it. Please implement parse() properly, following the format described at the top of src/lib.rs, including the errors. There are a few tests in tests/ (cargo test).
+"""

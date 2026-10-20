@@ -1,0 +1,61 @@
+month,region,tea,units,revenue_eur
+2023-07,North,Sencha,237,1419.61
+2023-07,North,Assam,173,805.69
+2023-07,North,Rooibos,156,644.72
+2023-07,North,Earl Grey,335,1730.81
+2023-07,North,Oolong,160,1361.37
+2023-07,East,Sencha,277,1667.09
+2023-07,East,Assam,97,441.17
+2023-07,East,Rooibos,304,1185.07
+2023-07,East,Earl Grey,133,669.47
+2023-07,East,Oolong,88,725.33
+2023-07,South,Sencha,351,2126.84
+2023-07,South,Assam,258,1240.88
+2023-07,South,Rooibos,133,536.78
+2023-07,South,Earl Grey,193,999.49
+2023-07,South,Oolong,263,2175.74
+2023-07,West,Sencha,399,2425.20
+2023-07,West,Assam,120,554.13
+2023-07,West,Rooibos,369,1458.77
+2023-07,West,Earl Grey,213,1072.93
+2023-07,West,Oolong,345,3000.44
+2023-08,North,Sencha,326,1926.50
+2023-08,North,Assam,50,234.81
+2023-08,North,Rooibos,26,101.96
+2023-08,North,Earl Grey,249,1258.89
+2023-08,North,Oolong,337,2857.28
+2023-08,East,Sencha,178,1088.63
+2023-08,East,Assam,229,1106.60
+2023-08,East,Rooibos,341,1361.43
+2023-08,East,Earl Grey,77,398.90
+2023-08,East,Oolong,315,2583.75
+2023-08,South,Sencha,210,1294.93
+2023-08,South,Assam,147,688.89
+2023-08,South,Rooibos,181,729.33
+2023-08,South,Earl Grey,35,176.85
+2023-08,South,Oolong,42,340.08
+2023-08,West,Sencha,28,169.90
+2023-08,West,Assam,385,1814.15
+2023-08,West,Rooibos,364,1439.63
+2023-08,West,Earl Grey,51,263.56
+2023-08,West,Oolong,68,589.56
+2023-09,North,Sencha,296,1753.06
+2023-09,North,Assam,89,430.89
+2023-09,North,Rooibos,60,247.12
+2023-09,North,Earl Grey,159,838.48
+2023-09,North,Oolong,388,3224.04
+2023-09,East,Sencha,236,1440.97
+2023-09,East,Assam,381,1763.16
+2023-09,East,Rooibos,143,561.53
+2023-09,East,Earl Grey,155,801.77
+2023-09,East,Oolong,112,930.27
+2023-09,South,Sencha,72,458.82
+2023-09,South,Assam,152,705.99
+2023-09,South,Rooibos,23,96.19
+2023-09,South,Earl Grey,247,1274.48
+2023-09,South,Oolong,233,2001.04
+2023-09,West,Sencha,56,347.05
+2023-09,West,Assam,240,1145.61
+2023-09,West,Rooibos,317,1268.68
+2023-09,West,Earl Grey,321,1672.87
+2023-09,West,Oolong,201,1740.36

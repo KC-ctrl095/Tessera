@@ -1,0 +1,73 @@
+/* "Who can use it" (components/settings/AccessPicker.tsx): two choices
+   side by side (stacked on narrow screens), then the bots to pick. */
+.access {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.access.disabled {
+  opacity: 0.6;
+}
+.access-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.access-mode {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 6px 10px;
+  border-radius: var(--r-xs);
+  border: 1px solid var(--hairline-strong);
+  color: var(--text-2);
+  font-size: 0.86rem;
+  font-weight: 500;
+  text-align: left;
+  transition:
+    background var(--t-fast) var(--ease),
+    border-color var(--t-fast) var(--ease),
+    color var(--t-fast) var(--ease);
+}
+.access-mode .icon {
+  color: var(--muted);
+  flex: none;
+}
+.access-mode:hover:not(:disabled) {
+  background: var(--hover);
+  color: var(--text);
+}
+.access-mode[aria-checked="true"] {
+  border-color: rgba(var(--accent-rgb), 0.55);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+.access-mode[aria-checked="true"] .icon {
+  color: var(--accent-text);
+}
+.access-bots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.access-bot {
+  padding-left: 5px;
+  max-width: 100%;
+}
+.access-bot > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.access .warn-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--warn);
+}
+@media (max-width: 480px) {
+  .access-modes {
+    grid-template-columns: 1fr;
+  }
+}

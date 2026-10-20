@@ -1,0 +1,6 @@
+=== template
+{% for a in as %}{% for b in a.bs %}{% for c in b.cs %}{{ c }}{% endfor %}/{% endfor %}|{% endfor %}
+=== context
+{"as": [{"bs": [{"cs": [1, 2]}, {"cs": [3]}]}, {"bs": []}]}
+=== expected
+12/3/||

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Tessera",
+  "version": "0.1.0",
+  "identifier": "dev.tessera.app",
+  "build": {
+    "frontendDist": "../ui/dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "",
+    "beforeBuildCommand": ""
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Tessera",
+        "width": 1280,
+        "height": 820,
+        "minWidth": 360,
+        "minHeight": 480,
+        "backgroundColor": "#0b0b0c",
+        "decorations": true,
+        "dragDropEnabled": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' ipc: http://ipc.localhost; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src ipc: http://ipc.localhost; object-src 'none'; frame-src http://tessera-board.localhost/board/ http://tessera-board.localhost/preview/ http://127.0.0.1:*/board/ http://127.0.0.1:*/preview/; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "DeveloperTool",
+    "shortDescription": "AI agent harness",
+    "longDescription": "Tessera is a lightweight, long-horizon AI agent harness. This app connects to your Tessera server.",
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+    "copyright": "Copyright 2026 The Tessera Authors",
+    "license": "Apache-2.0",
+    "resources": {
+      "../../../LICENSE": "LICENSE.txt",
+      "../../../NOTICE": "NOTICE.txt",
+      "../../../THIRD_PARTY_NOTICES.md": "THIRD_PARTY_NOTICES.md",
+      "../../../THIRD_PARTY_LICENSES.txt": "THIRD_PARTY_LICENSES.txt"
+    }
+  }
+}

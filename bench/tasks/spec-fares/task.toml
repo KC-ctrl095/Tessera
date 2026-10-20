@@ -1,0 +1,9 @@
+title = "Implement a long fare specification exactly"
+tier = "hard2"
+difficulty = "hard"
+category = "implement"
+tags = ["hard2", "python", "spec", "context-heavy"]
+time_limit = 1800
+prompt = """
+Please implement quote() in fares.py following docs/FARES-SPEC.md (the fare table is docs/fares-2026.csv). tests/test_fares.py has the spec's worked examples, but the spec has many more rules than those examples cover, so the whole spec matters.
+"""

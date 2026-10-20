@@ -1,0 +1,347 @@
+/* Downloadable files in the chat (FileCard), the web view's downloads bar,
+   and the notification settings that go with agents' messages. */
+
+.shared-file {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(100%, 420px);
+  min-height: 52px;
+  padding: 8px 8px 8px 10px;
+  border-radius: var(--r-sm);
+  background: var(--stone);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+  overflow: hidden;
+}
+.shared-file.compact {
+  min-height: 40px;
+  padding: 4px 6px 4px 8px;
+  width: 100%;
+}
+.shared-file-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-xs);
+  background: var(--surface-2);
+  color: var(--muted);
+}
+.shared-file.compact .shared-file-icon {
+  width: 28px;
+  height: 28px;
+}
+.shared-file.saved .shared-file-icon {
+  color: var(--ok);
+}
+.shared-file-text {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.shared-file-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.86rem;
+  font-weight: 540;
+  color: var(--text);
+}
+.shared-file-meta {
+  font-size: 0.74rem;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.shared-file-actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.shared-file-pct {
+  min-width: 3ch;
+  font-variant-numeric: tabular-nums;
+}
+.shared-file-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--accent);
+  transition: width var(--t-fast) var(--ease-out);
+}
+.shared-file-x {
+  width: 26px;
+  height: 26px;
+}
+/* A file shared by a tool call stands on its own in the transcript. */
+.tool-file {
+  margin: 4px 0;
+}
+
+/* An upload's chip gets a small download button. */
+.file-att:has(.file-get) .file-chip {
+  vertical-align: middle;
+}
+.file-att .file-get {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-left: 2px;
+  border-radius: var(--r-xs);
+  color: var(--muted);
+  vertical-align: middle;
+}
+.file-att .file-get:hover:not(:disabled) {
+  background: var(--hover);
+  color: var(--text);
+}
+
+/* The web view's downloads, between its bar and the page. */
+.wv-downloads {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--pane-bg);
+}
+
+/* Settings → Notifications */
+.quiet-times {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.86rem;
+  color: var(--text-2);
+}
+.quiet-times input[type="time"] {
+  height: 32px;
+  padding: 0 8px;
+  border-radius: var(--r-xs);
+  border: 1px solid var(--hairline-strong);
+  background: var(--input-bg);
+  color: var(--text);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.notify-devices,
+.notify-scheduled {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.notify-devices li,
+.notify-scheduled li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 6px 0;
+  border-top: 1px solid var(--hairline-soft);
+}
+.notify-devices li:first-child,
+.notify-scheduled li:first-child {
+  border-top: 0;
+}
+.notify-devices .grow,
+.notify-scheduled .grow {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.notify-devices .name,
+.notify-scheduled .name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text);
+  font-size: 0.88rem;
+}
+.notify-devices .sub,
+.notify-scheduled .sub {
+  font-size: 0.76rem;
+  color: var(--faint);
+}
+.notify-tests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* The card's name opens the file (text: where Settings says; pictures: the viewer). */
+.shared-file-main {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: -4px 0 -4px -4px;
+  padding: 4px;
+  border-radius: var(--r-xs);
+  text-align: left;
+  color: inherit;
+}
+.shared-file.compact .shared-file-main {
+  gap: 8px;
+}
+button.shared-file-main:hover {
+  background: var(--hover);
+}
+button.shared-file-main:hover .shared-file-name {
+  color: var(--accent-text);
+}
+button.shared-file-main:focus-visible {
+  outline: 2px solid rgba(var(--accent-rgb), 0.6);
+  outline-offset: -2px;
+}
+.shared-file-more {
+  width: 28px;
+  height: 28px;
+}
+.shared-file.compact .shared-file-more {
+  width: 26px;
+  height: 26px;
+}
+.file-att .file-more {
+  margin-left: 0;
+}
+
+/* ── A file read in a tile (components/files/FileTile) ──────────────────── */
+.file-tile .file-tile-name {
+  font-weight: 560;
+}
+.file-body {
+  display: flex;
+  flex-direction: column;
+  background: var(--pane-bg);
+}
+.file-error {
+  pointer-events: auto;
+  padding: 0 24px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+.file-error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+/* A Markdown file drawn as a page. */
+.file-md {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 16px clamp(14px, 4%, 32px) 32px;
+}
+.file-md .md {
+  max-width: 76ch;
+}
+
+/* The text itself (TextView): monospace, line numbers for code and logs. */
+.text-view {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+.text-view .cm-editor {
+  height: 100%;
+  background: transparent;
+  color: var(--text);
+}
+.text-view .cm-editor.cm-focused {
+  outline: none;
+}
+.text-view .cm-scroller {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  overscroll-behavior: contain;
+}
+.text-view.prose .cm-scroller {
+  padding-left: 6px;
+}
+.text-view .cm-content {
+  padding: 10px 0 28px;
+  caret-color: var(--accent);
+}
+.text-view .cm-line {
+  padding: 0 14px 0 10px;
+}
+.text-view .cm-gutters {
+  background: var(--pane-bg);
+  border-right: 1px solid var(--hairline);
+  color: var(--faint);
+}
+.text-view .cm-lineNumbers .cm-gutterElement {
+  padding: 0 8px 0 10px;
+  min-width: 3ch;
+}
+.text-view .cm-selectionBackground,
+.text-view .cm-content ::selection {
+  background: rgba(var(--accent-rgb), 0.28) !important;
+}
+
+/* ── A file in a window of its own (components/files/FileWindow) ────────── */
+.file-window {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--pane-bg);
+  color: var(--text);
+}
+.file-window-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 44px;
+  padding: 0 8px 0 14px;
+  border-bottom: 1px solid var(--hairline);
+}
+.file-window-name {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  font-weight: 560;
+  color: var(--text);
+}
+.file-window-name span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.file-window-name svg {
+  flex: none;
+  color: var(--muted);
+}
+.file-window-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.file-window-note {
+  margin: auto;
+  padding: 24px;
+  color: var(--muted);
+  font-size: 0.86rem;
+  text-align: center;
+}
