@@ -1307,27 +1307,22 @@ mod tests {
             !output.contains("tessera-program-env") && !output.contains("pidfd"),
             "{output}"
         );
-        // Pipes this test process itself hands every child (CI runners pass
-        // some down) may show up; none of Tessera's own may.
-        let inherited = std::fs::read_dir("/proc/self/fd")
-            .unwrap()
-            .filter_map(Result::ok)
-            .filter(|e| {
-                let Some(fd) = e.file_name().to_str().and_then(|s| s.parse::<i32>().ok()) else {
-                    return false;
-                };
-                fd > 2
-                    && std::fs::read_link(e.path())
-                        .is_ok_and(|t| t.to_string_lossy().starts_with("pipe:"))
-                    && unsafe { libc::fcntl(fd, libc::F_GETFD) } & libc::FD_CLOEXEC == 0
-            })
-            .count();
-        // Only standard descriptors survive: readlink runs as a child and
-        // inherits the same stdio pipes; supervision pipes are CLOEXEC.
-        assert!(
-            output.lines().filter(|l| l.starts_with("pipe:")).count() <= 2 + inherited,
-            "{output}"
-        );
+        // Only what any child of this test gets survives (its stdio pipes,
+        // and whatever a CI runner hands down): never a supervision pipe,
+        // which is CLOEXEC. A plain child started the same way is the baseline.
+        let pipes = |text: &str| text.lines().filter(|l| l.starts_with("pipe:")).count();
+        let plain = tokio::process::Command::new("/bin/sh")
+            .args([
+                "-c",
+                "for f in /proc/self/fd/*; do readlink \"$f\"; done; true",
+            ])
+            .env_clear()
+            .env("PATH", "/usr/bin:/bin")
+            .output()
+            .await
+            .unwrap();
+        let baseline = pipes(&String::from_utf8_lossy(&plain.stdout));
+        assert!(pipes(&output) <= baseline, "{output}\nbaseline: {baseline}");
     }
 
     /// Pause AFTER wait reaped the requested leader and BEFORE the watchdog

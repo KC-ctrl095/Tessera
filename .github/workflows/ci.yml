@@ -46,7 +46,15 @@ jobs:
           status=$?
           cargo test --locked -p tessera-core --lib -- --test-threads=1 $whole_machine >> "$RUNNER_TEMP/test.log" 2>&1 || status=1
           cat "$RUNNER_TEMP/test.log"
-          grep -E '^test .* FAILED$|panicked at|^  left:|^ right:' "$RUNNER_TEMP/test.log" | head -40 | sed 's/^/::error title=cargo test::/'
+          # One note per failed test with the start of its output.
+          python3 - "$RUNNER_TEMP/test.log" <<'PY'
+          import re, sys
+          text = open(sys.argv[1], errors="replace").read()
+          for name, body in re.findall(r"^---- (\S+) stdout ----\n(.*?)(?=^---- |^failures:|\Z)", text, re.M | re.S)[:20]:
+              lines = [l for l in body.splitlines() if l.strip()][:15]
+              msg = "%0A".join(l.replace("%", "%25") for l in lines)[:3000]
+              print(f"::error title={name}::{msg}")
+          PY
           exit $status
 
   ui:

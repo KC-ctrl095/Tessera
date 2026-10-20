@@ -1112,7 +1112,8 @@ async fn fixture_state(
     {
         return tab;
     }
-    tokio::time::timeout(Duration::from_secs(15), async {
+    // Shared CI machines draw pages slowly; a stuck fixture still fails.
+    tokio::time::timeout(Duration::from_secs(45), async {
         loop {
             tokio::select! {
                 event = rx.recv() => match event {
@@ -1140,7 +1141,7 @@ async fn fixture_state(
         }
     })
     .await
-    .expect("fixture readiness event within 15 seconds")
+    .expect("fixture readiness event within 45 seconds")
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
