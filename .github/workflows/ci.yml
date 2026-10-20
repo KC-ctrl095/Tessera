@@ -30,6 +30,9 @@ jobs:
           rustup toolchain install stable --profile minimal --component rustfmt,clippy
           rustup default stable
       - uses: Swatinem/rust-cache@v2
+      # The runner's Chromium doesn't start for the browser tests; without it
+      # Tessera picks the runner's Google Chrome, as it would on a desktop.
+      - run: sudo rm -f /usr/bin/chromium /usr/bin/chromium-browser
       - run: cargo fmt --all --check
       # The desktop and Android app crates need GTK; they build in release.yml.
       - run: cargo clippy --locked --workspace --exclude tessera-app --exclude tessera-background --all-targets -- -D warnings
@@ -54,6 +57,14 @@ jobs:
               lines = [l for l in body.splitlines() if l.strip()][:15]
               msg = "%0A".join(l.replace("%", "%25") for l in lines)[:3000]
               print(f"::error title={name}::{msg}")
+          # Tests that re-run themselves print their own panic outside those blocks.
+          seen = set()
+          lines = text.splitlines()
+          for i, l in enumerate(lines):
+              if "panicked at" in l and l not in seen and len(seen) < 10:
+                  seen.add(l)
+                  msg = "%0A".join(x.replace("%", "%25") for x in lines[i:i + 3])[:3000]
+                  print(f"::error title=panic::{msg}")
           PY
           exit $status
 
