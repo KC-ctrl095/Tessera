@@ -99,9 +99,21 @@ fn marker_read(
         other => other,
     }
 }
+/// The real user a process runs as, from its world-readable status.
+fn real_uid(pid: i32) -> Option<u32> {
+    let status = std::fs::read_to_string(format!("/proc/{pid}/status")).ok()?;
+    let line = status.lines().find(|l| l.starts_with("Uid:"))?;
+    line.split_whitespace().nth(1)?.parse().ok()
+}
 fn carries(pid: i32, marker: &str) -> io::Result<Option<bool>> {
     #[cfg(test)]
     PROC_READS.with_borrow_mut(|reads| *reads.markers.entry(pid).or_default() += 1);
+    // Another user's process (a system service) can't be one of ours, and its
+    // environment is never readable: not an unchecked process. Our own
+    // processes that hide their environment still count as unchecked.
+    if real_uid(pid).is_some_and(|uid| uid != unsafe { libc::getuid() }) {
+        return Ok(Some(false));
+    }
     marker_read(std::fs::read(format!("/proc/{pid}/environ")), || stat(pid))
         .map(|env| env.map(|env| env.split(|b| *b == 0).any(|kv| kv == marker.as_bytes())))
 }
@@ -418,6 +430,11 @@ pub(super) struct Tree {
     marker: Option<String>,
     numeric_fallback: bool,
     incomplete: bool,
+    /// When the job's first process started (clock ticks since boot): a
+    /// process that started earlier can't carry the job's marker, so marker
+    /// discovery doesn't count it as unchecked. It only narrows the search;
+    /// nothing is signalled because of it.
+    since: Option<u64>,
 }
 
 impl Tree {
@@ -454,7 +471,13 @@ impl Tree {
         let mut source = Linux::new(self.marker.as_deref());
         discover(&mut self.held, &mut source);
         if self.marker.is_some() {
-            let pids: Vec<_> = source.scan().keys().copied().collect();
+            let since = self.since;
+            let pids: Vec<_> = source
+                .scan()
+                .iter()
+                .filter(|(_, p)| !since.is_some_and(|s| p.as_ref().is_some_and(|p| p.start < s)))
+                .map(|(&pid, _)| pid)
+                .collect();
             for pid in pids {
                 if pid <= 1
                     || pid == std::process::id() as i32
@@ -602,11 +625,13 @@ pub(super) fn external_tree(pid: i32) -> Option<Tree> {
     let me = std::process::id() as i32;
     let mut source = Linux::new(None);
     let child = capture_external(me, pid, &mut source)?;
+    let since = child._start_tick;
     let tree = Tree {
         held: vec![child],
         marker: None,
         numeric_fallback: source.numeric_fallback,
         incomplete: source.incomplete,
+        since,
     };
     Some(tree)
 }
@@ -617,6 +642,7 @@ pub(super) fn stop_marker(marker: String) -> Stopped {
         marker: Some(marker),
         numeric_fallback: false,
         incomplete: false,
+        since: None,
     };
     tree.stop(Duration::from_millis(1500))
 }
@@ -1052,6 +1078,7 @@ mod tests {
             marker: None,
             numeric_fallback: false,
             incomplete: true,
+            since: None,
         };
         let stopped = tree.stop(Duration::ZERO);
         assert_eq!(stopped.left, [-1]);
@@ -1095,6 +1122,7 @@ mod tests {
             marker: Some("TESSERA_JOB=numeric-fixture".into()),
             numeric_fallback: true,
             incomplete: true,
+            since: None,
         };
         tree.signal(0, libc::SIGKILL); // stale birth must not be signalled
         tree.held[0]._start_tick = Some(start);

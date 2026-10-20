@@ -71,6 +71,12 @@ node scripts/licenses.mjs --check                    # third-party licences (bel
 sh scripts/test-install.sh                           # the installer, in a throwaway home
 ```
 
+Two tests look at every process on the machine. If
+`killing_a_job_stops_its_whole_tree` or
+`observe_scans_proc_once_and_skips_held_marker_reads` says some processes
+could not be checked, rerun them alone:
+`cargo test -p tessera-core --lib -- --test-threads=1 killing_a_job_stops_its_whole_tree observe_scans_proc_once_and_skips_held_marker_reads`.
+
 The interface has end-to-end suites that drive a headless Chromium against a
 scripted fake server (`apps/tessera/ui/dev/mock-server.mjs`):
 
