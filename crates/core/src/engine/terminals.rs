@@ -205,6 +205,9 @@ impl Remote {
     /// Hand `msg` to the machine, after what was asked of it before. Past
     /// [`MAX_PENDING_INPUT`] waiting it is refused (closing always goes), so
     /// nothing piles up for a stuck link.
+    // `fetch_update` is `try_update` from Rust 1.99; the old name still builds
+    // on the older compilers Tessera supports.
+    #[allow(deprecated)]
     fn send_down(&self, msg: NodeTermDown) -> Result<(), ApiError> {
         let w = weight(&msg);
         let close = matches!(msg, NodeTermDown::Close { .. });

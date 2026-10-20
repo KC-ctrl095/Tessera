@@ -139,6 +139,9 @@ fn global_handle_limit() -> usize {
     }
     (limit.rlim_cur / 8).clamp(4, 256) as usize
 }
+// `fetch_update` is `try_update` from Rust 1.99; the old name still builds
+// on the older compilers Tessera supports.
+#[allow(deprecated)]
 fn open_pidfd(pid: i32) -> io::Result<Pidfd> {
     use std::sync::atomic::Ordering::Relaxed;
     HELD_HANDLES

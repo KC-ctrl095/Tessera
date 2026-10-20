@@ -23,6 +23,16 @@ fails=0
 passes=0
 
 finish() {
+  status=$?
+  # On GitHub, the end of each installer run as an error note when the test
+  # failed: notes can be read without signing in, logs can't.
+  if [ "$status" -ne 0 ] && [ "${GITHUB_ACTIONS:-}" = true ]; then
+    for f in "$T"/out*.txt; do
+      [ -f "$f" ] || continue
+      printf '::error title=test-install %s::%s\n' "${f##*/}" \
+        "$(tail -n 15 "$f" | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')"
+    done
+  fi
   if [ -n "$SERVER_PID" ]; then kill "$SERVER_PID" 2>/dev/null; fi
   if [ -z "${KEEP:-}" ]; then rm -rf "$T"; else echo "kept $T"; fi
 }
@@ -43,6 +53,8 @@ check() { # CONDITION-STATUS MESSAGE
   else
     fails=$((fails + 1))
     printf '  FAIL %s\n' "$2"
+    # On GitHub, also as an error note: those can be read without signing in.
+    [ "${GITHUB_ACTIONS:-}" = true ] && printf '::error title=test-install::%s\n' "$2"
   fi
 }
 has() { grep -q -- "$1" "$2"; echo $?; }

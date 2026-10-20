@@ -516,7 +516,7 @@ pub(super) async fn act(
             m.name
         )));
     }
-    precheck(m, &node_action).map_err(&refuse)?;
+    precheck(m, &node_action).map_err(refuse)?;
     // Stored secrets the command names: only those this chat may use on
     // this machine reach it (who and where: engine/security.rs).
     let place = SecretPlace::Machine(&m.id);

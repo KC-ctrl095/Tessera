@@ -60,6 +60,10 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+      # The source install builds the web UI, which needs Node 22.12 or newer.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - uses: Swatinem/rust-cache@v2
       - run: node scripts/release-links.mjs --check
       - run: sh scripts/test-first-run.sh
