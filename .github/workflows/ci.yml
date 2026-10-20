@@ -40,7 +40,7 @@ jobs:
           set +e
           # Two tests look at every process on the machine: they run alone
           # afterwards, so other tests' sandboxed processes don't count.
-          whole_machine="killing_a_job_stops_its_whole_tree observe_scans_proc_once_and_skips_held_marker_reads"
+          whole_machine="killing_a_job_stops_its_whole_tree observe_scans_proc_once_and_skips_held_marker_reads claude_close_stops_spawn_owned_setsid_descendant"
           skips=$(for t in $whole_machine; do printf -- '--skip %s ' "$t"; done)
           cargo test --locked --workspace --exclude tessera-app --exclude tessera-background --no-fail-fast -- $skips > "$RUNNER_TEMP/test.log" 2>&1
           status=$?

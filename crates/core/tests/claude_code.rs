@@ -2774,7 +2774,9 @@ async fn adding_claude_code_sets_everything_up() {
     assert!(s.last_arg("--mcp-config").is_some());
     assert!(s.last_arg("--append-system-prompt-file").is_some());
     assert_eq!(s.logged("called").pop().unwrap()["error"], false);
-    // And with an empty command it finds `claude` itself.
+    // And with an empty command it finds `claude` itself, where installed;
+    // elsewhere it says so instead of saving a provider nobody sees.
+    let installed = tessera_core::claude_code::locate("").is_some();
     let e = s
         .engine
         .handle(
@@ -2792,7 +2794,12 @@ async fn adding_claude_code_sets_everything_up() {
             None,
         )
         .await;
-    assert!(e.is_ok(), "{e:?}");
+    if installed {
+        assert!(e.is_ok(), "{e:?}");
+    } else {
+        let e = e.unwrap_err();
+        assert!(e.message.contains("isn't installed"), "{}", e.message);
+    }
 }
 
 #[tokio::test]

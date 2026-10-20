@@ -7001,6 +7001,13 @@ impl Inner {
                 "Tessera never takes Claude credentials: Claude Code signs in by itself (run `claude` once on the server)",
             ));
         }
+        // Claude Code is listed only where it is installed: saving it anywhere
+        // else would keep a provider nobody can see.
+        if claude && crate::claude_code::locate(&spec.base_url).is_none() {
+            return Err(bad(
+                "Claude Code isn't installed on this server. Install it, run `claude` there once to sign in, then add it here.",
+            ));
+        }
         let cfg = ProviderConfig {
             id: id.clone(),
             name: if spec.name.trim().is_empty() {
