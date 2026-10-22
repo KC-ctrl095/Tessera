@@ -1,4 +1,4 @@
-//! Connection to a Tessera server, Immich-style: race a server's addresses
+//! Connection to a Tessera server: race a server's addresses
 //! through health and authenticated login, prefer the last successful one,
 //! and reconnect in the background. Saved order breaks ties; proxy headers
 //! go only to remote HTTPS addresses, never a home-network host.

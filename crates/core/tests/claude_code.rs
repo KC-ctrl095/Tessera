@@ -312,7 +312,11 @@ while True:
         # Late output must not turn its pending ledger/boundary into delivered.
         say("Old output without taking the new input.")
         sys.exit(0)
-    taken()
+    if text == "echo changed fixture":
+        # An echo Tessera can't match to what it sent (Claude Code changed it on the way).
+        emit({"type": "user", "isReplay": True, "uuid": m.get("uuid"), "message": {"role": "user", "content": [{"type": "text", "text": "changed on the way"}]}, "session_id": session})
+    else:
+        taken()
     if text.strip().startswith('native27 limit'):
         mode = text.strip().split()[-1]
         marker = os.path.join(os.getcwd(), 'native27-limit-hit')
@@ -682,6 +686,11 @@ while True:
         log("ledger-accepted", extra.get("uuid"))
         say("Queued input accepted.")
         result("ok")
+        continue
+    elif text == "echo changed fixture":
+        say("Answered.")
+        result("ok")
+        log("echo-changed-answered", True)
         continue
     elif "steer me" in text:
         # As Claude Code does: a message sent while a command runs is taken up after it, in this turn.
@@ -4669,6 +4678,27 @@ async fn work_it_takes_up_by_itself_after_a_settings_change_uses_the_new_setting
     assert_eq!(texts(&snap.entries).last().unwrap(), "Echo: Continue.");
     // Nothing of the old run's own turn ran under the old settings.
     assert!(s.logged("self-risky").iter().all(|r| r["allowed"] == false));
+}
+
+/// An echo Tessera can't match (Claude Code changes big pictures on the way)
+/// and a setting changed meanwhile: once Claude Code is quiet the turn still
+/// ends, and a message sent meanwhile goes on in a new run, not hours later.
+#[tokio::test]
+async fn an_unmatched_echo_does_not_hold_the_chat_after_a_settings_change() {
+    let s = setup().await;
+    let chat = s.chat(PermissionMode::Default).await;
+    s.send(&chat.id, "echo changed fixture").await;
+    lite_log(&s, "echo-changed-answered").await;
+    let unchanged: Request =
+        serde_json::from_value(json!({"method": "set_security", "params": {}})).unwrap();
+    s.call::<Value>(unchanged).await;
+    s.send(&chat.id, "after").await;
+    lite_advance(25).await;
+    s.settle(&chat.id).await;
+    assert_eq!(s.runs().len(), 2, "{:#?}", s.runs());
+    let snap = s.snapshot(&chat.id).await;
+    let last = texts(&snap.entries).pop().unwrap();
+    assert!(last.starts_with("Echo: after"), "{last}");
 }
 
 /// Stopped while idle: the Claude Code kept for its next turn is closed, so

@@ -1224,6 +1224,18 @@ impl Inner {
                             parking = !context_changed() && can_park(&t);
                             break;
                         }
+                        // Its answer is in and nothing runs in the background, but an
+                        // echo that never matched would hold the chat (and its queue)
+                        // here for hours: quiet as long as usual, the run ends.
+                        if wtx.is_some()
+                            && t.finished
+                            && gone_quiet(t.retain_background(), heard.elapsed(), t.carry_on_expected)
+                        {
+                            tracing::info!("session {sid}: Claude Code went quiet after its answer; the run ends");
+                            self.claude_close(&mut t);
+                            wtx = None;
+                            waiting.stop();
+                        }
                         continue;
                     }
                     // A message sent meanwhile goes in now.
@@ -5825,8 +5837,23 @@ struct PendingInput {
     completion_dependency: bool,
 }
 
+/// What identifies a message's content in its echo. Claude Code echoes big
+/// pictures scaled down (2.1.286: a 2,600 px tall one comes back with other
+/// bytes), so a picture counts by its place, not its data; text stays exact.
 fn input_fingerprint(message: &Value) -> Option<String> {
     let content = message.get("content")?;
+    let content = match content.as_array() {
+        Some(blocks) => Value::Array(
+            blocks
+                .iter()
+                .map(|b| match b.get("type").and_then(Value::as_str) {
+                    Some("image") => json!({"type": "image"}),
+                    _ => b.clone(),
+                })
+                .collect(),
+        ),
+        None => content.clone(),
+    };
     (message.get("role").and_then(Value::as_str) == Some("user"))
         .then(|| crate::util::sha256_hex(content.to_string().as_bytes()))
 }
@@ -6760,6 +6787,44 @@ mod tests {
         assert_eq!(t.delivered_ledger_version(), "V3");
         t.record_last((31, 310));
         assert_eq!(t.last, Some((31, 310)));
+    }
+
+    /// A big picture comes back scaled down: the message was still taken up,
+    /// or its turn waits on it after the answer ("Waiting for its follow-up").
+    #[tokio::test]
+    async fn a_picture_echoed_scaled_down_still_counts_as_taken() {
+        let mut t = delivery_turn();
+        let (tx, mut rx) = mpsc::unbounded_channel();
+        let content = [
+            ContentPart::text("why is that?"),
+            ContentPart::Image {
+                mime: "image/jpeg".into(),
+                data: "QUFBQUFBQUFB".into(),
+            },
+        ];
+        assert!(t.send_input(&tx, &content, Some("V2".into()), Some((20, 200))));
+        let sent = replay(&rx.recv().await.unwrap());
+        let mut scaled = sent.clone();
+        scaled["message"]["content"][1]["source"]["data"] = json!("QkJC");
+        // Its words and its pictures' places still have to match.
+        for invalid in [
+            {
+                let mut v = scaled.clone();
+                v["message"]["content"][0]["text"] = json!("something else");
+                v
+            },
+            {
+                let mut v = scaled.clone();
+                v["message"]["content"].as_array_mut().unwrap().pop();
+                v
+            },
+        ] {
+            t.accept_input(&invalid);
+        }
+        assert_eq!((t.sent, t.taken), (1, 0));
+        t.accept_input(&scaled);
+        assert_eq!((t.sent, t.taken), (1, 1));
+        assert_eq!(t.ledger_version, "V2");
     }
 
     #[tokio::test]

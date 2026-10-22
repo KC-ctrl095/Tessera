@@ -10,7 +10,7 @@ tens of MB idle RSS, no runtime to install on a home server.
 **Rejected.** TypeScript/Bun (omp's stack): faster to write, but a runtime,
 more memory, larger installs.
 
-## ADR-002 Server-centred topology (Immich model)
+## ADR-002 Server-centred topology
 **Decision.** The harness runs on a machine you own; desktop, Android and
 remote terminals are clients. Android never runs the harness.
 **Why.** Long tasks continue when a phone sleeps; local GPUs are usable from
