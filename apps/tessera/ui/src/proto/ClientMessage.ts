@@ -24,6 +24,8 @@ import type { MosaicLayout } from "./MosaicLayout";
 import type { NodeBrowserUp } from "./NodeBrowserUp";
 import type { NodeResult } from "./NodeResult";
 import type { NodeTermUp } from "./NodeTermUp";
+import type { NotificationLevel } from "./NotificationLevel";
+import type { NotificationPolicy } from "./NotificationPolicy";
 import type { PermissionMode } from "./PermissionMode";
 import type { Price } from "./Price";
 import type { ProviderKind } from "./ProviderKind";
@@ -33,6 +35,7 @@ import type { SecretEnv } from "./SecretEnv";
 import type { SecretKind } from "./SecretKind";
 import type { SecretMachines } from "./SecretMachines";
 import type { SecretSaving } from "./SecretSaving";
+import type { SessionListCursor } from "./SessionListCursor";
 import type { SmallMode } from "./SmallMode";
 import type { SnapshotImage } from "./SnapshotImage";
 import type { TerminalSettings } from "./TerminalSettings";
@@ -43,7 +46,11 @@ import type { VoiceConfig } from "./VoiceConfig";
 /**
  * Envelope sent by clients over the WebSocket.
  */
-export type ClientMessage = { id: number, } & ({ "method": "hello", "params": { client: string, version: string, } } | { "method": "list_sessions", "params": { archived: boolean, } } | { "method": "create_session", "params": { cwd: string | null, model: ModelRef | null, title: string | null, 
+export type ClientMessage = { id: number, } & ({ "method": "hello", "params": { client: string, version: string, } } | { "method": "list_sessions", "params": { archived: boolean, } } | { "method": "list_session_page", "params": { archived: boolean, limit: number | null, before: SessionListCursor | null, 
+/**
+ * Open tiles, even if old, archived, private, a helper or a job.
+ */
+include_ids: Array<string>, } } | { "method": "create_session", "params": { cwd: string | null, model: ModelRef | null, title: string | null, 
 /**
  * Chat with this bot.
  */
@@ -117,6 +124,10 @@ default_permission?: PermissionMode, } } | { "method": "get_mosaics" } | { "meth
  */
 provider?: string, } } | { "method": "add_account", "params": { kind: ProviderKind, name: string, } } | { "method": "rename_provider", "params": { id: string, name: string, } } | { "method": "get_accounts" } | { "method": "set_accounts", "params": { continue_on_next: boolean, } } | { "method": "cloudflare_zones", "params": { token: string, } } | { "method": "cloudflare_setup", "params": { token: string, zone_id: string, hostname: string, } } | { "method": "cloudflare_remove", "params": { token: string, } } | { "method": "cloudflare_renew", "params": { token?: string, } } | { "method": "remote_status" } | { "method": "server_key" } | { "method": "get_web_search" } | { "method": "save_web_search", "params": { search: string, searxng_url?: string, headers?: { [key in string]?: string }, } } | { "method": "set_search_key", "params": { provider: string, key: string, } } | { "method": "get_remote_access" } | { "method": "get_server_route" } | { "method": "set_remote_access", "params": { urls: Array<string>, headers?: { [key in string]?: string }, add_headers?: { [key in string]?: string }, remove_headers: Array<string>, } } | { "method": "set_server_bind", "params": { bind: string, } } | { "method": "set_web_access", "params": { on: boolean, token?: string, } } | { "method": "get_voice" } | { "method": "save_voice", "params": { config: VoiceConfig, api_key: string | null, } } | { "method": "transcribe", "params": { audio: string, mime: string, engine?: string, 
 /**
+ * Device language hint when no language is saved, e.g. `en-US`.
+ */
+language?: string,
+/**
  * Client-selected id, scoped to this connection; `cancel_voice` drops the operation.
  */
 operation?: string, partial?: boolean, } } | { "method": "speak", "params": { text: string, engine?: string, operation?: string, } } | { "method": "cancel_voice", "params": { operation: string, } } | { "method": "install_voice" } | { "method": "delete_voice_recordings" } | { "method": "list_jobs" } | { "method": "save_job", "params": { job: Job, } } | { "method": "delete_job", "params": { id: string, } } | { "method": "run_job", "params": { id: string, } } | { "method": "list_job_runs", "params": { id: string, } } | { "method": "get_memory" } | { "method": "set_memory", "params": { target: MemoryTarget, content: string, } } | { "method": "list_skills", "params": { cwd: string | null, } } | { "method": "read_skill", "params": { name: string, cwd: string | null, } } | { "method": "delete_skill", "params": { name: string, cwd: string | null, } } | { "method": "list_devices" } | { "method": "revoke_device", "params": { id: string, } } | { "method": "create_pairing" } | { "method": "machine_login" } | { "method": "set_device_notify", "params": { id: string, notify: boolean, } } | { "method": "device_hello", "params": { client: DeviceClient, 
@@ -124,7 +135,7 @@ operation?: string, partial?: boolean, } } | { "method": "speak", "params": { te
  * `tessera_secure::computer_key()`: the same for every Tessera
  * program on one computer, and nothing else.
  */
-computer?: string, host?: string, model?: string, } } | { "method": "retire_login", "params": { token: string, } } | { "method": "rename_device", "params": { id: string, name: string, } } | { "method": "list_notifications" } | { "method": "list_notification_inbox" } | { "method": "send_notification", "params": { title: string, body: string, session_id?: string, delay_secs?: number, } } | { "method": "pending_notifications" } | { "method": "negotiate_notifications" } | { "method": "pending_notifications_v2" } | { "method": "notification_presence", "params": { active?: boolean, session_ids?: Array<string>, } } | { "method": "ack_notifications", "params": { ids: Array<number>, } } | { "method": "seen_notifications", "params": { ids?: Array<number>, session_id?: string, } } | { "method": "cancel_notification", "params": { id: number, } } | { "method": "clear_notifications", "params": { ids: Array<number>, } } | { "method": "list_shared_files", "params": { session_id?: string, board_id?: string, } } | { "method": "read_shared_file", "params": { id: string, offset: number, len: number, } } | { "method": "get_app_update", "params": { platform: string, version: string, sha256?: string, installed_at?: number, } } | { "method": "read_app_update", "params": { id: string, offset: number, len: number, } } | { "method": "list_dir", "params": { path: string, } } | { "method": "create_dir", "params": { parent: string, name: string, } } | { "method": "memory_report" } | { "method": "browser_show_on_screen", "params": { board_id: string, show?: boolean, } } | { "method": "browser_attach", "params": { board_id: string, width: number, height: number, dpr: number, mobile: boolean, 
+computer?: string, host?: string, model?: string, } } | { "method": "retire_login", "params": { token: string, } } | { "method": "rename_device", "params": { id: string, name: string, } } | { "method": "list_notifications" } | { "method": "list_notification_inbox" } | { "method": "get_notification_policy" } | { "method": "set_notification_policy", "params": { policy: NotificationPolicy, } } | { "method": "set_notification_source", "params": { key: string, level: NotificationLevel | null, } } | { "method": "test_notification", "params": { delay_secs?: number, } } | { "method": "notification_deliveries", "params": { id: number, } } | { "method": "report_notification_delivery", "params": { ids: Array<number>, } } | { "method": "send_notification", "params": { title: string, body: string, session_id?: string, delay_secs?: number, } } | { "method": "pending_notifications" } | { "method": "negotiate_notifications" } | { "method": "pending_notifications_v2" } | { "method": "notification_presence", "params": { active?: boolean, session_ids?: Array<string>, } } | { "method": "ack_notifications", "params": { ids: Array<number>, } } | { "method": "seen_notifications", "params": { ids?: Array<number>, session_id?: string, } } | { "method": "cancel_notification", "params": { id: number, } } | { "method": "clear_notifications", "params": { ids: Array<number>, } } | { "method": "list_shared_files", "params": { session_id?: string, board_id?: string, } } | { "method": "read_shared_file", "params": { id: string, offset: number, len: number, } } | { "method": "get_app_update", "params": { platform: string, version: string, sha256?: string, installed_at?: number, } } | { "method": "read_app_update", "params": { id: string, offset: number, len: number, } } | { "method": "list_dir", "params": { path: string, } } | { "method": "create_dir", "params": { parent: string, name: string, } } | { "method": "memory_report" } | { "method": "browser_show_on_screen", "params": { board_id: string, show?: boolean, } } | { "method": "browser_attach", "params": { board_id: string, width: number, height: number, dpr: number, mobile: boolean,
 /**
  * The connection takes several frames at a time: it draws the
  * newest and acknowledges it (which covers the ones it skipped).

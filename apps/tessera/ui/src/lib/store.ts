@@ -47,6 +47,8 @@ import type { RunningTool } from "../proto/RunningTool";
 import type { SearchHit } from "../proto/SearchHit";
 import type { SecretInfo } from "../proto/SecretInfo";
 import type { ServerInfo } from "../proto/ServerInfo";
+import type { SessionListPage } from "../proto/SessionListPage";
+import type { SessionListCursor } from "../proto/SessionListCursor";
 import type { SessionInfo } from "../proto/SessionInfo";
 import type { SessionSnapshot } from "../proto/SessionSnapshot";
 import type { SkillInfo } from "../proto/SkillInfo";
@@ -254,14 +256,20 @@ function voiceCall<T>(req: Extract<Request, { method: "transcribe" | "speak" }>,
     if (signal.aborted) abort();
   });
 }
+// Tuple union keeps the exact method/params pairing checked by Request, while
+// sharing the emitted object-building code across the eager API surface.
+type RequestArgs<R = Request> = R extends { method: infer M; params: infer P }
+  ? [method: M, params: P] : R extends { method: infer M } ? [method: M] : never;
+const rpc = <T>(...args: RequestArgs) => call<T>({ method: args[0], params: args[1] } as Request);
+const bare = <T>(method: Extract<RequestArgs, [method: string]>[0]) => () => call<T>({ method } as Request);
+
 export const api = {
-  hello: () => call<ServerInfo>({ method: "hello", params: { client: "tessera-ui", version: __APP_VERSION__ } }),
-  listSessions: (archived = false) => call<SessionInfo[]>({ method: "list_sessions", params: { archived } }),
+  hello: () => rpc<ServerInfo>("hello", { client: "tessera-ui", version: __APP_VERSION__ }),
+  listSessionPage: (archived = false, before: SessionListCursor | null = null, include_ids: string[] = []) =>
+    rpc<SessionListPage>("list_session_page", { archived, before, include_ids, limit: 100 }),
+  listSessions: (archived = false) => rpc<SessionInfo[]>("list_sessions", { archived }),
   createSession: (o: { cwd?: string | null; model?: ModelRef | null; title?: string | null; botId?: string | null; private?: boolean } = {}) =>
-    call<SessionInfo>({
-      method: "create_session",
-      params: { cwd: o.cwd ?? null, model: o.model ?? null, title: o.title ?? null, bot_id: o.botId ?? null, private: !!o.private },
-    }),
+    rpc<SessionInfo>("create_session", { cwd: o.cwd ?? null, model: o.model ?? null, title: o.title ?? null, bot_id: o.botId ?? null, private: !!o.private }),
   getSession: (session_id: string, since_seq?: number, page?: { before_seq?: number }) =>
     call<SessionSnapshot>(page ? {
       method: "get_session_page",
@@ -273,13 +281,11 @@ export const api = {
       // Old servers do not know this opt-in request. Keep their full-history path.
       if (page && (error as { code?: string }).code === "bad_request"
         && /unknown (variant|method)|not implemented/i.test(String((error as { message?: string }).message)))
-        return call<SessionSnapshot>({ method: "get_session", params: { session_id } });
+        return rpc<SessionSnapshot>("get_session", { session_id });
       throw error;
     }),
   updateSession: (session_id: string, p: SessionPatch) =>
-    call<SessionInfo>({
-      method: "update_session",
-      params: {
+    rpc<SessionInfo>("update_session", {
         session_id,
         title: p.title ?? null,
         model: p.model ?? null,
@@ -291,97 +297,96 @@ export const api = {
         members: p.members ?? null,
         fast: p.fast ?? null,
         subagents: p.subagents ?? null,
-      },
     }),
-  setSessionDaybreak: (session_id: string, enabled: boolean) => call<SessionInfo>({ method: "set_session_daybreak", params: { session_id, enabled } }),
-  deleteSession: (session_id: string) => call<null>({ method: "delete_session", params: { session_id } }),
+  setSessionDaybreak: (session_id: string, enabled: boolean) => rpc<SessionInfo>("set_session_daybreak", { session_id, enabled }),
+  deleteSession: (session_id: string) => rpc<null>("delete_session", { session_id }),
   /** An empty goal clears it. */
-  setGoal: (session_id: string, goal: string) => call<SessionInfo>({ method: "set_goal", params: { session_id, goal } }),
+  setGoal: (session_id: string, goal: string) => rpc<SessionInfo>("set_goal", { session_id, goal }),
   /** Withdraw a queued message (index into `queued`). */
-  dequeue: (session_id: string, index: number) => call<null>({ method: "dequeue", params: { session_id, index } }),
+  dequeue: (session_id: string, index: number) => rpc<null>("dequeue", { session_id, index }),
   /** Change the text of a queued message. */
-  editQueued: (session_id: string, index: number, text: string) => call<null>({ method: "edit_queued", params: { session_id, index, text } }),
+  editQueued: (session_id: string, index: number, text: string) => rpc<null>("edit_queued", { session_id, index, text }),
   /** Hand a queued message to the agent now, as steering (read at its next step). */
-  steerQueued: (session_id: string, index: number) => call<null>({ method: "steer_queued", params: { session_id, index } }),
+  steerQueued: (session_id: string, index: number) => rpc<null>("steer_queued", { session_id, index }),
   /** Send a queued message now: the running turn stops and the next starts with it. */
-  interruptQueued: (session_id: string, index: number) => call<null>({ method: "interrupt_queued", params: { session_id, index } }),
-  listBoards: (session_id?: string) => call<Whiteboard[]>({ method: "list_boards", params: session_id ? { session_id } : {} }),
-  getBoard: (id: string) => call<Whiteboard>({ method: "get_board", params: { id } }),
+  interruptQueued: (session_id: string, index: number) => rpc<null>("interrupt_queued", { session_id, index }),
+  listBoards: (session_id?: string) => rpc<Whiteboard[]>("list_boards", session_id ? { session_id } : {}),
+  getBoard: (id: string) => rpc<Whiteboard>("get_board", { id }),
   /**
    * Show something beside a chat yourself (a web page, an image, notes): a board the agent can look at.
    * `placed`: this device already shows it in a tile of its own, so the server adds none.
    */
   createBoard: (session_id: string, title: string, content: BoardContent, placed = false) =>
-    call<Whiteboard>({ method: "create_board", params: { session_id, title, content, placed } }),
+    rpc<Whiteboard>("create_board", { session_id, title, content, placed }),
   /** Removes the board and its tiles everywhere. */
-  deleteBoard: (id: string) => call<null>({ method: "delete_board", params: { id } }),
-  answerBoard: (id: string, ask_id: string, answer: AskAnswer) => call<null>({ method: "answer_board", params: { id, ask_id, answer } }),
+  deleteBoard: (id: string) => rpc<null>("delete_board", { id }),
+  answerBoard: (id: string, ask_id: string, answer: AskAnswer) => rpc<null>("answer_board", { id, ask_id, answer }),
   /** Where the server serves an HTML board as a page (browser UI on the server's machine). */
-  boardLink: (id: string) => call<{ path: string }>({ method: "board_link", params: { id } }),
+  boardLink: (id: string) => rpc<{ path: string }>("board_link", { id }),
   forkSession: (session_id: string, at_seq?: number) =>
-    call<SessionInfo>({ method: "fork_session", params: at_seq === undefined ? { session_id } : { session_id, at_seq } }),
+    rpc<SessionInfo>("fork_session", at_seq === undefined ? { session_id } : { session_id, at_seq }),
   /** Undo what happened after entry `to_seq` (the last one kept): the files, the conversation or both. */
   rewind: (session_id: string, to_seq: number, o: { files: boolean; conversation: boolean; dryRun?: boolean }) =>
-    call<RewindResult>({ method: "rewind", params: { session_id, to_seq, files: o.files, conversation: o.conversation, dry_run: !!o.dryRun } }),
+    rpc<RewindResult>("rewind", { session_id, to_seq, files: o.files, conversation: o.conversation, dry_run: !!o.dryRun }),
   send: (session_id: string, content: ContentPart[], delivery: Delivery = "auto", attachments: Attachment[] = []) =>
-    call<null>({ method: "send", params: { session_id, content, delivery, attachments } }),
-  abort: (session_id: string) => call<null>({ method: "abort", params: { session_id } }),
+    rpc<null>("send", { session_id, content, delivery, attachments }),
+  abort: (session_id: string) => rpc<null>("abort", { session_id }),
   compact: (session_id: string, instructions?: string) =>
-    call<null>({ method: "compact", params: { session_id, instructions: instructions?.trim() || null } }),
+    rpc<null>("compact", { session_id, instructions: instructions?.trim() || null }),
   respondApproval: (session_id: string, request_id: string, decision: ApprovalDecision) =>
-    call<null>({ method: "respond_approval", params: { session_id, request_id, decision } }),
-  search: (query: string, limit = 30) => call<SearchHit[]>({ method: "search", params: { query, limit } }),
-  listProviders: (refresh = false) => call<ProviderInfo[]>({ method: "list_providers", params: { refresh } }),
-  saveProvider: (spec: ProviderSpec) => call<ProviderInfo>({ method: "save_provider", params: { spec } }),
-  removeProvider: (id: string) => call<null>({ method: "remove_provider", params: { id } }),
-  startOauth: (provider: string) => call<OAuthStart>({ method: "start_oauth", params: { provider } }),
+    rpc<null>("respond_approval", { session_id, request_id, decision }),
+  search: (query: string, limit = 30) => rpc<SearchHit[]>("search", { query, limit }),
+  listProviders: (refresh = false) => rpc<ProviderInfo[]>("list_providers", { refresh }),
+  saveProvider: (spec: ProviderSpec) => rpc<ProviderInfo>("save_provider", { spec }),
+  removeProvider: (id: string) => rpc<null>("remove_provider", { id }),
+  startOauth: (provider: string) => rpc<OAuthStart>("start_oauth", { provider }),
   completeOauth: (provider: string, input: string) =>
-    call<ProviderInfo>({ method: "complete_oauth", params: { provider, input } }),
-  logout: (provider: string) => call<null>({ method: "logout", params: { provider } }),
-  setDefaultModel: (model: ModelRef) => call<null>({ method: "set_default_model", params: { model } }),
+    rpc<ProviderInfo>("complete_oauth", { provider, input }),
+  logout: (provider: string) => rpc<null>("logout", { provider }),
+  setDefaultModel: (model: ModelRef) => rpc<null>("set_default_model", { model }),
   /** Small model mode for one model ("auto" goes back to Tessera's choice); providers_changed follows. */
   setModelSmall: (provider: string, model: string, mode: SmallMode) =>
-    call<null>({ method: "set_model_small", params: { provider, model, mode } }),
+    rpc<null>("set_model_small", { provider, model, mode }),
   /** The helper limits of chats that didn't choose their own, and the server's capacity. */
-  getHelpers: () => call<HelperSettings>({ method: "get_helpers" }),
+  getHelpers: bare<HelperSettings>("get_helpers"),
   /** Those defaults (`[agent] max_subagents`, `subagent_steps`, `subagent_minutes`); used at once. */
   setHelpers: (at_once: number, steps?: number, minutes?: number, enabled?: boolean) =>
-    call<HelperSettings>({ method: "set_helpers", params: { at_once, steps, minutes, enabled } }),
+    rpc<HelperSettings>("set_helpers", { at_once, steps, minutes, enabled }),
   /** One chat's own helper limits (left out: the server's default; 0: no limit). */
   setChatHelpers: (session_id: string, limits: HelperLimits) =>
-    call<SessionInfo>({ method: "set_chat_helpers", params: { session_id, limits } }),
+    rpc<SessionInfo>("set_chat_helpers", { session_id, limits }),
   /** Tessera's model roles (default, utility, memory…) and the user's own. */
-  getModelRoles: () => call<ModelRoles>({ method: "get_model_roles" }),
+  getModelRoles: bare<ModelRoles>("get_model_roles"),
   /** `provider/model` or `@other-role`; null or "" clears it (it falls back again). */
   setModelRole: (role: string, model: string | null) =>
-    call<ModelRoles>({ method: "set_model_role", params: model ? { role, model } : { role } }),
-  listBots: () => call<Bot[]>({ method: "list_bots" }),
-  saveBot: (bot: Bot) => call<Bot>({ method: "save_bot", params: { bot } }),
-  deleteBot: (id: string) => call<null>({ method: "delete_bot", params: { id } }),
+    rpc<ModelRoles>("set_model_role", model ? { role, model } : { role }),
+  listBots: bare<Bot[]>("list_bots"),
+  saveBot: (bot: Bot) => rpc<Bot>("save_bot", { bot }),
+  deleteBot: (id: string) => rpc<null>("delete_bot", { id }),
   createChannel: (title: string, members: string[], cwd?: string | null) =>
-    call<SessionInfo>({ method: "create_channel", params: { title, members, cwd: cwd ?? null } }),
-  listJobs: () => call<Job[]>({ method: "list_jobs" }),
-  saveJob: (job: Job) => call<Job>({ method: "save_job", params: { job } }),
-  deleteJob: (id: string) => call<null>({ method: "delete_job", params: { id } }),
-  runJob: (id: string) => call<SessionInfo>({ method: "run_job", params: { id } }),
-  getMemory: () => call<MemoryState>({ method: "get_memory" }),
+    rpc<SessionInfo>("create_channel", { title, members, cwd: cwd ?? null }),
+  listJobs: bare<Job[]>("list_jobs"),
+  saveJob: (job: Job) => rpc<Job>("save_job", { job }),
+  deleteJob: (id: string) => rpc<null>("delete_job", { id }),
+  runJob: (id: string) => rpc<SessionInfo>("run_job", { id }),
+  getMemory: bare<MemoryState>("get_memory"),
   setMemory: (target: MemoryTarget, content: string) =>
-    call<MemoryState>({ method: "set_memory", params: { target, content } }),
-  listSkills: (cwd?: string | null) => call<SkillInfo[]>({ method: "list_skills", params: { cwd: cwd ?? null } }),
-  readSkill: (name: string, cwd?: string | null) => call<string>({ method: "read_skill", params: { name, cwd: cwd ?? null } }),
-  deleteSkill: (name: string, cwd?: string | null) => call<null>({ method: "delete_skill", params: { name, cwd: cwd ?? null } }),
-  listDevices: () => call<DeviceInfo[]>({ method: "list_devices" }),
-  revokeDevice: (id: string) => call<null>({ method: "revoke_device", params: { id } }),
-  createPairing: () => call<PairingCode>({ method: "create_pairing" }),
-  listDir: (path: string) => call<DirEntry[]>({ method: "list_dir", params: { path } }),
+    rpc<MemoryState>("set_memory", { target, content }),
+  listSkills: (cwd?: string | null) => rpc<SkillInfo[]>("list_skills", { cwd: cwd ?? null }),
+  readSkill: (name: string, cwd?: string | null) => rpc<string>("read_skill", { name, cwd: cwd ?? null }),
+  deleteSkill: (name: string, cwd?: string | null) => rpc<null>("delete_skill", { name, cwd: cwd ?? null }),
+  listDevices: bare<DeviceInfo[]>("list_devices"),
+  revokeDevice: (id: string) => rpc<null>("revoke_device", { id }),
+  createPairing: bare<PairingCode>("create_pairing"),
+  listDir: (path: string) => rpc<DirEntry[]>("list_dir", { path }),
   /** "New folder": one folder, `name`, inside the existing folder `parent` (the server's own rules for names). */
-  createDir: (parent: string, name: string) => call<DirEntry>({ method: "create_dir", params: { parent, name } }),
-  listSecrets: () => call<SecretInfo[]>({ method: "list_secrets" }),
-  setSecret: (name: string, value: string) => call<null>({ method: "set_secret", params: { name, value } }),
-  deleteSecret: (name: string) => call<null>({ method: "delete_secret", params: { name } }),
+  createDir: (parent: string, name: string) => rpc<DirEntry>("create_dir", { parent, name }),
+  listSecrets: bare<SecretInfo[]>("list_secrets"),
+  setSecret: (name: string, value: string) => rpc<null>("set_secret", { name, value }),
+  deleteSecret: (name: string) => rpc<null>("delete_secret", { name }),
   /** The user's answer about a secret kept for one chat (`SecretInfo.chat`): save it, keep it there, or forget it. */
   decideChatSecret: (session_id: string, name: string, choice: ChatSecretChoice) =>
-    call<null>({ method: "decide_chat_secret", params: { session_id, name, choice } }),
+    rpc<null>("decide_chat_secret", { session_id, name, choice }),
   /** Values are write-only; an empty field value keeps what is stored. `bots` (null: any chat), `on_server`,
    * `on_machines` left out keep what is set; `new_name` renames it; `machines_default` makes its machines follow
    * the setting for all passwords (or its own `on_machines`). */
@@ -398,80 +403,71 @@ export const api = {
     on_machines?: string[];
     new_name?: string;
     machines_default?: boolean;
-  }) => call<SecretInfo>({ method: "save_secret", params: { ...p, remove_fields: p.remove_fields ?? [] } }),
-  setupStatus: () => call<SetupStatus>({ method: "setup_status" }),
-  completeSetup: () => call<null>({ method: "complete_setup" }),
-  detectLocalModels: () => call<ProviderInfo[]>({ method: "detect_local_models" }),
+  }) => rpc<SecretInfo>("save_secret", { ...p, remove_fields: p.remove_fields ?? [] }),
+  setupStatus: bare<SetupStatus>("setup_status"),
+  completeSetup: bare<null>("complete_setup"),
+  detectLocalModels: bare<ProviderInfo[]>("detect_local_models"),
   /** The user's own Claude Code on the server: installed? signed in? (`refresh`: ask it again). */
   /** One Claude account's Claude Code (default: the usual one). */
-  claudeCodeStatus: (refresh = false, provider?: string) => call<ClaudeCodeInfo>({ method: "claude_code_status", params: { refresh, ...(provider && provider !== "claude-code" ? { provider } : {}) } }),
+  claudeCodeStatus: (refresh = false, provider?: string) => rpc<ClaudeCodeInfo>("claude_code_status", { refresh, ...(provider && provider !== "claude-code" ? { provider } : {}) }),
   /** Another ChatGPT or Claude subscription, named by the user (the server picks its id). */
-  addAccount: (kind: ProviderKind, name: string) => call<ProviderInfo>({ method: "add_account", params: { kind, name } }),
-  renameProvider: (id: string, name: string) => call<ProviderInfo>({ method: "rename_provider", params: { id, name } }),
-  getAccounts: () => call<AccountSettings>({ method: "get_accounts" }),
-  setAccounts: (continue_on_next: boolean) => call<AccountSettings>({ method: "set_accounts", params: { continue_on_next } }),
+  addAccount: (kind: ProviderKind, name: string) => rpc<ProviderInfo>("add_account", { kind, name }),
+  renameProvider: (id: string, name: string) => rpc<ProviderInfo>("rename_provider", { id, name }),
+  getAccounts: bare<AccountSettings>("get_accounts"),
+  setAccounts: (continue_on_next: boolean) => rpc<AccountSettings>("set_accounts", { continue_on_next }),
   /** A built-in user guide (`security`, `remote-access`, `claude-code`) as markdown. */
-  getGuide: (name: string) => call<Guide>({ method: "get_guide", params: { name } }),
-  cloudflareZones: (token: string) => call<CloudflareZone[]>({ method: "cloudflare_zones", params: { token } }),
+  getGuide: (name: string) => rpc<Guide>("get_guide", { name }),
+  cloudflareZones: (token: string) => rpc<CloudflareZone[]>("cloudflare_zones", { token }),
   cloudflareSetup: (token: string, zone_id: string, hostname: string) =>
-    call<RemoteStatus>({ method: "cloudflare_setup", params: { token, zone_id, hostname } }),
-  cloudflareRemove: (token: string) => call<RemoteStatus>({ method: "cloudflare_remove", params: { token } }),
+    rpc<RemoteStatus>("cloudflare_setup", { token, zone_id, hostname }),
+  cloudflareRemove: (token: string) => rpc<RemoteStatus>("cloudflare_remove", { token }),
   /** Another year for the devices' Cloudflare key: with an API token, or (none) "I renewed it in Cloudflare". */
-  cloudflareRenew: (token?: string) => call<RemoteStatus>({ method: "cloudflare_renew", params: token ? { token } : {} }),
-  remoteStatus: () => call<RemoteStatus>({ method: "remote_status" }),
+  cloudflareRenew: (token?: string) => rpc<RemoteStatus>("cloudflare_renew", token ? { token } : {}),
+  remoteStatus: bare<RemoteStatus>("remote_status"),
   /** "Use Tessera in a web browser" on or off; `token`: Cloudflare's, when it must let browsers through first. */
-  setWebAccess: (on: boolean, token?: string) => call<RemoteStatus>({ method: "set_web_access", params: { on, ...(token ? { token } : {}) } }),
-  getMosaics: () => call<MosaicLayout>({ method: "get_mosaics" }),
-  saveMosaics: (layout: MosaicLayout) => call<MosaicLayout>({ method: "save_mosaics", params: { layout } }),
-  getVoice: () => call<VoiceConfig>({ method: "get_voice" }),
-  saveVoice: (config: VoiceConfig, api_key: string | null) => call<VoiceConfig>({ method: "save_voice", params: { config, api_key } }),
-  transcribe: (audio: string, mime: string, engine?: string, partial?: boolean, signal?: AbortSignal) => voiceCall<Transcript>({ method: "transcribe", params: { audio, mime, ...(engine ? { engine } : {}), ...(partial ? { partial } : {}) } }, signal),
+  setWebAccess: (on: boolean, token?: string) => rpc<RemoteStatus>("set_web_access", { on, ...(token ? { token } : {}) }),
+  getMosaics: bare<MosaicLayout>("get_mosaics"),
+  saveMosaics: (layout: MosaicLayout) => rpc<MosaicLayout>("save_mosaics", { layout }),
+  getVoice: bare<VoiceConfig>("get_voice"),
+  saveVoice: (config: VoiceConfig, api_key: string | null) => rpc<VoiceConfig>("save_voice", { config, api_key }),
+  transcribe: (audio: string, mime: string, engine?: string, partial?: boolean, signal?: AbortSignal, language?: string) => voiceCall<Transcript>({ method: "transcribe", params: { audio, mime, ...(engine ? { engine } : {}), ...(partial ? { partial } : {}), ...(language ? { language } : {}) } }, signal),
   speak: (text: string, engine?: string, signal?: AbortSignal) => voiceCall<SpeechAudio>({ method: "speak", params: { text, ...(engine ? { engine } : {}) } }, signal),
-  installVoice: () => call<VoiceConfig>({ method: "install_voice" }),
-  deleteVoiceRecordings: () => call<VoiceConfig>({ method: "delete_voice_recordings" }),
-  getWebSearch: () => call<WebSearchInfo>({ method: "get_web_search" }),
+  installVoice: bare<VoiceConfig>("install_voice"),
+  deleteVoiceRecordings: bare<VoiceConfig>("delete_voice_recordings"),
+  getWebSearch: bare<WebSearchInfo>("get_web_search"),
   /** `headers` omitted keeps the stored ones; `{}` clears them (values are write-only). */
   saveWebSearch: (search: string, searxng_url?: string, headers?: Record<string, string>) =>
-    call<WebSearchInfo>({
-      method: "save_web_search",
-      params: { search, ...(searxng_url ? { searxng_url } : {}), ...(headers === undefined ? {} : { headers }) },
-    }),
+    rpc<WebSearchInfo>("save_web_search", { search, ...(searxng_url ? { searxng_url } : {}), ...(headers === undefined ? {} : { headers }) }),
   /** Brave or Tavily API key for web search (write-only; "" removes it). */
-  setSearchKey: (provider: "brave" | "tavily", key: string) => call<WebSearchInfo>({ method: "set_search_key", params: { provider, key } }),
-  getRemoteAccess: () => call<RemoteAccessInfo>({ method: "get_remote_access" }),
+  setSearchKey: (provider: "brave" | "tavily", key: string) => rpc<WebSearchInfo>("set_search_key", { provider, key }),
+  getRemoteAccess: bare<RemoteAccessInfo>("get_remote_access"),
   /** Headers change one by one (`add` sets or replaces, `remove` drops), so Cloudflare Access ones survive. */
   setRemoteAccess: (urls: string[], change: { add?: Record<string, string>; remove?: string[] } = {}) =>
-    call<RemoteAccessInfo>({
-      method: "set_remote_access",
-      params: { urls, ...(change.add && Object.keys(change.add).length ? { add_headers: change.add } : {}), remove_headers: change.remove ?? [] },
-    }),
+    rpc<RemoteAccessInfo>("set_remote_access", { urls, ...(change.add && Object.keys(change.add).length ? { add_headers: change.add } : {}), remove_headers: change.remove ?? [] }),
   /** `127.0.0.1:<port>` (this computer only) or `0.0.0.0:<port>` (the home network); applies after a restart. */
-  setServerBind: (bind: string) => call<SetupStatus>({ method: "set_server_bind", params: { bind } }),
+  setServerBind: (bind: string) => rpc<SetupStatus>("set_server_bind", { bind }),
 
   // ── notes (the library; see lib/notes.ts) ──
-  listNotes: () => call<NoteInfo[]>({ method: "list_notes" }),
-  getNote: (id: string) => call<Note>({ method: "get_note", params: { id } }),
+  listNotes: bare<NoteInfo[]>("list_notes"),
+  getNote: (id: string) => rpc<Note>("get_note", { id }),
   /** `id` null creates one; a stale `base_version` is refused (`conflict`). */
   saveNote: (p: { id: string | null; title: string; content: string; base_version: number | null; session_id?: string | null }) =>
-    call<Note>({
-      method: "save_note",
-      params: {
+    rpc<Note>("save_note", {
         title: p.title,
         content: p.content,
         ...(p.id ? { id: p.id } : {}),
         ...(p.base_version != null ? { base_version: p.base_version } : {}),
         ...(p.session_id ? { session_id: p.session_id } : {}),
-      },
     }),
-  deleteNote: (id: string) => call<null>({ method: "delete_note", params: { id } }),
+  deleteNote: (id: string) => rpc<null>("delete_note", { id }),
   /** Which bots may read a note: every bot, or only bots it is given to (the default). */
-  setNoteBots: (id: string, all_bots: boolean) => call<Note>({ method: "set_note_bots", params: { id, all_bots } }),
-  setNoteAgents: (id: string, keep_from_agents: boolean) => call<Note>({ method: "set_note_agents", params: { id, keep_from_agents } }),
+  setNoteBots: (id: string, all_bots: boolean) => rpc<Note>("set_note_bots", { id, all_bots }),
+  setNoteAgents: (id: string, keep_from_agents: boolean) => rpc<Note>("set_note_agents", { id, keep_from_agents }),
   /** The versions kept from before the current one, newest first (without their text). */
-  noteHistory: (id: string) => call<NoteVersion[]>({ method: "note_history", params: { id } }),
-  getNoteVersion: (id: string, version: number) => call<NoteVersion>({ method: "get_note_version", params: { id, version } }),
+  noteHistory: (id: string) => rpc<NoteVersion[]>("note_history", { id }),
+  getNoteVersion: (id: string, version: number) => rpc<NoteVersion>("get_note_version", { id, version }),
   /** A page on the server showing `html` like an HTML whiteboard (browser UI; the app serves its own). */
-  previewPage: (html: string) => call<{ path: string }>({ method: "preview_page", params: { html } }),
+  previewPage: (html: string) => rpc<{ path: string }>("preview_page", { html }),
 };
 
 // ── helpers ──────────────────────────────────────────────────────────────
@@ -607,79 +603,83 @@ export function plainText(parts: ContentPart[]): string {
 }
 
 function applySnapshot(raw: SessionSnapshot, incremental: boolean) {
-  // Deltas received before the snapshot are already part of it.
-  flushDeltas();
-  const current = state.sessions[raw.info.id]?.info;
-  const connection = connectionGeneration();
-  const snap = { ...raw, info: current && sessionConnections.get(raw.info.id) === connection && (raw.info.revision ?? 0) < (current.revision ?? 0) ? current : normInfo(raw.info) };
-  sessionConnections.set(raw.info.id, connection);
-  const id = snap.info.id;
-  if (snap.info.private) privateIds.add(id);
-  if (!state.sessions[id]) setState("sessions", id, newSessionState(snap.info));
-  setState(
-    "sessions",
-    id,
-    produce((d) => {
-      if (d.info.status !== snap.info.status) d.statusSince = Date.now();
-      d.info = snap.info;
-      d.historyRevision = snap.history_revision ?? 0;
-      if (!incremental) {
-        historyPages.set(id, { before: snap.history_before ?? null });
-        d.hasOlderHistory = snap.history_before != null;
-        // Unchanged entries retain their object identity, so a live rewind
-        // never re-renders the kept prefix. Changed/reused seqs get fresh data.
-        const previous = d.entries;
-        const entries = snap.entries.map((e, i) => {
-          const old = previous[i];
-          return old && JSON.stringify(unwrap(old)) === JSON.stringify(e) ? old : e;
-        });
-        d.entries = [];
-        d.results = {};
-        d.entriesVersion++;
-        mergeEntries(d, entries);
-      } else mergeEntries(d, snap.entries);
-      d.loaded = true;
-      d.loading = false;
-      // Replacing local streaming state with the snapshot's is always correct
-      // (a stream we already show keeps its clocks: resyncs don't restart them).
-      const st = snap.streaming;
-      const was = d.streaming && !d.streaming.ended ? d.streaming : null;
-      d.streaming =
-        st && !st.content.length && was && !was.content.filter(Boolean).length
-          ? was // still waiting for the model's first words, as we showed
-          : st && st.content.length
-          ? {
-              content: st.content.map((p) =>
-                p.type === "tool_call" && typeof p.arguments !== "string"
-                  ? { ...p, arguments: JSON.stringify(p.arguments ?? {}) }
-                  : p,
-              ),
-              model: st.model,
-              author: st.author ?? d.info.bot_id,
-              startedAt: was?.startedAt ?? Date.now(),
-              ended: false,
-              ...(was?.thinkStart ? { thinkStart: was.thinkStart } : {}),
-              ...(was?.thinkEnd ? { thinkEnd: was.thinkEnd } : {}),
-            }
-          : null;
-      const running: Record<string, LiveTool> = {};
-      for (const t of st?.running_tools ?? []) running[t.call_id] = { ...t, startedAt: d.running[t.call_id]?.startedAt ?? Date.now() };
-      d.running = running;
-      d.approvals = snap.approvals;
-      d.queued = normQueue(snap.queued);
-      if (isBusy(d.info)) d.turnStart ??= Date.now();
-      else d.turnStart = null;
-    }),
-  );
-  // Its subagents as the server has them now: every device counts the same ones (subagents aren't in
-  // the session list, and one this device last saw running may have been stopped since).
-  if (raw.children) {
-    for (const c of raw.children) upsertSession(c);
-    const known = new Set(raw.children.map((c) => c.id));
-    for (const s of Object.values(state.sessions)) {
-      if (s.info.parent_id === id && s.info.kind === "subagent" && !s.info.internal && !known.has(s.info.id)) setState("sessions", s.info.id, undefined!);
+  // A snapshot may include hundreds of helpers. Publish one reactive change,
+  // not one global catalog scan per child (rewind, helper cards, sidebar).
+  batch(() => {
+    // Deltas received before the snapshot are already part of it.
+    flushDeltas();
+    const current = state.sessions[raw.info.id]?.info;
+    const connection = connectionGeneration();
+    const snap = { ...raw, info: current && sessionConnections.get(raw.info.id) === connection && (raw.info.revision ?? 0) < (current.revision ?? 0) ? current : normInfo(raw.info) };
+    sessionConnections.set(raw.info.id, connection);
+    const id = snap.info.id;
+    if (snap.info.private) privateIds.add(id);
+    if (!state.sessions[id]) setState("sessions", id, newSessionState(snap.info));
+    setState(
+      "sessions",
+      id,
+      produce((d) => {
+        if (d.info.status !== snap.info.status) d.statusSince = Date.now();
+        d.info = snap.info;
+        d.historyRevision = snap.history_revision ?? 0;
+        if (!incremental) {
+          historyPages.set(id, { before: snap.history_before ?? null });
+          d.hasOlderHistory = snap.history_before != null;
+          // Unchanged entries retain their object identity, so a live rewind
+          // never re-renders the kept prefix. Changed/reused seqs get fresh data.
+          const previous = d.entries;
+          const entries = snap.entries.map((e, i) => {
+            const old = previous[i];
+            return old && JSON.stringify(unwrap(old)) === JSON.stringify(e) ? old : e;
+          });
+          d.entries = [];
+          d.results = {};
+          d.entriesVersion++;
+          mergeEntries(d, entries);
+        } else mergeEntries(d, snap.entries);
+        d.loaded = true;
+        d.loading = false;
+        // Replacing local streaming state with the snapshot's is always correct
+        // (a stream we already show keeps its clocks: resyncs don't restart them).
+        const st = snap.streaming;
+        const was = d.streaming && !d.streaming.ended ? d.streaming : null;
+        d.streaming =
+          st && !st.content.length && was && !was.content.filter(Boolean).length
+            ? was // still waiting for the model's first words, as we showed
+            : st && st.content.length
+            ? {
+                content: st.content.map((p) =>
+                  p.type === "tool_call" && typeof p.arguments !== "string"
+                    ? { ...p, arguments: JSON.stringify(p.arguments ?? {}) }
+                    : p,
+                ),
+                model: st.model,
+                author: st.author ?? d.info.bot_id,
+                startedAt: was?.startedAt ?? Date.now(),
+                ended: false,
+                ...(was?.thinkStart ? { thinkStart: was.thinkStart } : {}),
+                ...(was?.thinkEnd ? { thinkEnd: was.thinkEnd } : {}),
+              }
+            : null;
+        const running: Record<string, LiveTool> = {};
+        for (const t of st?.running_tools ?? []) running[t.call_id] = { ...t, startedAt: d.running[t.call_id]?.startedAt ?? Date.now() };
+        d.running = running;
+        d.approvals = snap.approvals;
+        d.queued = normQueue(snap.queued);
+        if (isBusy(d.info)) d.turnStart ??= Date.now();
+        else d.turnStart = null;
+      }),
+    );
+    // Its subagents as the server has them now: every device counts the same ones (subagents aren't in
+    // the session list, and one this device last saw running may have been stopped since).
+    if (raw.children) {
+      for (const c of raw.children) upsertSession(c);
+      const known = new Set(raw.children.map((c) => c.id));
+      for (const s of Object.values(state.sessions)) {
+        if (s.info.parent_id === id && s.info.kind === "subagent" && !s.info.internal && !known.has(s.info.id)) setState("sessions", s.info.id, undefined!);
+      }
     }
-  }
+  });
 }
 
 const inflight = new Map<string, { promise: Promise<void>; generation: number; connection: number }>();
@@ -823,7 +823,17 @@ export async function refreshProviders(refresh = false) {
 
 export async function refreshArchived() {
   const generation = bootGen, connection = connectionGeneration();
-  const list = await api.listSessions(true);
+  const list: SessionInfo[] = [];
+  if (state.server?.session_list_pages) {
+    let before: SessionListCursor | null = null;
+    do {
+      const page: SessionListPage = await api.listSessionPage(true, before);
+      if (generation !== bootGen || connection !== connectionGeneration()) return;
+      list.push(...page.sessions);
+      before = page.next_cursor;
+      if (before) await afterPaint();
+    } while (before);
+  } else list.push(...await api.listSessions(true));
   if (generation !== bootGen || connection !== connectionGeneration()) return;
   setState("archived", list.map(normInfo));
 }
@@ -833,9 +843,21 @@ export async function refreshArchived() {
 let bootGen = 0;
 let bootstrapConnection: number | undefined;
 
-/** Called on every (re)connect: hello, lists, then resync open sessions. */
+// A task boundary after paint, not a microtask (which can still block input).
+const afterPaint = () => new Promise<void>((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+
+function upsertSummary(info: SessionInfo, baseline: boolean) {
+  const existing = state.sessions[info.id];
+  // A list is not a snapshot: don't erase a loaded chat's task ledger or
+  // replace metadata received in a newer event while this page was in flight.
+  if (existing && !baseline && (existing.info.updated_at > info.updated_at || (existing.info.revision ?? 0) > (info.revision ?? 0))) return;
+  upsertSession(existing?.loaded ? { ...info, task: existing.info.task } : info, baseline);
+}
+
+/** Called on every (re)connect. Critical metadata first, other lists after paint. */
 export async function bootstrap() {
   const gen = ++bootGen;
+  const eventsBefore = new Map(sessionEvents);
   for (const id of olderInflight.keys()) {
     if (state.sessions[id]) setState("sessions", id, "loadingOlderHistory", false);
   }
@@ -844,15 +866,13 @@ export async function bootstrap() {
   const info = await api.hello();
   if (gen !== bootGen || connection !== connectionGeneration()) return;
   setState("server", info);
-  const [sessions, jobs, bots, boards] = await Promise.all([
-    api.listSessions(false),
-    api.listJobs().catch(() => [] as Job[]),
-    // Older servers have no bots or whiteboards.
+  const [first, bots] = await Promise.all([
+    info.session_list_pages
+      ? api.listSessionPage(false, null, openSessionIds())
+      : api.listSessions(false).then((sessions): SessionListPage => ({ sessions, next_cursor: null })),
     api.listBots().catch(() => [] as Bot[]),
-    api.listBoards().catch(() => [] as Whiteboard[]),
   ]);
-  // Older servers have no notes.
-  const notes = await api.listNotes().catch(() => null);
+  const sessions = first.sessions;
   if (gen !== bootGen || connection !== connectionGeneration()) return;
   const newBaseline = bootstrapConnection !== connection;
   bootstrapConnection = connection;
@@ -861,24 +881,66 @@ export async function bootstrap() {
     const seen = new Set<string>();
     for (const s of sessions) {
       seen.add(s.id);
-      upsertSession(s, newBaseline);
+      if (info.session_list_pages) upsertSummary(s, newBaseline);
+      else upsertSession(s, newBaseline);
     }
-    for (const id of Object.keys(state.sessions)) {
+    // A first page is not a complete catalog. Remove absent rows only when
+    // all pages have arrived (open tiles/helpers are independently synced).
+    if (!info.session_list_pages) for (const id of Object.keys(state.sessions)) {
       if (!seen.has(id) && !open.has(id)) setState("sessions", produce((d) => void delete d[id]));
     }
-    setState("jobs", reconcile(jobs, { key: "id" }));
     setState("bots", reconcile(bots, { key: "id" }));
-    setState("boards", reconcile(Object.fromEntries(boards.map((b) => [b.id, b]))));
-    setState("notes", reconcile(Object.fromEntries((notes ?? []).map((n) => [n.id, n]))));
-    setState("notesLoaded", notes !== null);
     setState("botsLoaded", true);
     setState("sessionsLoaded", true);
     setState("ready", true);
     setState("everConnected", true);
   });
-  void refreshProviders();
   for (const cb of bootListeners) cb();
-  await resyncOpen();
+  // Restored tiles request their newest history immediately, not behind jobs,
+  // boards, notes, providers or the rest of the sidebar catalog.
+  const resync = resyncOpen();
+  void (async () => {
+    await afterPaint();
+    const current = () => gen === bootGen && connection === connectionGeneration();
+    if (!current()) return;
+    void refreshProviders(); // cached only; explicit refresh remains live
+    void Promise.all([
+      api.listJobs().catch(() => [] as Job[]),
+      api.listBoards().catch(() => [] as Whiteboard[]),
+      api.listNotes().catch(() => null),
+    ]).then(([jobs, boards, notes]) => {
+      if (!current()) return;
+      batch(() => {
+        setState("jobs", reconcile(jobs, { key: "id" }));
+        setState("boards", reconcile(Object.fromEntries(boards.map((b) => [b.id, b]))));
+        setState("notes", reconcile(Object.fromEntries((notes ?? []).map((n) => [n.id, n]))));
+        setState("notesLoaded", notes !== null);
+      });
+    });
+    if (!info.session_list_pages) return;
+    const seen = new Set(sessions.map((s) => s.id));
+    let before = first.next_cursor;
+    while (before && current()) {
+      // Finish the lightweight catalog for search/bot profiles/old chats,
+      // yielding between pages. Never insert 3,384 historical job sessions.
+      const page = await api.listSessionPage(false, before);
+      if (!current()) return;
+      batch(() => {
+        for (const s of page.sessions) { seen.add(s.id); upsertSummary(s, false); }
+      });
+      before = page.next_cursor;
+      await afterPaint();
+    }
+    if (!current()) return;
+    const open = new Set(openSessionIds());
+    batch(() => {
+      for (const s of Object.values(state.sessions)) {
+        if (s.info.kind !== "subagent" && !seen.has(s.info.id) && !open.has(s.info.id) && !s.info.private && (sessionEvents.get(s.info.id) ?? 0) === (eventsBefore.get(s.info.id) ?? 0))
+          setState("sessions", produce((d) => void delete d[s.info.id]));
+      }
+    });
+  })().catch((e) => console.warn("session catalog failed", e));
+  await resync;
 }
 
 export async function resyncOpen() {

@@ -49,12 +49,7 @@ function show(n: UserNotification) {
   const body = claudeLimitText(n.body);
   const open = n.session_id ? () => openSession(n.session_id!) : undefined;
   const here = onScreen(n.session_id ?? undefined);
-  if (here) {
-    // Seen as it arrives; other devices take theirs away.
-    lastSeen.set(n.session_id!, 0);
-    chatSeen(n.session_id!);
-    return;
-  }
+  if (here && !n.urgent && n.kind !== "test") return;
   const key = n.source_key || n.session_id || `n${n.id}`;
   dropShown((id, s) => id !== n.id && (s === n.session_id && !!s));
   for (const [id, old] of shown) {
@@ -63,13 +58,13 @@ function show(n: UserNotification) {
   for (const [id, old] of systemShown) {
     if (old.key === key) { old.notification.close(); systemShown.delete(id); }
   }
-  if (browserNotificationsOn() && document.visibilityState !== "visible") {
+  if ((browserNotificationsOn() && document.visibilityState !== "visible") || (!isTauri && n.kind === "test" && "Notification" in window && Notification.permission === "granted")) {
     // Browsers have no native preview/category policy, so every OS alert is
     // generic. Rich content stays in the open app and inbox.
     const sys = new Notification("Tessera", {
       body: "New activity. Open Tessera for details.",
       tag: key,
-      silent: Date.now() - (lastPost.get(key) ?? 0) < 10_000,
+      silent: n.level === "digest" || (!n.urgent && Date.now() - (lastPost.get(key) ?? 0) < 10_000),
     });
     systemShown.set(n.id, { notification: sys, session: n.session_id ?? undefined, key });
     lastPost.set(key, Date.now());
@@ -79,6 +74,7 @@ function show(n: UserNotification) {
       systemShown.get(id)?.notification.close();
       systemShown.delete(id);
     }
+    sys.onshow = () => void call({ method: "report_notification_delivery", params: { ids: [n.id] } }).catch(() => {});
     sys.onclick = () => {
       window.focus();
       open?.();

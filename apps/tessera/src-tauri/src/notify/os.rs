@@ -206,6 +206,7 @@ pub(super) async fn post(app: &AppHandle, note: &Note) -> bool {
         payload
     };
     let post = tessera_background::Post {
+        notification_id: note.notification_id,
         private: note.private,
         tag: note.key.clone(),
         session_id: note.session.clone(),
@@ -235,10 +236,10 @@ async fn wake_at(app: &AppHandle, at: u64) {
     }
 }
 
-/// The background check (every ~15 minutes with the app closed) follows
-/// the master switch.
+/// Keep the background receiver armed so an explicit server test can reach
+/// a closed app with alerts off. Normal posts still obey the master switch.
 #[cfg(mobile)]
-pub(super) async fn configure_pull(app: &AppHandle, enabled: bool) {
+pub(super) async fn configure_pull(app: &AppHandle, _enabled: bool) {
     if !reachable(app) {
         return;
     }
@@ -247,7 +248,7 @@ pub(super) async fn configure_pull(app: &AppHandle, enabled: bool) {
     };
     if let Err(e) = app
         .background()
-        .configure_pull(&dir.display().to_string(), enabled)
+        .configure_pull(&dir.display().to_string(), true)
         .await
     {
         tracing::warn!("background check not set up: {e}");

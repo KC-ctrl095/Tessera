@@ -158,6 +158,9 @@ function SecretAsk(props: { saved: SavedSecrets; text: string; sessionId: string
         </span>
       </div>
       <p class="secret-ask-help">Taken out of your message. Until you choose, only this chat can use it; Don't save keeps it that way.</p>
+      <p class="secret-ask-help secret-ask-where">
+        <Icon name="server" size={12} /> Saved, any chat can use it, on this server only (not your other computers until you allow one).
+      </p>
       <div class="secret-ask-actions">
         <button type="button" class="btn btn-sm btn-primary" disabled={!!busy()} onClick={() => void decide("save")}>
           <Show when={busy() === "save"} fallback={<Icon name="lock" size={13} />}>

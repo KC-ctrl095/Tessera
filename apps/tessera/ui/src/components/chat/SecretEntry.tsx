@@ -42,6 +42,7 @@ export default function SecretEntry(props: { sessionId: string; callId: string; 
       <div class="secret-ask-head"><Icon name="lock" size={14} /><strong>{String(props.entry.title ?? name())}</strong></div>
       <Show when={!saved() && props.entry.saved !== true} fallback={<p role="status">Saved securely as <code>{`$${name()}${login() ? "_PASSWORD" : ""}`}</code>. Its values are never shown to the model.</p>}>
         <p class="secret-ask-help">Enter it here, not in chat. The model gets only the variable names. Never enter Claude sign-in credentials.</p>
+        <p class="secret-ask-help secret-ask-where"><Icon name="server" size={12} /> Usable on this server only. To use a new one on another computer, allow it in Passwords &amp; keys.</p>
         <form onSubmit={(e) => void save(e)}>
           <Show when={login()} fallback={<SecretInput label="Key value" placeholder="Key value" secret value={value()} onInput={setValue} />}>
             <SecretInput label="Username" placeholder="Username or email" value={username()} onInput={setUsername} />

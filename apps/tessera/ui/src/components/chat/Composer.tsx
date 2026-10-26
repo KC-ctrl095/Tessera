@@ -295,7 +295,8 @@ export function Composer(props: { paneId: string; session?: SessionState; hero?:
   // ChatPane owns voice so it survives the first send replacing the hero.
   const voiceHost = useVoice();
   const voice = () => voiceHost.view().phase;
-  const voiceOn = () => state.server?.voice_engine ? state.server.voice_engine !== "off" : !!state.server?.voice;
+  // New servers can offer an explicit one-tap engine choice while voice is off.
+  const voiceOn = () => !!state.server?.voice_engine || !!state.server?.voice;
   const startVoice = (conversation = false) => voiceHost.start(conversation, [ta?.selectionStart ?? text().length, ta?.selectionEnd ?? text().length]);
   let pressedAt = 0;
   let releasePending = false;

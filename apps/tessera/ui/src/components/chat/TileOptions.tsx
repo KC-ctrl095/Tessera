@@ -15,8 +15,8 @@ import {
   setPaneSubagents,
   setPinned,
 } from "../../lib/actions";
-import { daybreakAvailable, setPaneDaybreak } from "../../lib/daybreak";
-import { botById, isBotDm, isBusy, isRoom, state, type SessionState } from "../../lib/store";
+import { daybreakAvailable, daybreakOffer, setPaneDaybreak } from "../../lib/daybreak";
+import { botById, isBotDm, isBusy, isRoom, modelLabel, state, type SessionState } from "../../lib/store";
 import { openBotEditor } from "../../lib/ui";
 import { openBotProfile } from "../BotEditor";
 import { fmtCost, fmtTokens, tildify, touchUi } from "../../lib/util";
@@ -155,14 +155,26 @@ export function TileOptions(props: {
                   <Toggle checked={settings().fast} onChange={(v) => void setPaneFast(props.paneId, v)} label="Fast mode" />
                 </div>
               </Show>
-              <Show when={!channel() && daybreakAvailable(props.paneId)}>
-                <div class="opt-line static daybreak-option">
-                  <Icon name="shield" size={15} />
-                  <span class="opt-line-label">Daybreak Blue</span>
-                  <span class="opt-line-value">{settings().daybreak ? "On" : "Off"}</span>
-                  <Toggle checked={settings().daybreak} onChange={(v) => void setPaneDaybreak(props.paneId, v)} label="Daybreak Blue" />
-                </div>
-                <p class="opt-hint daybreak-hint">OpenAI’s program for defensive security work. Access comes from OpenAI.</p>
+              {/* A saved opt-in this model can't confirm offers only the way back (below). */}
+              <Show when={!channel() && !(settings().daybreak && !daybreakAvailable(props.paneId)) && daybreakOffer(props.paneId)}>
+                {(offer) => (
+                  <>
+                    <div class="opt-line static daybreak-option">
+                      <Icon name="shield" size={15} />
+                      <span class="opt-line-label">Daybreak Blue</span>
+                      <span class="opt-line-value">{settings().daybreak ? "On" : "Off"}</span>
+                      <Toggle checked={settings().daybreak} onChange={(v) => void setPaneDaybreak(props.paneId, v)} label="Daybreak Blue" />
+                    </div>
+                    <p class="opt-hint daybreak-hint">
+                      {(() => {
+                        const o = offer();
+                        return o.here
+                          ? "OpenAI’s program for defensive security work. Access comes from OpenAI."
+                          : `Your account doesn’t offer it on ${modelLabel(settings().model)}. Turning it on switches this chat to ${o.target.name || o.target.id}.`;
+                      })()}
+                    </p>
+                  </>
+                )}
               </Show>
               <Show when={!channel() && settings().daybreak && !daybreakAvailable(props.paneId)}>
                 <button class="opt-line daybreak-recovery" onClick={() => void setPaneDaybreak(props.paneId, false)}>

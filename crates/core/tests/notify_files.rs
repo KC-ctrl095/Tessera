@@ -30,23 +30,22 @@ fn notifications(events: &mut tokio::sync::broadcast::Receiver<Event>) -> Vec<Us
 }
 
 #[tokio::test]
-async fn an_agent_notifies_now_and_later_and_each_device_shows_it_once() {
+async fn an_agent_defaults_to_digest_groups_repeats_and_each_device_shows_summary_once() {
     let h = harness(
         vec![
             Reply::Tools(vec![
                 (
                     "notify".into(),
-                    json!({"title": "Build finished", "body": "All 42 tests pass.\n\nThe release is in out/."}),
+                    json!({"title":"Build finished", "body":"All 42 tests pass."}),
                 ),
                 (
                     "notify".into(),
-                    json!({"title": "Stretch", "body": "Time to stand up", "at": "in 1s"}),
+                    json!({"title":"Stretch", "body":"Time to stand up", "at":"in 1s"}),
                 ),
             ]),
-            // The same one again: refused, not sent twice.
             Reply::Tools(vec![(
                 "notify".into(),
-                json!({"title": "Build finished", "body": "All 42 tests pass.\n\nThe release is in out/."}),
+                json!({"title":"Build finished", "body":"All 42 tests pass."}),
             )]),
             Reply::Text("Done.".into()),
         ],
@@ -55,7 +54,7 @@ async fn an_agent_notifies_now_and_later_and_each_device_shows_it_once() {
     .await;
     let (phone, _) = h.engine.store().add_device("Pixel").unwrap();
     let (desk, _) = h.engine.store().add_device("Desktop app").unwrap();
-    let devices: Vec<DeviceInfo> = call(
+    let _: Vec<DeviceInfo> = call(
         &h,
         Request::SetDeviceNotify {
             id: desk.clone(),
@@ -64,10 +63,6 @@ async fn an_agent_notifies_now_and_later_and_each_device_shows_it_once() {
         Some(&phone),
     )
     .await;
-    assert!(devices.iter().any(|d| d.id == desk && !d.notify));
-    assert!(!h.engine.takes_notifications(&desk));
-    assert!(h.engine.takes_notifications(&phone));
-
     let s = h.session().await;
     let mut events = h.engine.subscribe();
     h.send(
@@ -76,79 +71,81 @@ async fn an_agent_notifies_now_and_later_and_each_device_shows_it_once() {
     )
     .await;
     h.settle(&s.id).await;
-
     let results = tool_results(&h.entries(&s.id).await);
-    assert_eq!(results.len(), 3, "{results:?}");
-    assert!(
-        !results[0].1
-            && results[0]
-                .2
-                .contains("Notification saved for receiving devices: Pixel."),
-        "{results:?}"
-    );
-    assert!(
-        !results[1].1 && results[1].2.contains("Scheduled for"),
-        "{results:?}"
-    );
-    assert!(
-        results[2].1 && results[2].2.contains("already sent"),
-        "{results:?}"
-    );
-
+    assert_eq!(results.len(), 3);
+    assert!(!results[0].1 && results[0].2.contains("Put in the digest"));
+    assert!(!results[1].1 && results[1].2.contains("Scheduled for"));
+    assert!(!results[2].1 && results[2].2.contains("Grouped as a repeat of #"));
     let first = notifications(&mut events);
-    assert_eq!(first.len(), 2, "{first:?}");
-    let now = first.iter().find(|n| n.sent).unwrap();
-    assert_eq!(now.title, "Build finished");
-    assert_eq!(now.body, "All 42 tests pass.\n\nThe release is in out/.");
-    assert_eq!(now.session_id.as_deref(), Some(s.id.as_str()));
-    let later = first.iter().find(|n| !n.sent).unwrap();
-    assert_eq!(later.title, "Stretch");
-
-    // Due a second later: sent then (no scheduler running here: on time by
-    // its own timer).
+    assert_eq!(
+        first.len(),
+        1,
+        "only the scheduled wake-up travels immediately"
+    );
+    assert!(!first[0].sent && first[0].title == "Stretch");
     tokio::time::sleep(Duration::from_millis(1600)).await;
-    let due = notifications(&mut events);
-    assert_eq!(due.len(), 1, "{due:?}");
-    assert!(due[0].sent && due[0].id == later.id);
-
-    // A waking phone gets the latest chat alert, not two popups. The earlier
-    // request remains in the inbox as seen, rather than disappearing.
-    let p: PendingNotifications = call(&h, Request::PendingNotifications, Some(&phone)).await;
-    let ids: Vec<u64> = p.new.iter().map(|n| n.id).collect();
-    assert_eq!(ids, [later.id]);
+    assert!(
+        notifications(&mut events).is_empty(),
+        "a nonurgent bot item becomes a digest member when due"
+    );
     let inbox: Vec<UserNotification> = call(&h, Request::ListNotificationInbox, Some(&phone)).await;
-    assert!(inbox.iter().any(|n| n.id == now.id && n.seen));
-    assert!(inbox.iter().any(|n| n.id == later.id && !n.seen));
-    assert_eq!(p.next_due, None);
-    let _: Value = call(&h, Request::AckNotifications { ids }, Some(&phone)).await;
+    assert_eq!(inbox.len(), 2);
+    let build = inbox.iter().find(|n| n.title == "Build finished").unwrap();
+    assert_eq!(build.repeat_count, 2);
+    assert!(
+        inbox
+            .iter()
+            .all(|n| n.level == NotificationLevel::Digest && n.quiet && n.sent)
+    );
+    let digest = h
+        .engine
+        .store()
+        .assemble_notification_digest(
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_millis() as u64,
+        )
+        .unwrap()
+        .unwrap();
     let p: PendingNotifications = call(&h, Request::PendingNotifications, Some(&phone)).await;
+    assert!(
+        p.new.is_empty(),
+        "legacy clients do not mistake a digest for an explicit page"
+    );
+    let p: PendingNotifications = call(&h, Request::PendingNotificationsV2, Some(&phone)).await;
+    assert_eq!(p.new.iter().map(|n| n.id).collect::<Vec<_>>(), [digest.id]);
+    let _: Value = call(
+        &h,
+        Request::AckNotifications {
+            ids: vec![digest.id],
+        },
+        Some(&phone),
+    )
+    .await;
+    let p: PendingNotifications = call(&h, Request::PendingNotificationsV2, Some(&phone)).await;
     assert!(p.new.is_empty());
-    // The desk doesn't take them.
-    let p: PendingNotifications = call(&h, Request::PendingNotifications, Some(&desk)).await;
-    assert!(p.new.is_empty());
-
-    // Opening the chat anywhere marks them seen; the phone removes them.
+    let p: PendingNotifications = call(&h, Request::PendingNotificationsV2, Some(&desk)).await;
+    assert!(
+        p.new.is_empty(),
+        "device opt-out still applies to summaries"
+    );
     let _: Value = call(
         &h,
         Request::SeenNotifications {
-            ids: vec![],
+            ids: vec![digest.id],
             session_id: Some(s.id.clone()),
         },
         Some(&desk),
     )
     .await;
-    let mut seen = Vec::new();
-    while let Ok(e) = events.try_recv() {
-        if let Event::NotificationsSeen { ids } = e {
-            seen.extend(ids);
-        }
-    }
-    assert_eq!(seen, [later.id]);
-    let p: PendingNotifications = call(&h, Request::PendingNotifications, Some(&phone)).await;
-    assert_eq!(p.seen, [later.id]);
+    let p: PendingNotifications = call(&h, Request::PendingNotificationsV2, Some(&phone)).await;
+    assert_eq!(p.seen, [digest.id]);
     let inbox: Vec<UserNotification> = call(&h, Request::ListNotificationInbox, Some(&phone)).await;
-    assert!(inbox.iter().any(|n| n.id == now.id && n.seen));
-    assert!(inbox.iter().any(|n| n.id == later.id && n.seen));
+    assert!(
+        inbox.iter().all(|n| n.seen),
+        "explicit reads synchronize across devices"
+    );
 }
 
 #[tokio::test]
@@ -503,8 +500,16 @@ async fn long_work_ends_with_a_notification_unless_the_agent_sent_one() {
     h.send(&s.id, "Do it again and tell me").await;
     h.settle(&s.id).await;
     let n = notifications(&mut events);
-    assert_eq!(n.len(), 1, "{n:?}");
-    assert_eq!(n[0].title, "Translated");
+    assert!(
+        n.is_empty(),
+        "nonurgent bot news goes into the digest, without a second long-work page"
+    );
+    let inbox: Vec<UserNotification> = call(&h, Request::ListNotificationInbox, None).await;
+    assert!(
+        inbox
+            .iter()
+            .any(|n| n.title == "Translated" && n.level == NotificationLevel::Digest)
+    );
 
     // A private chat's says nothing of what was done.
     let v = h

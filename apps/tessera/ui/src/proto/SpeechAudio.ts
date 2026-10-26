@@ -5,7 +5,7 @@
  */
 export type SpeechAudio = { audio: string, 
 /**
- * `audio/wav` (the server's voice) or `audio/mpeg` (OpenAI).
+ * `audio/wav` (the server's voice) or `audio/mpeg` (cloud speech).
  */
 mime: string, 
 /**

@@ -70,9 +70,14 @@ Under the SIL Open Font License 1.1, with their licence files next to them:
 - **Marcellus**, Copyright 2012 Brian J. Bonislawsky DBA Astigmatic (AOETI),
   with Reserved Font Name "Marcellus".
 - **Martian Mono**, Copyright 2020 The Martian Mono Project Authors.
+- **Iosevka Term** 33.3.1, Copyright 2015–2025 Renzhi Li. Regular and bold
+  terminal web fonts, with box drawing, blocks, braille and Powerline symbols.
+  Loaded only when a terminal opens.
 
-The files are the Latin and Latin Extended web subsets as published by
-Fontsource from Google Fonts.
+Geologica, Marcellus and Martian Mono are the Latin and Latin Extended web
+subsets as published by Fontsource from Google Fonts. Iosevka Term is a
+terminal-focused subset of the upstream release. Its source and exact
+subsetting recipe are in `apps/tessera/ui/src/assets/fonts/README-terminal.md`.
 
 ### The Android app's Android libraries
 
@@ -176,9 +181,9 @@ llama.cpp, Ollama or LM Studio.
 - **MIT OR Apache-2.0** (used under MIT): @tauri-apps/plugin-barcode-scanner
 - **MPL-2.0 OR Apache-2.0** (used under Apache-2.0): dompurify
 
-**Libraries and fonts kept in this repository** (6):
+**Libraries and fonts kept in this repository** (7):
 
-- **OFL-1.1**, 3: Geologica (font), Marcellus (font), Martian Mono (font)
+- **OFL-1.1**, 4: Geologica (font), Iosevka Term (font), Marcellus (font), Martian Mono (font)
 - **MIT**, 2: Capacitor (parts of wry's Android code), three.js
 - **ISC**: d3
 

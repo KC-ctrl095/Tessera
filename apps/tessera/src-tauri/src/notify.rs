@@ -82,6 +82,14 @@ fn ack(app: &AppHandle, ack: &Ack) {
     if let (Some(client), Some(epoch)) = (client.as_ref(), ack.client_epoch)
         && inner.accepts_ack(ack, client)
     {
+        if ack.delivered {
+            client.post_in_epoch(
+                epoch,
+                Request::ReportNotificationDelivery {
+                    ids: ack.ids.clone(),
+                },
+            );
+        }
         client.post_in_epoch(
             epoch,
             Request::AckNotifications {

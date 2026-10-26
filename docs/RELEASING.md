@@ -41,7 +41,7 @@ Platform archives also carry the licence and third-party notices. macOS CLI buil
 
 Push the version tag, or run the Release workflow for an existing tag. Linux CLI jobs first build the UI and set `TESSERA_WEB_APP` when compiling the server. Linux desktop and Windows jobs are required. Windows runs `scripts/release-windows.ps1`, which builds the UI and both helpers, stages the helpers for the Windows-only Tauri resource map, then builds NSIS.
 
-The Android job requires all three repository secrets. If any is absent it fails before building, with no unsigned/debug fallback.
+The Android job needs all three repository secrets. If any is absent it skips the build with a warning and the release goes out without an Android app (the release notes say so); there is never an unsigned or debug fallback, and the completeness checker then refuses any APK in the release (`TESSERA_RELEASE_ANDROID=false`). Set the secrets and run the workflow again for the same tag to add the APK.
 
 | Secret | Value |
 | --- | --- |
@@ -51,7 +51,7 @@ The Android job requires all three repository secrets. If any is absent it fails
 
 The runner writes the key and password into private temporary files and removes them after building. It generates Tauri's ignored Gradle/ProGuard files into a fresh Android project, then overlays the checked-in Android customizations. `scripts/android.sh` retains its source and compiled vendor/wry patch guards. The workflow installs SDK 37, build-tools 37.0.0, NDK 29.0.13846066 and Java 17, matching the checked-in SDK level. CI must be exercised with the real signing secrets before launch. This change has not itself produced a release APK or Windows installer.
 
-Publishing requires successful Linux, desktop, Windows and Android jobs. After downloading artifacts, it generates `SHA256SUMS` and runs the completeness checker before attestations or any release upload.
+Publishing requires successful Linux, desktop, Windows and Android jobs (the Android job succeeds without building when no signing key is set). After downloading artifacts, it generates `SHA256SUMS` and runs the completeness checker before attestations or any release upload.
 
 ## Local builds and Gitea / Forgejo
 

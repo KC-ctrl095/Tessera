@@ -27,6 +27,8 @@ export async function native<T>(cmd: string, args?: Record<string, unknown>): Pr
 
 /** The desktop app (it can run a local server); not phones or browsers. */
 export const isDesktopApp = isTauri && !isTauriMobile;
+/** Native Android app, not an Android browser or the iOS app. */
+export const isAndroidApp = isTauri && /Android/i.test(navigator.userAgent);
 
 export interface LocalServerInfo {
   /** The `tessera` CLI is installed. */

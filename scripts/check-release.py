@@ -23,6 +23,10 @@ REQUIRED = (
     "install.sh", "install.ps1",
 )
 BUNDLE = rb"index-[A-Za-z0-9_-]+\.js"
+# The Android app needs the public release signing key (repository secrets). The
+# workflow says "false" when that isn't set up: the release goes out without an
+# APK, and then no APK at all may be in it (never an unsigned or debug one).
+ANDROID = os.environ.get("TESSERA_RELEASE_ANDROID", "true") == "true"
 
 
 def require(ok, message):
@@ -66,7 +70,10 @@ def check_apk(file):
 def check(folder):
     folder = folder.resolve()
     require(folder.is_dir(), f"Not an artifacts folder: {folder}")
-    for name in (*REQUIRED, "SHA256SUMS"):
+    required = REQUIRED if ANDROID else tuple(n for n in REQUIRED if not n.endswith(".apk"))
+    if not ANDROID:
+        require(not any(p.suffix == ".apk" for p in folder.iterdir()), "No Android signing key: the release must not contain an APK")
+    for name in (*required, "SHA256SUMS"):
         file = folder / name
         require(file.is_file() and not file.is_symlink() and file.stat().st_size > 0, f"Missing or empty artifact: {name}")
     sums = {}
@@ -103,9 +110,11 @@ def check(folder):
             # Tauri NSIS places mapped resources at the install root.
             file = Path(tmp) / name
             require(file.is_file() and file.read_bytes() == data, f"Windows installer must contain the packaged {name} at its root")
-    require(shutil.which("apksigner") and shutil.which("aapt"), "Install Android SDK build-tools and add apksigner and aapt to PATH")
-    check_apk(folder / "tessera-android-arm64.apk")
-    print(f"Release complete. {len(sums)} artifacts and all checksums verified, CLI/desktop/APK UI found, Windows helpers matched, APK signature verified.")
+    if ANDROID:
+        require(shutil.which("apksigner") and shutil.which("aapt"), "Install Android SDK build-tools and add apksigner and aapt to PATH")
+        check_apk(folder / "tessera-android-arm64.apk")
+    print(f"Release complete. {len(sums)} artifacts and all checksums verified, CLI/desktop UI found, Windows helpers matched, "
+          + ("APK signature verified." if ANDROID else "no Android app (no release signing key yet)."))
 
 
 if __name__ == "__main__":

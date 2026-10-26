@@ -75,6 +75,11 @@ run(async () => {
   check((await sec()).secret_machines === "all", "Allow: all machines");
   check((await where("GITHUB")) === "This server and all your machines" && (await where("SWITCH_ADMIN")) === "Desktop", "rows follow it; one with its own machines keeps them", [await where("GITHUB"), await where("SWITCH_ADMIN")]);
   check(await p.eval(`!!document.querySelector('.cred-machines .cred-machines-icon.loose')`), "a loosened setting is marked");
+  // New ones stay here whatever the setting; the ones other computers can use are flagged.
+  check((await secret("DESKTOP_SUDO")).machines_default === false && (await where("DESKTOP_SUDO")) === "This server", "a new one starts on this server only", await secret("DESKTOP_SUDO"));
+  const roam = await p.eval(`(() => { const b = document.querySelector('.cred-roaming'); return b ? { text: b.textContent, loose: !!document.querySelector('.secret-item[data-name="GITHUB"] .cred-where.loose'), here: !!document.querySelector('.secret-item[data-name="DESKTOP_SUDO"] .cred-where.loose') } : null; })()`);
+  check(!!roam && /can be used on other computers/.test(roam.text) && /Desktop/.test(roam.text) && roam.loose && !roam.here, "the list flags passwords other computers can use, naming them", roam);
+  await p.shot(`${SHOTS}/pwm-roaming-desk-dark.png`);
 
   // Machines I pick: nothing picked is the same as Off, then Desktop (asks first).
   await p.clickText(".cred-machines [role=radio]", "Machines I pick");
@@ -200,6 +205,19 @@ run(async () => {
   await p.eval(`__mod('lib/ui.ts').then(m => m.setBotEditor(null))`);
   await sleep(300);
   check(p.errors.length === 0, "desktop: no errors", p.errors);
+
+  // One tap keeps them all on this server again (asks first).
+  await open("secrets", `document.querySelector('.cred-roaming-fix')`);
+  await p.click(".cred-roaming-fix");
+  await sleep(400);
+  d = await dialog();
+  check(!!d && /on this server only/.test(d.title) && /only for a machine stays/.test(d.body), "keeping them here asks first, and says the machine-only one stays", d);
+  await answer(true);
+  await p.waitFor(`(document.querySelector('.cred-roaming')?.textContent ?? '').startsWith('1 password')`, 6000);
+  const after = await list();
+  const onServer = after.filter((x) => !x.chat && x.on_server !== false);
+  check(onServer.every((x) => !x.machines_default && !(x.on_machines ?? []).length) && (await sec()).secret_machines === "off", "every saved one on this server is here only, the setting off", after.map((x) => [x.name, x.machines_default, x.on_machines]));
+  check(JSON.stringify((await secret("SWITCH_ADMIN")).on_machines) === '["dev_desktop"]', "the one only for a machine stays as set");
 
   // ── light, and the phone sizes ──
   await p.theme("light");

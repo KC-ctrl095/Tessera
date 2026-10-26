@@ -6,6 +6,7 @@ export interface Recorder {
   snapshot(): Recording;
   reset(prerollMs?: number): void;
   stop(): Promise<Recording>;
+  cue?(): Promise<void>;
   cancel(): void;
 }
 
@@ -114,6 +115,21 @@ export async function startRecording(signal?: AbortSignal): Promise<Recorder> {
   return {
     startedAt,
     level: () => Math.min(1, rms * 8),
+    async cue() {
+      if (done || !ctx) return;
+      // A quiet local tone, never a cloud request. Capture is cleared below
+      // before listening begins, so the cue cannot become its own utterance.
+      const tone = ctx.createOscillator(), gain = ctx.createGain();
+      tone.frequency.value = 660;
+      gain.gain.setValueAtTime(.035, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + .07);
+      tone.connect(gain); gain.connect(ctx.destination);
+      tone.start(); tone.stop(ctx.currentTime + .075);
+      // Include a short room-echo tail before clearing capture and showing ready.
+      await new Promise<void>((resolve) => setTimeout(resolve, 150));
+      tone.disconnect(); gain.disconnect();
+      if (!done) { chunks = []; length = 0; }
+    },
     snapshot,
     reset(prerollMs = 0) {
       const keep = Math.min(length, Math.round(ctx!.sampleRate * prerollMs / 1000));

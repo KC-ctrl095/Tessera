@@ -2,6 +2,6 @@
 
 export type Transcript = { text: string, 
 /**
- * The engine that heard it (`server`, `openai`, `service`).
+ * The engine that heard it (`server`, `openai`, `openrouter`, `service`).
  */
 engine?: string, };

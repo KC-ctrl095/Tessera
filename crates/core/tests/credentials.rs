@@ -1421,10 +1421,13 @@ async fn the_setting_for_all_passwords_lets_them_onto_machines() {
     }
     let h = harness(vec![], 100_000).await;
     let m = online_machine(&h, "dev_desktop", "Desktop").await;
-    // Follows the setting / this server only, whatever the setting.
-    for (name, value, machines_default) in
-        [("PLAIN_KEY", ANY, None), ("HOME_KEY", PASS, Some(false))]
-    {
+    // Follows the setting / this server only, whatever the setting / new,
+    // nothing chosen (this server only too).
+    for (name, value, machines_default) in [
+        ("PLAIN_KEY", ANY, Some(true)),
+        ("HOME_KEY", PASS, Some(false)),
+        ("FRESH_KEY", PASS, None),
+    ] {
         h.engine
             .handle(
                 Request::SaveSecret {
@@ -1451,6 +1454,7 @@ async fn the_setting_for_all_passwords_lets_them_onto_machines() {
     let info = |name: &str| list.iter().find(|s| s.name == name).unwrap().clone();
     assert!(info("PLAIN_KEY").machines_default);
     assert!(!info("HOME_KEY").machines_default);
+    assert!(!info("FRESH_KEY").machines_default);
     let sec: SecurityInfo =
         serde_json::from_value(h.engine.handle(Request::GetSecurity, None).await.unwrap()).unwrap();
     assert_eq!(sec.secret_machines, SecretMachines::Off, "off by default");
@@ -1520,6 +1524,14 @@ async fn the_setting_for_all_passwords_lets_them_onto_machines() {
         r.1 && r
             .2
             .contains("$HOME_KEY can't be used on Desktop, only on this server"),
+        "{r:?}"
+    );
+    // A new one nobody chose machines for stays here too.
+    let r = try_it("MACHINES-ALL-FRESH", probe_cmd(&["FRESH_KEY"])).await;
+    assert!(
+        r.1 && r
+            .2
+            .contains("$FRESH_KEY can't be used on Desktop, only on this server"),
         "{r:?}"
     );
     // The machine's own rules still decide: outside its folders, nothing runs.
@@ -1692,7 +1704,7 @@ async fn which_passwords_go_to_which_machine() {
     .await;
     let lab = played_machine(&h, "dev_lab", "lab", false, |_| ("ran it".into(), false)).await;
     for (name, value, on_machines, machines_default) in [
-        ("PLAIN_KEY", ANY, None, None),
+        ("PLAIN_KEY", ANY, None, Some(true)),
         ("HOME_KEY", PASS, None, Some(false)),
         ("LAB_KEY", LAB, Some(vec!["dev_nas".to_string()]), None),
     ] {

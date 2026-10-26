@@ -265,15 +265,45 @@ impl Inner {
                 _ => None,
             };
             // Daybreak Blue is OpenAI's: the helper's own model must offer it.
+            // Without a `model`, the one closest to the inherited model that
+            // does is chosen (the start message names it).
+            let mut model = model;
             if task.daybreak == Some(true) {
                 let target = model
                     .clone()
                     .unwrap_or_else(|| parent_rt.st.lock().info.model.clone());
                 if !self.providers.daybreak_available(&target) {
-                    return Err(format!(
-                        "{}: Daybreak Blue needs an OpenAI model your account offers it on; set `model` (e.g. openai-codex/gpt-6.1-sol)",
-                        task.name
-                    ));
+                    match self
+                        .providers
+                        .daybreak_sibling(&target)
+                        .filter(|_| nonempty(&task.model).is_none())
+                    {
+                        Some(sibling) => {
+                            note.get_or_insert_with(|| {
+                                format!("Daybreak Blue isn't offered on {target} for this account; it runs on {sibling}")
+                            });
+                            model = Some(sibling);
+                        }
+                        None => {
+                            let offered = self.providers.daybreak_models();
+                            return Err(if offered.is_empty() {
+                                format!(
+                                    "{}: Daybreak Blue: your OpenAI account's model list offers it on no model (sign in to OpenAI, or ask OpenAI for access)",
+                                    task.name
+                                )
+                            } else {
+                                format!(
+                                    "{}: Daybreak Blue isn't offered on {target} for this account; set `model` to one that offers it: {}",
+                                    task.name,
+                                    offered
+                                        .iter()
+                                        .map(|m| m.to_string())
+                                        .collect::<Vec<_>>()
+                                        .join(", ")
+                                )
+                            });
+                        }
+                    }
                 }
             }
             let readonly = task.readonly
@@ -580,6 +610,8 @@ impl Inner {
             }
         }
         drop(st);
+        // What the task may name as a machine (`capability_warnings`).
+        let machine_names: Vec<String> = self.machine_list().into_iter().map(|m| m.name).collect();
         if tools.iter().any(|t| t == "machines") {
             let machines: Vec<String> = self
                 .machine_list()
@@ -605,7 +637,7 @@ impl Inner {
                 })
                 .collect();
             if machines.is_empty()
-                && prompt.is_some_and(|p| p.to_ascii_lowercase().contains("machine"))
+                && prompt.is_some_and(|p| names_machine(&p.to_ascii_lowercase(), &machine_names))
             {
                 out.push_str("\nWarning: no authorized machine is available to this helper; supply local evidence to review.");
             }
@@ -619,7 +651,12 @@ impl Inner {
             ));
         }
         if let Some(prompt) = prompt {
-            for warning in capability_warnings(prompt, &tools, mode == PermissionMode::ReadOnly) {
+            for warning in capability_warnings(
+                prompt,
+                &tools,
+                mode == PermissionMode::ReadOnly,
+                &machine_names,
+            ) {
                 out.push_str(&format!("\nWarning: {warning}"));
             }
         }
@@ -2017,22 +2054,32 @@ impl Inner {
 }
 
 /// Best-effort hints for common assignment wording, never authorization.
-fn capability_warnings(prompt: &str, tools: &[String], readonly: bool) -> Vec<&'static str> {
+/// `machines`: the names of the user's machines (what the `machines` tool
+/// reaches). A host reached over SSH from a shell is not one of them, and a
+/// shell is a command runner wherever the task runs it.
+fn capability_warnings(
+    prompt: &str,
+    tools: &[String],
+    readonly: bool,
+    machines: &[String],
+) -> Vec<&'static str> {
     let p = prompt.to_ascii_lowercase();
     let has = |name: &str| tools.iter().any(|t| t == name);
     let mentions = |words: &[&str]| words.iter().any(|w| p.contains(w));
-    let remote = mentions(&["machine", "remote", "machines."]);
+    let shell = has("bash") || has(crate::tools::bash::READ_ONLY_BASH);
+    let remote = names_machine(&p, machines) && !(shell && mentions(&["ssh"]));
+    let machine_runs = has("machines") && !readonly;
     let mut out = Vec::new();
     if mentions(&["write", "save", "create", "edit", "persist"])
         && mentions(&["file", "artifact", ".md", "report", "notes"])
-        && !(has("write") || has("edit") || (remote && has("machines") && !readonly))
+        && !(has("write") || has("edit") || (remote && machine_runs))
     {
         out.push("this task appears to request file writes, but this helper has no file-write tools. Return the evidence to the parent to save, or select a write-capable role.");
     }
     if remote && !has("machines") {
-        out.push("this task mentions a remote machine, but this helper has no machines tool. Supply a local evidence bundle or choose an authorized machine-capable role.");
+        out.push("this task names one of your machines, but this helper has no machines tool. Supply a local evidence bundle or choose an authorized machine-capable role.");
     }
-    if mentions(&[
+    let commands = mentions(&[
         "run ",
         "execute",
         "shell",
@@ -2040,14 +2087,40 @@ fn capability_warnings(prompt: &str, tools: &[String], readonly: bool) -> Vec<&'
         "sha256",
         "cargo ",
         "compute hash",
-    ]) && if remote {
-        !has("machines") || readonly
-    } else {
-        !has("bash") && !has(crate::tools::bash::READ_ONLY_BASH)
-    } {
+    ]);
+    if commands && !shell && !machine_runs {
         out.push("this task appears to need command execution, but this helper has no command runner (its type's tool list leaves none).");
+    } else if commands && remote && has("machines") && readonly {
+        out.push("this task appears to run commands on one of your machines, but a read-only helper may only list and read there.");
     }
     out
+}
+
+/// The task names the `machines` tool or one of the user's machines (as a
+/// whole word, case-insensitive). `lower` is the prompt in lower case.
+fn names_machine(lower: &str, machines: &[String]) -> bool {
+    const TOOL: [&str; 8] = [
+        "machines tool",
+        "`machines`",
+        "machines run",
+        "machines read",
+        "machines.run",
+        "machines.read",
+        "machines.ls",
+        "machines.write",
+    ];
+    if TOOL.iter().any(|t| lower.contains(t)) {
+        return true;
+    }
+    let word = |c: Option<char>| c.is_none_or(|c| !c.is_alphanumeric());
+    machines.iter().any(|name| {
+        let name = name.trim().to_ascii_lowercase();
+        !name.is_empty()
+            && lower.match_indices(&name).any(|(at, _)| {
+                word(lower[..at].chars().next_back())
+                    && word(lower[at + name.len()..].chars().next())
+            })
+    })
 }
 
 fn join_digest(why: String, digest: Option<String>) -> String {
@@ -3118,17 +3191,22 @@ mod tests {
 
     #[test]
     fn preflight_hints_cover_writes_shell_and_remote_reads_without_granting_tools() {
+        let names = vec!["Desktop".to_string(), "Build PC (2)".to_string()];
         let read = vec!["read".into(), "grep".into()];
         assert_eq!(
             capability_warnings(
                 "Save a report.md file, run sha256 on remote Desktop",
                 &read,
-                true
+                true,
+                &names
             )
             .len(),
             3
         );
-        assert!(capability_warnings("Find the parser and return findings", &read, true).is_empty());
+        assert!(
+            capability_warnings("Find the parser and return findings", &read, true, &names)
+                .is_empty()
+        );
         let equipped = vec![
             "read".into(),
             "write".into(),
@@ -3139,14 +3217,51 @@ mod tests {
             capability_warnings(
                 "Save report.md and run cargo test on machine Desktop",
                 &equipped,
-                false
+                false,
+                &names
             )
             .is_empty()
         );
         assert_eq!(
-            capability_warnings("Run a command on the machine", &equipped, true).len(),
+            capability_warnings("Run a command on Desktop", &equipped, true, &names),
+            [
+                "this task appears to run commands on one of your machines, but a read-only helper may only list and read there."
+            ]
+        );
+    }
+
+    /// A security auditor with a shell, reaching hosts over SSH, used to be
+    /// told it had no command runner and no machines tool.
+    #[test]
+    fn a_shell_over_ssh_gets_no_false_machine_or_runner_warnings() {
+        let names = vec!["Build PC (2)".to_string(), "Lab box 1".to_string()];
+        let auditor = vec![
+            "read".into(),
+            "grep".into(),
+            "bash".into(),
+            "web_fetch".into(),
+        ];
+        let task = "Audit the remote hosts on the lab network: run read-only checks over SSH on each machine and report findings.";
+        assert!(capability_warnings(task, &auditor, false, &names).is_empty());
+        // Over SSH to a host that is also one of the user's machines: still fine with a shell.
+        assert!(
+            capability_warnings("ssh into lab box 1 and run uptime", &auditor, false, &names)
+                .is_empty()
+        );
+        // Naming a machine without SSH and without the machines tool is a real gap.
+        assert_eq!(
+            capability_warnings("Check the disks on Lab box 1", &auditor, false, &names).len(),
             1
         );
+        // A word inside another word is not a machine's name.
+        assert!(!names_machine("the build pc (2)x build", &names));
+        assert!(names_machine("on build pc (2), please", &names));
+        // A read-only reviewer's restricted shell is a runner too.
+        let reviewer = vec![
+            "read".into(),
+            crate::tools::bash::READ_ONLY_BASH.to_string(),
+        ];
+        assert!(capability_warnings("run cargo test", &reviewer, true, &names).is_empty());
     }
 
     #[tokio::test]

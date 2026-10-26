@@ -62,7 +62,7 @@ run(async () => {
 
   // A modern browser negotiates automatically; an untouched old connection
   // still cannot mistake an automatic item for an explicit agent message.
-  const automatic = (await probe.rpc('mock_inbox', { add: { kind: 'job', title: 'Synthetic failed run', body: 'PRIVATE_AUTOMATIC_DETAIL' } })).result;
+  const automatic = (await probe.rpc('mock_inbox', { add: { kind: 'error', title: 'Synthetic failed run', body: 'PRIVATE_AUTOMATIC_DETAIL' } })).result;
   check(await wait(() => p.eval(`document.body.textContent.includes('Synthetic failed run')`)), 'a modern browser negotiates and receives typed automatic alerts');
   check(!probe.events.some(e => e.type === 'notification' && e.notification.id === automatic.id), 'an unnegotiated legacy connection receives no automatic payload');
   const oldPending = (await probe.rpc('pending_notifications')).result;
@@ -79,18 +79,18 @@ run(async () => {
     Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' });
   })()`);
   await p.eval(`__mod('lib/alerts.ts').then(m => m.setBrowserNotifications(true))`);
-  const generic = (await probe.rpc('mock_inbox', { add: { kind: 'job', title: 'PRIVATE_JOB_NAME', body: 'PRIVATE_REPORT_DETAIL' } })).result;
-  const osPost = await wait(() => p.eval(`window.__automaticPosts.find(n => n.tag === 'n${generic.id}')`));
+  const generic = (await probe.rpc('mock_inbox', { add: { kind: 'error', title: 'PRIVATE_JOB_NAME', body: 'PRIVATE_REPORT_DETAIL' } })).result;
+  const osPost = await wait(() => p.eval(`window.__automaticPosts.find(n => n.tag === '${generic.source_key || `n${generic.id}`}')`));
   check(osPost?.title === 'Tessera' && osPost?.body === 'New activity. Open Tessera for details.', 'browser OS automatic alerts contain no private names/details', osPost);
   const privateMessage = (await probe.rpc('mock_inbox', { add: { private: true, title: 'SECRET_PRIVATE_TITLE', body: 'SECRET_PRIVATE_BODY', from: 'SECRET_PRIVATE_SUBTITLE' } })).result;
   check(privateMessage.private && privateMessage.title === 'Tessera' && !privateMessage.body && !privateMessage.from, 'private wire payload is marked and redacted even for an explicit message', privateMessage);
   const privatePost = await wait(() => p.eval(`window.__automaticPosts.find(n => n.tag === 'n${privateMessage.id}')`));
   check(privatePost?.title === 'Tessera' && privatePost?.body === 'New activity. Open Tessera for details.', 'private browser OS payload is generic without session hydration', privatePost);
   const explicit = (await probe.rpc('mock_inbox', { add: { title: 'SECRET_EXPLICIT_TITLE', body: 'SECRET_EXPLICIT_BODY', from: 'SECRET_EXPLICIT_SENDER' } })).result;
-  const explicitPost = await wait(() => p.eval(`window.__automaticPosts.find(n => n.tag === 'n${explicit.id}')`));
+  const explicitPost = await wait(() => p.eval(`window.__automaticPosts.find(n => n.tag === '${explicit.source_key || `n${explicit.id}`}')`));
   check(explicitPost?.title === 'Tessera' && explicitPost?.body === 'New activity. Open Tessera for details.', 'browser OS explicit alerts are generic too', explicitPost);
-  const source1 = (await probe.rpc('mock_inbox', { add: { title: 'First job result', source_key: 'job_fixture' } })).result;
-  const source2 = (await probe.rpc('mock_inbox', { add: { title: 'Updated job result', source_key: 'job_fixture' } })).result;
+  const source1 = (await probe.rpc('mock_inbox', { add: { title: 'First job result', source_key: 'job_fixture', urgent: true } })).result;
+  const source2 = (await probe.rpc('mock_inbox', { add: { title: 'Updated job result', source_key: 'job_fixture', urgent: true } })).result;
   check(await wait(() => p.eval(`window.__automaticPosts.filter(n => n.tag === 'job_fixture').length === 2 && window.__closedNotifications.includes('job_fixture')`)), 'browser job alerts replace one stable card rather than stacking event ids');
   await probe.rpc('seen_notifications', { ids: [source1.id] });
   await sleep(150);
@@ -105,6 +105,30 @@ run(async () => {
   await p.eval(`(() => { delete document.visibilityState; window.Notification = window.__savedNotification; delete window.__savedNotification; })()`);
   await probe.rpc('cancel_notification', { id: generic.id });
   await wait(() => p.eval(`!document.querySelector('.notification-bell')`));
+
+  // Levels, exact repeats and one-tap source controls use the same inbox.
+  const levelFirst = (await probe.rpc('mock_inbox', { add: { kind: 'message', title: 'Monitor report', body: 'Nothing changed', source: 'bot', source_key: 'bot_monitor', from: 'Monitor' } })).result;
+  await probe.rpc('mock_inbox', { add: { kind: 'message', title: 'Monitor report', body: 'Nothing changed', source: 'bot', source_key: 'bot_monitor', from: 'Monitor' } });
+  await inbox(p, `return m.refreshInbox()`);
+  await openInbox(p);
+  check(await wait(async () => (await item(p, levelFirst.id))?.text.includes('×2') && (await item(p, levelFirst.id))?.text.includes('Digest · bot')), 'one inbox shows source, level and exact repeat count');
+  await p.click(`[data-notification="${levelFirst.id}"] .inbox-source-actions button:first-child`);
+  check(await wait(async () => (await probe.rpc('get_notification_policy')).result.sources.some(s => s.key === 'bot_monitor' && s.level === 'silent')), 'one tap mutes this source on the server');
+  const muted = (await probe.rpc('mock_inbox', { add: { kind: 'message', title: 'A new report', body: 'Different text', source: 'bot', source_key: 'bot_monitor', from: 'Monitor' } })).result;
+  check(muted.level === 'silent' && muted.reason === 'you muted this source', 'source mute applies to new text');
+  await probe.rpc('set_notification_source', { key: 'bot_monitor', level: null });
+  const page = (await probe.rpc('mock_inbox', { add: { title: 'Owner requested result', urgent: true, source: 'bot', source_key: 'bot_monitor', from: 'Monitor' } })).result;
+  await inbox(p, `return m.refreshInbox()`);
+  await p.click(`[data-notification="${page.id}"] .inbox-source-actions button:last-child`);
+  check(await wait(async () => (await probe.rpc('get_notification_policy')).result.sources.some(s => s.key === 'bot_monitor' && s.level === 'digest')), 'Less like this lowers Page to Digest');
+  await probe.rpc('set_notification_source', { key: 'bot_monitor', level: null });
+  const digest = (await probe.rpc('mock_digest')).result;
+  check(digest?.kind === 'digest' && digest.level === 'digest' && !digest.quiet, 'one non-buzzing digest summary uses the normal delivery path');
+  await inbox(p, `return m.refreshInbox()`);
+  check((await item(p, digest.id))?.text.includes('Digest · system'), 'digest summary is visible in the same inbox');
+  check((await probe.rpc('mock_digest')).result === null, 'an empty digest sends nothing');
+  await close(p);
+  for (const n of (await probe.rpc('list_notification_inbox')).result) await probe.rpc('cancel_notification', { id: n.id });
 
   // Routine success is in the task run log, not another bell item.
   const jobs = (await probe.rpc("list_jobs")).result;
@@ -161,9 +185,9 @@ run(async () => {
       check(contrast, `${name} ${theme}: titles stand out`);
       // Leaving the phone layout starts the desktop modal's 340ms spring.
       // Check real geometry once it settles, not at the intermediate scale.
-      const targets = `(() => { const controls = [...document.querySelectorAll('.inbox-filters button, .inbox-actions .btn, .inbox-mark')]; return controls.length > 0 && controls.every(el => { const r = el.getBoundingClientRect(); return r.width >= 40 && r.height >= 40; }); })()`;
+      const targets = `(() => { const controls = [...document.querySelectorAll('.inbox-filters button, .inbox-actions .btn, .inbox-mark, .inbox-source-actions button')]; return controls.length > 0 && controls.every(el => { const r = el.getBoundingClientRect(); return r.width >= 40 && r.height >= 40; }); })()`;
       const targetOK = await wait(() => p.eval(targets));
-      const dimensions = targetOK ? undefined : await p.eval(`[...document.querySelectorAll('.inbox-filters button, .inbox-actions .btn, .inbox-mark')].map(el => { const r = el.getBoundingClientRect(); return [el.textContent, r.width, r.height]; })`);
+      const dimensions = targetOK ? undefined : await p.eval(`[...document.querySelectorAll('.inbox-filters button, .inbox-actions .btn, .inbox-mark, .inbox-source-actions button')].map(el => { const r = el.getBoundingClientRect(); return [el.textContent, r.width, r.height]; })`);
       check(targetOK, `${name} ${theme}: all inbox controls have at least 40px targets`, dimensions);
       await p.shot(`${SHOTS}/inbox-${name}-${theme}.png`);
     }

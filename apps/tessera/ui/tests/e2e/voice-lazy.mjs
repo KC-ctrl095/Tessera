@@ -37,5 +37,21 @@ run(async()=>{
   check(!p.errors.length,`${scenario}: no uncaught voice loader errors`,p.errors);
   await p.send('Fetch.disable');await p.close();
  }
+ for (const action of ['Escape', 'End', 'Finish']) {
+  await mock('/__mock/reset'); await mock('/__mock/mosaics/reset');
+  const p = await device(); await signIn(p, `Host ${action}`);
+  await p.eval(`window.__lateMic = 0; const original = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices); navigator.mediaDevices.getUserMedia = (...args) => { __lateMic++; return original(...args); };`);
+  await p.send('Fetch.enable', { patterns: [{ urlPattern: '*/src/lib/voice/host.ts*', requestStage: 'Request' }] });
+  p.on('Fetch.requestPaused', ({ requestId }) => { setTimeout(() => { void p.send('Fetch.continueRequest', { requestId }).catch(() => {}); }, 2400); });
+  await p.click('[aria-label="Voice input"]');
+  await until(() => p.eval(`document.querySelector('.voice-status')?.dataset.phase === 'starting'`), 'deferred host starting');
+  if (action === 'End') await p.click('.voice-status button');
+  else if (action === 'Escape') await p.key('Escape', 'Escape', 0, 27);
+  else await p.key('Enter', 'Enter', 0, 13);
+  await sleep(2800);
+  const fixture = await p.eval(`__mod('lib/store.ts').then(m => m.call({ method: 'mock_voice', params: {} }))`);
+  check(await p.eval(`__lateMic === 0 && !document.querySelector('.voice-status')`) && fixture.requests.length === 0, `${action} before host import ends prevents late recording or engine download`);
+  check(!p.errors.length, `${action} deferred host has no browser errors`, p.errors); await p.close();
+ }
  finish();
 });

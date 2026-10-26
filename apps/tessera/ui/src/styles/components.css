@@ -791,6 +791,10 @@ select.input {
   font-size: 0.7rem;
   color: var(--faint);
 }
+/* The account's catalog offers Daybreak Blue on this model (ModelsTab). */
+.model-caps .cap-daybreak {
+  color: var(--accent-text);
+}
 
 /* ── Modal ─────────────────────────────────────────────────────────────── */
 .modal-backdrop {

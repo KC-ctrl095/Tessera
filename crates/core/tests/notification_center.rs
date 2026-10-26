@@ -596,9 +596,12 @@ async fn continuing_a_paused_run_clears_its_end_and_does_not_start_a_new_run() {
         .into_iter()
         .filter(|n| n.session_id.as_deref() == Some(s.id.as_str()))
         .collect();
-    assert_eq!(items.len(), 1, "a continued run updates its outcome item");
-    assert_eq!(items[0].title, "Scheduled task recovered");
-    assert!(items[0].quiet);
+    assert_eq!(items.len(), 2, "distinct outcomes remain in the inbox");
+    assert!(
+        items
+            .iter()
+            .any(|n| n.title == "Scheduled task recovered" && n.quiet)
+    );
 }
 
 #[tokio::test]
@@ -673,7 +676,10 @@ async fn scheduled_notify_calls_share_one_source_across_fresh_run_chats() {
     let j = save_job(&h, job(&h, "frequent monitor")).await.unwrap();
     let mut events = h.engine.subscribe();
     let first = run(&h, &j.id).await;
-    assert_eq!(alerts(&mut events).len(), 1);
+    assert!(
+        alerts(&mut events).is_empty(),
+        "scheduled updates start in the digest"
+    );
     let second = run(&h, &j.id).await;
     assert_ne!(
         first.id, second.id,
@@ -684,10 +690,22 @@ async fn scheduled_notify_calls_share_one_source_across_fresh_run_chats() {
         "timestamp-only status does not alert again"
     );
     let items = all(&h).await;
-    assert_eq!(items.len(), 1);
-    assert_eq!(items[0].source_key, format!("job_{}", j.id));
-    assert_eq!(items[0].session_id.as_deref(), Some(second.id.as_str()));
-    assert!(items[0].quiet);
+    let messages = items
+        .iter()
+        .filter(|n| n.kind == "message")
+        .collect::<Vec<_>>();
+    assert_eq!(messages.len(), 2, "different text is not a repeat");
+    assert!(
+        messages
+            .iter()
+            .all(|n| n.source_key == format!("job_{}", j.id)
+                && n.level == tessera_proto::NotificationLevel::Digest)
+    );
+    assert!(
+        messages
+            .iter()
+            .any(|n| n.session_id.as_deref() == Some(second.id.as_str()))
+    );
     run(&h, &j.id).await;
     let events = alerts(&mut events);
     assert_eq!(
@@ -699,7 +717,7 @@ async fn scheduled_notify_calls_share_one_source_across_fresh_run_chats() {
 }
 
 #[tokio::test]
-async fn foreground_chat_presence_is_global_and_background_withdrawals_survive_replacement() {
+async fn foreground_chat_presence_is_per_device_and_does_not_mark_global_read() {
     let dir = tempfile::tempdir().unwrap();
     let e = open(dir.path()).await;
     let (a, _) = e.store().add_device("Laptop").unwrap();
@@ -718,12 +736,33 @@ async fn foreground_chat_presence_is_global_and_background_withdrawals_survive_r
     .await;
     let p: tessera_proto::PendingNotifications =
         call(&e, Request::PendingNotificationsV2, Some(&b)).await;
-    assert!(p.new.is_empty(), "active laptop keeps phone quiet");
+    assert!(p.new.is_empty(), "phone already acknowledged this item");
     assert!(
-        p.withdraw.contains(&s.id),
-        "phone removes its stable chat tag after another device opens it"
+        !p.withdraw.contains(&s.id),
+        "a desktop tile does not withdraw the phone card"
     );
-    assert!(inbox(&e, &a).await[0].seen);
+    assert!(!inbox(&e, &a).await[0].seen);
+    let next: UserNotification = call(
+        &e,
+        Request::SendNotification {
+            title: "A different first occurrence".into(),
+            body: "New text".into(),
+            session_id: Some(s.id.clone()),
+            delay_secs: 0,
+        },
+        Some(&a),
+    )
+    .await;
+    let p: PendingNotifications = call(&e, Request::PendingNotificationsV2, Some(&b)).await;
+    assert!(
+        p.new.iter().any(|n| n.id == next.id),
+        "new phone alerts survive a visible desktop tile"
+    );
+    let p: PendingNotifications = call(&e, Request::PendingNotificationsV2, Some(&a)).await;
+    assert!(
+        !p.new.iter().any(|n| n.id == next.id),
+        "viewing device does not buzz twice"
+    );
     call::<Value>(
         &e,
         Request::ClearNotifications { ids: vec![n.id] },
@@ -733,8 +772,25 @@ async fn foreground_chat_presence_is_global_and_background_withdrawals_survive_r
     let p: tessera_proto::PendingNotifications =
         call(&e, Request::PendingNotificationsV2, Some(&b)).await;
     assert!(
+        !p.withdraw.contains(&s.id),
+        "deleting an older item does not withdraw newer news"
+    );
+    call::<Value>(
+        &e,
+        Request::AckNotifications { ids: vec![next.id] },
+        Some(&b),
+    )
+    .await;
+    call::<Value>(
+        &e,
+        Request::ClearNotifications { ids: vec![next.id] },
+        Some(&a),
+    )
+    .await;
+    let p: PendingNotifications = call(&e, Request::PendingNotificationsV2, Some(&b)).await;
+    assert!(
         p.withdraw.contains(&s.id),
-        "a deleted revision still withdraws its posted card"
+        "deleting the current alert withdraws its posted card"
     );
     let unauthorized = e
         .handle(
@@ -746,4 +802,108 @@ async fn foreground_chat_presence_is_global_and_background_withdrawals_survive_r
         )
         .await;
     assert!(unauthorized.is_err());
+}
+
+#[tokio::test]
+async fn notification_policy_rpc_source_controls_quiet_hours_and_test_receipts() {
+    let dir = tempfile::tempdir().unwrap();
+    let e = open(dir.path()).await;
+    let (a, _) = e.store().add_device("Laptop").unwrap();
+    let (b, _) = e.store().add_device("Phone").unwrap();
+    let first = notify(&e, &a, None, 0).await;
+    assert_eq!(first.level, NotificationLevel::Page);
+    let p: NotificationPolicy = call(
+        &e,
+        Request::SetNotificationSource {
+            key: first.source_key.clone(),
+            level: Some(NotificationLevel::Digest),
+        },
+        Some(&a),
+    )
+    .await;
+    assert_eq!(p.sources.len(), 1);
+    let n: UserNotification = call(
+        &e,
+        Request::SendNotification {
+            title: "New source result".into(),
+            body: "Different text".into(),
+            session_id: None,
+            delay_secs: 0,
+        },
+        Some(&a),
+    )
+    .await;
+    assert_eq!(n.level, NotificationLevel::Digest);
+    let _: NotificationPolicy = call(
+        &e,
+        Request::SetNotificationSource {
+            key: first.source_key,
+            level: None,
+        },
+        Some(&a),
+    )
+    .await;
+    let mut p: NotificationPolicy = call(&e, Request::GetNotificationPolicy, Some(&a)).await;
+    assert!(!p.hourly && !p.quiet && p.daily_at == vec![1080] && p.sources.is_empty());
+    p.hourly = true;
+    p.quiet = true;
+    p.quiet_from = 1;
+    p.quiet_to = 0;
+    let p: NotificationPolicy =
+        call(&e, Request::SetNotificationPolicy { policy: p }, Some(&a)).await;
+    assert!(p.hourly && p.quiet);
+    let _: Vec<DeviceInfo> = call(
+        &e,
+        Request::SetDeviceNotify {
+            id: b.clone(),
+            notify: false,
+        },
+        Some(&a),
+    )
+    .await;
+    let test: UserNotification =
+        call(&e, Request::TestNotification { delay_secs: 0 }, Some(&a)).await;
+    assert!(test.urgent && !test.quiet && test.level == NotificationLevel::Page);
+    let pending: PendingNotifications = call(&e, Request::PendingNotificationsV2, Some(&b)).await;
+    assert_eq!(
+        pending.new.iter().map(|n| n.id).collect::<Vec<_>>(),
+        [test.id],
+        "test bypasses device opt-out"
+    );
+    let reports: Vec<NotificationDelivery> = call(
+        &e,
+        Request::NotificationDeliveries { id: test.id },
+        Some(&a),
+    )
+    .await;
+    assert!(reports.iter().all(|d| !d.delivered));
+    let _: Value = call(
+        &e,
+        Request::AckNotifications { ids: vec![test.id] },
+        Some(&b),
+    )
+    .await;
+    let reports: Vec<NotificationDelivery> = call(
+        &e,
+        Request::NotificationDeliveries { id: test.id },
+        Some(&a),
+    )
+    .await;
+    assert!(
+        reports.iter().all(|d| !d.delivered),
+        "suppression acknowledgements are not OS receipts"
+    );
+    let _: Value = call(
+        &e,
+        Request::ReportNotificationDelivery { ids: vec![test.id] },
+        Some(&b),
+    )
+    .await;
+    let reports: Vec<NotificationDelivery> = call(
+        &e,
+        Request::NotificationDeliveries { id: test.id },
+        Some(&a),
+    )
+    .await;
+    assert!(reports.iter().any(|d| d.device_id == b && d.delivered));
 }

@@ -25,9 +25,9 @@ language: string,
 has_key: boolean, 
 /**
  * `auto` (the device's own private engine, else the server's),
- * `device`, `server`, `openai` (the user's own key), `service` (the
- * one above) or `off`. Empty from older servers: `service` when
- * `enabled`, else off.
+ * `device`, `server`, `openai` or `openrouter` (the user's own key),
+ * `service` (the one above) or `off`. Empty from older servers means
+ * `service` when `enabled`, otherwise off.
  */
 engine: string, 
 /**
@@ -51,6 +51,14 @@ server?: VoiceServer,
  * the OpenAI model service's). Read-only.
  */
 openai_key: boolean, 
+/**
+ * An OpenRouter key is saved for the exact OpenRouter service. Read-only.
+ */
+openrouter_key: boolean,
+/**
+ * ElevenLabs voice through OpenRouter. Empty uses `sarah`.
+ */
+openrouter_voice: string,
 /**
  * Recordings kept (`keep_audio`), and their total size. Read-only.
  */

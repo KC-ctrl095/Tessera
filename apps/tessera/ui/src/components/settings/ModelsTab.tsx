@@ -668,6 +668,13 @@ function ProviderCard(props: { p: ProviderInfo; onSignIn: () => void }) {
                     </span>
                   </div>
                   <span class="model-caps">
+                    {/* What the account's own catalog lists (OpenAI sign-ins and keys only). */}
+                    <Show when={m.cyber_access_programs?.includes("daybreak_blue")}>
+                      <span class="cap cap-daybreak" data-tip="Your account can turn Daybreak Blue on for this model, in a chat's options">
+                        <Icon name="shield" size={13} />
+                        <span>Daybreak</span>
+                      </span>
+                    </Show>
                     <Show when={m.vision}>
                       <span class="cap" data-tip="Understands images">
                         <Icon name="image" size={13} />

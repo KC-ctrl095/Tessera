@@ -1,5 +1,5 @@
 // Tiny per-pane command bus (slash commands / palette → pane header pickers).
-export type PaneAction = "model" | "thinking" | "permission" | "rename" | "context" | "fast" | "find";
+export type PaneAction = "model" | "thinking" | "permission" | "rename" | "context" | "fast" | "find" | "voice";
 
 const target = new EventTarget();
 

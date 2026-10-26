@@ -18,7 +18,7 @@ export class Pauses {
       if (!this.first) this.first = now;
       this.last = now;
     } else this.began = 0;
-    return { interrupt: !!this.began && now - this.began >= 450, finish: !!this.last && (now - this.last >= 1000 || now - this.first >= 115000) };
+    return { interrupt: !!this.began && now - this.began >= 320, finish: !!this.last && (now - this.last >= 800 || now - this.first >= 115000) };
   }
   get heard() { return !!this.last; }
 }

@@ -10,7 +10,7 @@
 // encrypted can't open one. Settings → Terminal: the choice and the record
 // (who, where, when; never what was typed). A phone gets the extra keys
 // (Esc, Tab, Ctrl, Alt, arrows, Paste). Like a native terminal (batch 17):
-// the system's monospace font, selecting copies, right-click pastes, Ctrl+C,
+// the bundled Iosevka Term font, selecting copies, right-click pastes, Ctrl+C,
 // Ctrl+K and the like reach the program while Alt+arrows/digits stay the
 // app's, find (Ctrl+Shift+F), text size (Ctrl+= / Ctrl+- / Ctrl+0), web links
 // open only with Ctrl+click, and the ⋯ menu switches between this server and
@@ -55,6 +55,7 @@ run(async () => {
   console.log("— the New menu, and a server where terminals are off");
   check(!(await xtermLoaded(p)), "the terminal (xterm.js) isn't loaded before a terminal opens");
   await p.click(`.topbar .tb-new-more`);
+  check(!(await p.eval(`performance.getEntriesByType('resource').some(e => /iosevka|terminal-font/.test(e.name))`)), "terminal font and its CSS are absent from startup");
   await sleep(250);
   const menu = await menuLabels(p);
   check(!menu.includes("Terminal") && menu[menu.length - 1] === "More", "New keeps Terminal one step deeper, under More", menu);
@@ -90,6 +91,9 @@ run(async () => {
   });
   check(!!first, "the terminal opens on the server and shows its first prompt", first?.slice(0, 120));
   check(await xtermLoaded(p), "xterm.js loads now");
+  const fontReady = await p.eval(`({ ready: document.querySelector('.term-screen').dataset.font, weights: [...document.fonts].filter(f => f.family.replaceAll('"','') === 'Tessera Terminal').map(f => ({weight:f.weight,status:f.status})) })`);
+  check(fontReady.ready === 'loaded' && fontReady.weights.length === 2 && fontReady.weights.every(f => f.status === 'loaded'), "both bundled font weights load before the terminal opens", fontReady);
+  check((await p.eval(`getComputedStyle(document.querySelector('.term-body')).backgroundColor`)) === 'rgb(12, 12, 12)', "classic near-black terminal background by default");
   check((await term(probe)).settings.access === "sandboxed", "the server's setting is sandboxed now");
   const sub = await p.eval(`document.querySelector('.term-tile .term-sub')?.textContent`);
   check(/Mock server · sandboxed/.test(sub ?? ""), "its header says where and how it is confined", sub);
@@ -157,7 +161,7 @@ run(async () => {
   console.log("— like a native terminal");
   const inputs = async () => (await term(probe)).terms[0].inputs.join("");
   const font = await p.eval(`getComputedStyle(document.querySelector('.term-tile .xterm-rows')).fontFamily`);
-  check(/monospace/.test(font) && !/Martian/.test(font), "the system's monospace font (it has box drawing characters), not the app's", font);
+  check(/Tessera Terminal/.test(font) && !/Martian/.test(font), "the bundled Iosevka face is used by xterm, not the app font", font);
   await p.eval(`window.__copied = null; navigator.clipboard.writeText = async (t) => { window.__copied = t; }`);
   await p.click(`[data-pane-id="${T}"] [aria-label="Terminal options"]`);
   await sleep(200);
@@ -168,6 +172,15 @@ run(async () => {
   await p.eval(`(() => { const r = document.querySelector('[data-pane-id="${T}"] .term-screen').getBoundingClientRect(); document.querySelector('[data-pane-id="${T}"] .xterm-screen').dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: r.x + 40, clientY: r.y + 40 })); })()`);
   await sleep(300);
   check((await inputs()).includes("from the right button"), "right-click pastes");
+  await p.eval(`navigator.clipboard.readText = async () => 'from shortcut'`);
+  await p.key('V', 'KeyV', 2 | 8, 86);
+  check(await waitFor(async () => (await inputs()).includes('from shortcut')), "Ctrl+Shift+V pastes exactly through the terminal");
+  await p.click(`[data-pane-id="${T}"] [aria-label="Terminal options"]`);
+  await sleep(150);
+  await p.clickText('.menu-item', 'Select all');
+  await p.eval(`window.__copied = null; document.querySelector('.xterm-helper-textarea').focus()`);
+  await p.key('C', 'KeyC', 2 | 8, 67);
+  check(/from shortcut/.test((await p.eval('window.__copied')) ?? ''), "Ctrl+Shift+C copies the terminal selection");
   check(!(await p.eval(`!!document.querySelector('.menu-pop')`)), "…without a menu of the page's own");
   await p.key("Escape", "Escape", 0, 27);
   await p.click(`[data-pane-id="${T}"] .term-screen`);
@@ -242,16 +255,33 @@ run(async () => {
     check(JSON.stringify(await p.eval(`window.__opened`)) === JSON.stringify(["https://example.com/docs"]), "Ctrl+click opens it in the browser", await p.eval(`window.__opened`));
   }
 
-  console.log("— light");
+  console.log("— titles, bell and terminal colours");
+  for (const command of ['title', 'title0']) {
+    await p.click(`[data-pane-id="${T}"] .term-screen`);
+    await p.type(`${command} My shell`); await p.key('Enter');
+    check(await waitFor(() => p.eval(`document.querySelector('.term-tile .title-static')?.textContent === 'My shell'`)), `${command}: OSC title shown in the tile header`);
+  }
+  await p.type('bell'); await p.key('Enter');
+  check(await waitFor(() => p.eval(`!!document.querySelector('.term-bell')`), 1000), 'bell briefly flashes the terminal border');
+  await sleep(250);
+  check(!(await p.eval(`!!document.querySelector('.term-bell')`)), 'bell flash clears without moving the layout');
   const colors = () => p.eval(`({ bg: getComputedStyle(document.querySelector('.term-tile .term-body')).backgroundColor, fg: getComputedStyle(document.querySelector('.term-tile .xterm-rows')).color })`);
   const dark = await colors();
-  await p.theme("light");
-  await sleep(300);
+  await p.theme('light'); await sleep(150);
+  check(JSON.stringify(await colors()) === JSON.stringify(dark), 'dark terminal remains dark when the app becomes light');
+  const chooseColors = async (choice) => {
+    await p.click(`[data-pane-id="${T}"] [aria-label="Terminal options"]`); await sleep(150);
+    await p.clickText('.menu-item', 'Colours'); await sleep(150);
+    await p.clickText('.menu-item', choice); await sleep(150);
+  };
+  await chooseColors('Light');
   const light = await colors();
-  const lum = (c) => (c.match(/\d+/g) ?? []).slice(0, 3).reduce((a, b) => a + Number(b), 0);
-  check(lum(dark.bg) < lum(dark.fg) && lum(light.bg) > lum(light.fg), "the terminal follows the theme (light text on dark, dark text on light)", { dark, light });
+  check(light.bg === 'rgb(255, 255, 255)' && light.fg === 'rgb(46, 52, 54)', 'Light gives dark text on white', light);
+  check((await p.eval(`localStorage.getItem('tessera.terminal.theme')`)) === 'light', 'terminal colour choice is saved on this device');
   await p.shot(`${SHOTS}/terminal-desktop-light.png`);
-  await p.theme("dark");
+  await chooseColors('Match app');
+  await p.theme('dark'); await sleep(150);
+  check(JSON.stringify(await colors()) === JSON.stringify(dark), 'Match app follows the app back to dark');
 
   console.log("— this device's alone");
   await sleep(600);
@@ -275,6 +305,7 @@ run(async () => {
   });
   check(!!back, "after a reload the tile shows the same terminal again, its last output redrawn", (await screen(p)).slice(-160));
   check((await term(probe)).terms.length === 1 && (await term(probe)).terms[0].id === id, "…the same one (nothing new opened)");
+  check((await p.eval(`localStorage.getItem('tessera.terminal.theme')`)) === 'match' && (await p.eval(`document.querySelector('.term-body').dataset.termTheme`)) === 'dark', 'terminal colour choice survives a reload');
 
   console.log("— back after the connection dropped");
   await mock("/__mock/drop");
@@ -451,13 +482,13 @@ run(async () => {
   const keys = await ph.eval(`[...document.querySelectorAll('.term-keys button')].map((b) => b.getAttribute('aria-label') || b.textContent.trim())`);
   check(JSON.stringify(keys) === JSON.stringify(["Esc", "Tab", "Ctrl", "Alt", "Left", "Up", "Down", "Right", "Paste"]), "the extra keys: Esc, Tab, Ctrl, Alt, the arrows and Paste", keys);
   const phoneFont = await ph.eval(`parseFloat(getComputedStyle(document.querySelector('.term-tile .xterm-rows')).fontSize)`);
-  check(phoneFont < 13, "the text is a little smaller on a narrow phone, so more fits", phoneFont);
+  check(phoneFont <= 13, "the narrow phone uses a readable 13 px face, so more fits", phoneFont);
   const fits = await ph.eval(`(() => { const r = document.querySelector('.term-keys').getBoundingClientRect(); return r.right <= innerWidth + 1 && r.left >= -1 && document.querySelector('.term-keys').scrollWidth <= r.width + 2; })()`);
   check(fits, "…all on screen at 344 px");
   const phoneDev = (await probe.rpc("list_devices")).result.filter((d) => d.name === "Phone").pop();
   const phoneTerm = (await term(probe)).terms.find((t) => t.owner === phoneDev?.id);
   const phoneId = phoneTerm?.id;
-  check(!!phoneTerm && phoneTerm.cols < 50 && phoneTerm.cols >= 20, "the server knows the phone's narrow size", phoneTerm && { cols: phoneTerm.cols, rows: phoneTerm.rows });
+  check(!!phoneTerm && phoneTerm.cols <= 52 && phoneTerm.cols >= 20, "the server knows the phone's narrow size", phoneTerm && { cols: phoneTerm.cols, rows: phoneTerm.rows });
   const tapKey = async (label) => {
     const b = await ph.eval(`(() => { const e = [...document.querySelectorAll('.term-keys button')].find((b) => (b.getAttribute('aria-label') || b.textContent.trim()) === ${JSON.stringify(label)}); const r = e.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; })()`);
     await ph.tap(b.x, b.y);

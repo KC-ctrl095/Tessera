@@ -4,9 +4,8 @@
 import { createEffect, createRoot } from "solid-js";
 import type { UserNotification } from "../proto/UserNotification";
 import { backend } from "./backend";
-import { inboxEpoch, inboxStatus, inboxUnread, resetInbox, setInboxItems, setInboxStatus, unread } from "./inboxState";
+import { inboxEpoch, inboxStatus, inboxUnread, resetInbox, setInboxItems, setInboxStatus } from "./inboxState";
 import { call, onBootstrapped, onSessionRemoved, state } from "./store";
-import { paneSession, workspace } from "./workspace";
 import { isTauri } from "./util";
 
 export * from "./inboxState";
@@ -14,13 +13,6 @@ export * from "./inboxState";
 let revision = 0;
 let watching = false;
 let timer: ReturnType<typeof setTimeout> | undefined;
-
-/** The chat on screen right now (in front, focused). */
-function onScreen(): string | undefined {
-  if (document.visibilityState !== "visible" || !document.hasFocus()) return undefined;
-  const f = workspace.focused();
-  return f ? paneSession(f)?.info.id : undefined;
-}
 
 export async function refreshInbox() {
   if (!state.ready || state.conn.state !== "connected") return;
@@ -31,10 +23,6 @@ export async function refreshInbox() {
     if (gen !== inboxEpoch() || rev !== revision) return;
     setInboxItems(list);
     setInboxStatus("ready");
-    // What happened in the chat the user is looking at is no news.
-    const here = onScreen();
-    const seen = here ? list.filter((n) => unread(n) && n.session_id === here).map((n) => n.id) : [];
-    if (seen.length) void readNotifications(seen).catch(() => {});
   } catch (e) {
     if (gen !== inboxEpoch() || rev !== revision) return;
     // No fallback to `list_notifications`: an older server can't promise who sees what here.

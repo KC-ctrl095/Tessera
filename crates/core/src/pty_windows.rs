@@ -178,6 +178,8 @@ mod tests {
             let (program, args) = shell_start(Path::new(shell));
             assert_eq!(program, shell);
             assert!(args.contains(&OsString::from("-NoExit")));
+            assert!(!args.contains(&OsString::from("-NoProfile")));
+            assert!(!args.contains(&OsString::from("-NonInteractive")));
             assert!(
                 args.last()
                     .unwrap()
@@ -230,6 +232,8 @@ mod tests {
         }));
         assert!(env.contains(&("Path".into(), "parent".into())));
         assert!(env.contains(&("TERM".into(), "xterm-256color".into())));
+        assert!(env.contains(&("COLORTERM".into(), "truecolor".into())));
+        assert!(env.contains(&("SHELL".into(), "pwsh.exe".into())));
     }
 
     #[test]

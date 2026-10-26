@@ -7,7 +7,7 @@
 use anyhow::Result;
 use rusqlite::{Connection, OptionalExtension, params};
 use serde::{Deserialize, Serialize};
-use tessera_proto::{SharedFile, UserNotification};
+use tessera_proto::{NotificationLevel, SharedFile, UserNotification};
 
 use super::Store;
 use crate::util::now_ms;
@@ -58,6 +58,8 @@ CREATE INDEX IF NOT EXISTS shared_files_board ON shared_files(board_id);
 /// Sent notifications kept (newest), and for how long.
 const KEEP_SENT: i64 = 500;
 const KEEP_SENT_MS: u64 = 30 * 86_400_000;
+/// An exact repeat groups into an unread alert this recent at most (6 h).
+const REPEAT_WINDOW_MS: u64 = 6 * 3_600_000;
 /// A device that was away longer than this doesn't get older ones.
 pub const PENDING_WINDOW_MS: u64 = 86_400_000;
 
@@ -136,6 +138,9 @@ pub struct NewNotification {
     pub replace: Replace,
     /// Stable job identity, independent of its per-run chat.
     pub source_key: String,
+    pub level: NotificationLevel,
+    pub source: String,
+    pub reason: String,
 }
 
 /// What [`Store::record_notification`] did.
@@ -164,6 +169,18 @@ struct NoteData {
     private: bool,
     #[serde(default, skip_serializing_if = "String::is_empty")]
     source_key: String,
+    #[serde(default)]
+    level: NotificationLevel,
+    #[serde(default)]
+    source: String,
+    #[serde(default)]
+    reason: String,
+    #[serde(default)]
+    repeat_count: u32,
+    #[serde(default)]
+    digest_done: bool,
+    #[serde(default)]
+    delivered: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -193,6 +210,11 @@ fn note_row(r: &rusqlite::Row) -> rusqlite::Result<UserNotification> {
         private: d.private,
         source_key: d.source_key,
         quiet: sent == QUIET,
+        level: d.level,
+        source: d.source,
+        reason: d.reason,
+        repeat_count: d.repeat_count.max(1),
+        grouped_into: None,
     })
 }
 
@@ -265,15 +287,15 @@ impl Store {
         store_call!(self.record_notification_once(n, window));
         let now = now_ms();
         let due = n.due_at.max(now);
-        let state = if n.quiet {
-            QUIET
-        } else if due <= now {
-            ALERT
-        } else {
+        let state = if due > now {
             SCHEDULED
+        } else if n.quiet {
+            QUIET
+        } else {
+            ALERT
         };
         let private = n.session_id.as_deref().is_some_and(|s| self.is_private(s));
-        let data = NoteData {
+        let mut data = NoteData {
             title: n.title.clone(),
             body: n.body.clone(),
             from: n.from.clone(),
@@ -281,8 +303,14 @@ impl Store {
             kind: n.kind.clone(),
             private,
             source_key: n.source_key.clone(),
+            level: n.level,
+            source: n.source.clone(),
+            reason: n.reason.clone(),
+            repeat_count: 1,
+            digest_done: false,
+            delivered: Vec::new(),
         };
-        let json = serde_json::to_string(&data)?;
+        let mut json = serde_json::to_string(&data)?;
         // A private chat's id is reserved here without anything about it:
         // the row goes in the same transaction.
         let reserved = if private {
@@ -315,12 +343,36 @@ impl Store {
             {
                 return Ok(None);
             }
-            let earlier = if !n.source_key.is_empty() && due <= now {
+            // An exact repeat from the same source is grouped (counted). A
+            // source's changed news stays a distinct item, except activity
+            // kept until read (one per chat and kind, like its helpers'
+            // reports), which its newer text replaces.
+            // Only into one still unread and recent: a request that comes
+            // again after the first was answered alerts again. What needs the
+            // user (approvals, passwords, errors) is never grouped this way.
+            let by_source = !n.source_key.is_empty()
+                && due <= now
+                && !matches!(
+                    n.kind.as_str(),
+                    "finished" | "test" | "digest" | "approval" | "secret" | "error"
+                );
+            let exact = if by_source {
                 tx.query_row(
-                    "SELECT id, data, sent FROM notifications WHERE sent != 0
+                    "SELECT id, data, sent FROM notifications WHERE sent != 0 AND seen = 0
+                       AND created_at >= ?6
                        AND coalesce(json_extract(data, '$.source_key'), '') = ?1
+                       AND json_extract(data, '$.title') = ?2 AND json_extract(data, '$.body') = ?3
+                       AND coalesce(json_extract(data, '$.kind'), '') = ?4
+                       AND coalesce(json_extract(data, '$.urgent'), 0) = ?5
                      ORDER BY id DESC LIMIT 1",
-                    [&n.source_key],
+                    params![
+                        n.source_key,
+                        n.title,
+                        n.body,
+                        n.kind,
+                        n.urgent,
+                        now.saturating_sub(REPEAT_WINDOW_MS) as i64
+                    ],
                     |r| {
                         Ok((
                             r.get::<_, i64>(0)?,
@@ -331,7 +383,13 @@ impl Store {
                 )
                 .optional()?
             } else {
-                match (&n.session_id, n.replace) {
+                None
+            };
+            let repeat = exact.is_some();
+            let earlier = match exact {
+                Some(found) => Some(found),
+                None if by_source && n.replace != Replace::Unread => None,
+                None => match (&n.session_id, n.replace) {
                     (Some(s), Replace::Unread | Replace::Same) => tx
                         .query_row(
                             &format!(
@@ -356,11 +414,29 @@ impl Store {
                         )
                         .optional()?,
                     _ => None,
-                }
+                },
             };
+            if n.urgent
+                && repeat
+                && let Some((_, old, _)) = &earlier
+            {
+                let prior: NoteData = serde_json::from_str(old)?;
+                data.repeat_count = prior.repeat_count.max(1).saturating_add(1);
+                json = serde_json::to_string(&data)?;
+            }
             let out = match earlier {
+                Some((id, old, _)) if repeat && !n.urgent => {
+                    let mut data: NoteData = serde_json::from_str(&old)?;
+                    data.repeat_count = data.repeat_count.max(1).saturating_add(1);
+                    data.reason = "repeat of an earlier alert, grouped".into();
+                    tx.execute(
+                        "UPDATE notifications SET data = ?2 WHERE id = ?1",
+                        params![id, serde_json::to_string(&data)?],
+                    )?;
+                    (id, Recorded::Same)
+                }
                 Some((id, old, sent))
-                    if n.source_key.is_empty()
+                    if !repeat
                         && sent == state
                         && serde_json::from_str::<NoteData>(&old).is_ok_and(|o| o == data) =>
                 {
@@ -411,6 +487,10 @@ impl Store {
         let stored = self
             .notification(id as u64)?
             .ok_or_else(|| anyhow::anyhow!("notification {id} went at once"))?;
+        let mut stored = stored;
+        if recorded == Recorded::Same && !n.source_key.is_empty() {
+            stored.grouped_into = Some(stored.id);
+        }
         Ok(Some((stored, recorded)))
     }
 
@@ -794,6 +874,118 @@ impl Store {
             .query_map([], |r| Ok((r.get(0)?, r.get(1)?)))?
             .collect::<Result<_, _>>()?;
         Ok(rows)
+    }
+
+    /// A successful OS post is distinct from an acknowledgement of suppression.
+    pub fn report_notification_delivery(&self, device: &str, ids: &[u64]) -> Result<()> {
+        store_call!(self.report_notification_delivery(device, ids));
+        self.on_both(|conn| {
+            for id in ids {
+                conn.execute("UPDATE notifications SET data = json_insert(json_set(data, '$.delivered', coalesce(json_extract(data, '$.delivered'), json('[]'))), '$.delivered[#]', ?2) WHERE id = ?1 AND NOT EXISTS (SELECT 1 FROM json_each(data, '$.delivered') WHERE value = ?2)", params![*id as i64, device])?;
+            }
+            Ok(Vec::<()>::new())
+        })?;
+        Ok(())
+    }
+
+    pub fn notification_delivered(&self, id: u64, device: &str) -> Result<bool> {
+        store_call!(self.notification_delivered(id, device));
+        Ok(self.on_both(|conn| {
+            Ok(vec![conn.query_row("SELECT EXISTS(SELECT 1 FROM notifications, json_each(data, '$.delivered') WHERE notifications.id = ?1 AND value = ?2)", params![id as i64, device], |r| r.get::<_, bool>(0))?])
+        })?.into_iter().any(|v| v))
+    }
+
+    /// Commit the summary and its consumption together. Private content never
+    /// enters a shared summary. An empty/read/muted digest sends nothing.
+    pub fn assemble_notification_digest(&self, now: u64) -> Result<Option<UserNotification>> {
+        store_call!(self.assemble_notification_digest(now));
+        let conn = self.conn.lock();
+        let tx = conn.unchecked_transaction()?;
+        let rows = query(
+            &tx,
+            "WHERE sent != 0 AND seen = 0 AND json_extract(data, '$.level') = 'digest' AND coalesce(json_extract(data, '$.digest_done'), 0) = 0 AND coalesce(json_extract(data, '$.kind'), '') != 'digest' ORDER BY id",
+            [],
+        )?;
+        if rows.is_empty() {
+            return Ok(None);
+        }
+        let mut groups = std::collections::BTreeMap::<String, (String, u32, Vec<String>)>::new();
+        for n in &rows {
+            let (_, count, titles) = groups.entry(n.source_key.clone()).or_insert_with(|| {
+                (
+                    if n.from.is_empty() {
+                        n.source.clone()
+                    } else {
+                        n.from.clone()
+                    },
+                    0,
+                    Vec::new(),
+                )
+            });
+            *count = count.saturating_add(n.repeat_count);
+            if titles.len() < 3 {
+                titles.push(if n.body.is_empty() {
+                    n.title.clone()
+                } else {
+                    format!(
+                        "{} · {}",
+                        n.title,
+                        n.body.chars().take(100).collect::<String>()
+                    )
+                });
+            }
+        }
+        let text = groups
+            .into_iter()
+            .map(|(_, (source, count, titles))| {
+                format!("{source} · {count} · {}", titles.join(", "))
+            })
+            .collect::<Vec<_>>()
+            .join("\n");
+        let data = NoteData {
+            title: "Your digest".into(),
+            body: if text.chars().count() > 600 {
+                format!(
+                    "{}\nOpen your inbox for all {} grouped updates.",
+                    text.chars().take(530).collect::<String>(),
+                    rows.len()
+                )
+            } else {
+                text
+            },
+            from: "Tessera".into(),
+            kind: "digest".into(),
+            source: "system".into(),
+            source_key: "system_digest".into(),
+            reason: "scheduled summary, without sound".into(),
+            level: NotificationLevel::Digest,
+            repeat_count: 1,
+            digest_done: true,
+            ..Default::default()
+        };
+        tx.execute(
+            "INSERT INTO notifications(created_at, due_at, sent, data) VALUES (?1, ?1, 1, ?2)",
+            params![now as i64, serde_json::to_string(&data)?],
+        )?;
+        let id = tx.last_insert_rowid() as u64;
+        for n in rows {
+            tx.execute(
+                "UPDATE notifications SET data = json_set(data, '$.digest_done', 1) WHERE id = ?1",
+                [n.id as i64],
+            )?;
+        }
+        tx.commit()?;
+        row_by_id(&conn, id)
+    }
+
+    /// Apply the delivery decision after a scheduled item becomes due.
+    pub fn update_notification_policy(&self, n: &UserNotification) -> Result<()> {
+        store_call!(self.update_notification_policy(n));
+        self.on_both(|conn| {
+            conn.execute("UPDATE notifications SET sent = ?2, data = json_set(data, '$.level', ?3, '$.reason', ?4) WHERE id = ?1", params![n.id as i64, if n.quiet { QUIET } else { ALERT }, serde_json::to_value(n.level)?.as_str(), n.reason])?;
+            Ok(Vec::<()>::new())
+        })?;
+        Ok(())
     }
 
     // ---- shared files ---------------------------------------------------

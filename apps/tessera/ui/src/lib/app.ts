@@ -65,7 +65,7 @@ export async function startApp() {
   window.addEventListener("focus", appResumed);
   window.addEventListener("online", appResumed);
   requestAnimationFrame(() => setTimeout(() => {
-    void import("./notificationPresence").then((m) => m.watchNotifications()).catch((e) => toastError(e, "Could not start notifications"));
+    void import("./startupPresence").then((m) => m.watchPresence()).catch((e) => toastError(e, "Could not start device entries"));
   }, 0));
   watchAlerts();
   // The notification center follows events once loaded, a moment after start (not on the first screen).

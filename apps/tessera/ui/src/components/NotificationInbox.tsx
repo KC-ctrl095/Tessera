@@ -14,7 +14,7 @@ import {
   setInboxOpen,
   unread,
 } from "../lib/notificationInbox";
-import { api } from "../lib/store";
+import { api, call } from "../lib/store";
 import { openSession } from "../lib/workspace";
 import { relTime } from "../lib/util";
 import { Icon, type IconName } from "./icons";
@@ -49,6 +49,10 @@ export default function NotificationInbox() {
     } finally {
       setBusy(false);
     }
+  };
+  const turnDown = async (n: UserNotification, mute: boolean) => {
+    await call({ method: "set_notification_source", params: { key: n.source_key!, level: mute || (n.level ?? (n.quiet ? "silent" : "page")) !== "page" ? "silent" : "digest" } });
+    await refreshInbox();
   };
   const open = async (n: UserNotification) => {
     if (!n.session_id || busy()) return;
@@ -152,7 +156,7 @@ export default function NotificationInbox() {
                       </span>
                       <span class="inbox-text">
                         <span class="inbox-item-head">
-                          <strong>{n.title}</strong>
+                          <strong>{n.title}<Show when={(n.repeat_count ?? 1) > 1}> ×{n.repeat_count}</Show></strong>
                           <time dateTime={new Date(n.due_at).toISOString()} title={when(n.due_at)}>
                             {n.sent ? relTime(n.due_at) : `at ${when(n.due_at)}`}
                           </time>
@@ -163,6 +167,7 @@ export default function NotificationInbox() {
                         <Show when={n.body}>
                           <span class="inbox-message">{n.body}</span>
                         </Show>
+                        <span class="inbox-meta">{n.level ? n.level[0].toUpperCase() + n.level.slice(1) : n.quiet ? "Silent" : "Page"} · {n.source || "chat"} · {n.reason || "a message for you"}</span>
                         <Show when={!n.sent}>
                           <span class="inbox-meta">Reminder, still to come</span>
                         </Show>
@@ -177,6 +182,12 @@ export default function NotificationInbox() {
                       <button type="button" class="inbox-mark" disabled={busy()} aria-label={`Clear “${n.title}”`} data-tip="Clear" onClick={() => void act(() => clearNotifications([n.id]), "Couldn't clear it. Try again.")}>
                         <Icon name="x" size={15} />
                       </button>
+                    </Show>
+                    <Show when={n.source_key && !n.private && n.kind !== "test" && n.kind !== "digest"}>
+                      <div class="inbox-source-actions">
+                        <button type="button" disabled={busy()} onClick={() => void act(() => turnDown(n, true), "Could not mute this source.")}>Mute this source</button>
+                        <button type="button" disabled={busy() || n.level === "silent"} onClick={() => void act(() => turnDown(n, false), "Could not turn down this source.")}>Less like this</button>
+                      </div>
                     </Show>
                   </li>
                 )}

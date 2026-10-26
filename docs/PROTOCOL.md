@@ -8,6 +8,41 @@ bindings are generated into `apps/tessera/ui/src/proto/` with:
 TS_RS_EXPORT_DIR="$PWD/apps/tessera/ui/src/proto" cargo test -p tessera-proto --features ts
 ```
 
+## Lightweight session catalog
+
+`hello.session_list_pages` is true on servers supporting `list_session_page`.
+If absent or false, use legacy `list_sessions` unchanged. Old clients still
+receive complete SessionInfo rows, including task ledgers and idle job runs.
+
+`list_session_page` takes `archived` (false by default), `limit` (100 by default,
+clamped to 1–200), `before` (nullable SessionListCursor), and `include_ids` (open
+tiles, first 128 IDs). It returns `{sessions, next_cursor}`. The cursor is
+`{updated_at, id}` with a strict descending timestamp/ID keyset. A null cursor
+means the catalog is complete. Cursors are not offsets or a frozen snapshot.
+Live mutations arrive through existing session events. Do not replace newer
+event metadata with an older in-flight page.
+
+Rows retain SessionInfo list fields, including preview, model, usage, context,
+bot/channel identity, unread sequence, pin, archive, revision and status. The
+durable `task` ledger is absent. List rows must not erase a loaded chat's ledger.
+Open the chat for full metadata and its newest history page. First pages also
+include pinned, running/waiting, authorized private and explicitly open sessions,
+even outside the recent window. Extras do not move the cursor. Later pages
+contain ordinary chats/channels only. Idle helpers/jobs are not in the catalog.
+Open chats supply children and the jobs view fetches run history on demand.
+Explicit IDs obey the same private-device visibility rule. Private summaries
+are memory-only.
+
+The UI paints the first page and restored tiles before fetching the remaining
+lightweight catalog in yielding pages. This preserves older-chat sidebar search,
+bot profiles and the launcher without thousands of idle job runs. Archived
+pages are requested on demand. Reconnect keeps rendered tiles, resyncs revision
+cursors and refetches cheap metadata, not full ledgers.
+
+`sessions.summary` and `sessions.list_kind` are maintained by triggers on every
+persistent `info` write. Initialization backfills missing summaries. Private
+sessions never enter this projection. The legacy full-row query stays intact.
+
 ## HTTP endpoints (server)
 
 | Method | Path              | Auth | Purpose |
@@ -972,25 +1007,31 @@ write-only and never reach a model.
 
 See [VOICE.md](VOICE.md) for the design. `get_voice` / `save_voice { config,
 api_key? }` read and change `VoiceConfig`: `engine` is where speech is handled
-(`auto`, `device`, `server`, `openai`, `service`, `off`), `server_model`
+(`auto`, `device`, `server`, `openai`, `openrouter`, `service`, `off`), `server_model`
 (`auto`/`tiny`/`base`) and `server_voice` pick the server's model and voice,
 `keep_audio` keeps recordings. Read-only parts: `server` (`VoiceServer`: state
 `ready`/`missing`/`installing`/`failed`/`unsupported`, bytes still to download,
-progress, `listen`/`speak`/`live`, the voices offered), `openai_key`, `kept` and
-`kept_bytes`. `enabled`…`has_key` describe "another transcription service"
+progress, `listen`/`speak`/`live`, the voices offered), `openai_key`,
+`openrouter_key`, `kept` and `kept_bytes`. `openrouter_voice` is a stock ElevenLabs
+voice ID, default `sarah`. Both key fields are read-only booleans and never keys.
+`enabled`…`has_key` describe "another transcription service"
 (`api_key` is write-only, as before). An older app's `save_voice` (no
 `engine`) switches that service on (`service`) or off (back to `auto`).
 
-- `transcribe { audio, mime, engine?, partial?, operation? }` → `Transcript { text,
+- `transcribe { audio, mime, engine?, language?, partial?, operation? }` → `Transcript { text,
   engine }`. WAV is what the server's engine reads (Opus/AAC only if the
   server has ffmpeg). `engine` may only be what the choice allows: the server's
   own engine wherever the server handles speech; `openai`/`service` only when
   chosen (`bad_request` otherwise, nothing sent). `partial: true` asks for the
   words so far: never kept, never sent to a paid service, and `busy` while the
-  server's engine works on another recording.
+  server's engine works on another recording. Optional `language` is a short
+  device-language hint such as `en-US`, used only if no language is saved. It is
+  normalized to the primary code, validated and never persisted. This skips
+  local Whisper language detection when a device language is available.
 - `speak { text ≤ 4,000 chars, engine?, operation? }` → `SpeechAudio { audio (base64),
-  mime: audio/wav | audio/mpeg, ms }`: the server's voice, or OpenAI's when
-  OpenAI is the choice.
+  mime: audio/wav | audio/mpeg, ms }`: the server's voice, OpenAI's or
+  OpenRouter's when explicitly chosen. OpenRouter uses ElevenLabs v4 Turbo MP3
+  and GPT-4o mini transcription. No paid service receives partial transcription.
 - `cancel_voice { operation }` → null. Optional operation ids (1–128 bytes)
   belong to the sending connection. Stop cancels its partial/final STT or TTS,
   dropping the future and cleaning the child tree and scratch without closing
@@ -1003,6 +1044,15 @@ progress, `listen`/`speak`/`live`, the voices offered), `openai_key`, `kept` and
 - `delete_voice_recordings` → `VoiceConfig`.
 - `ServerInfo.voice` stays "the server can transcribe now" (older apps show
   their microphone by it); `ServerInfo.voice_engine` carries the choice.
+- `openrouter` reuses an API-key credential only from a provider configured at
+  the exact canonical HTTPS OpenRouter `/api/v1` address, or an eligible
+  `OPENROUTER_API_KEY` saved in Passwords & keys. The dispatch address is fixed
+  server-side, uses TLS verification, no redirects, bounded responses and the
+  same per-operation cancellation. `save_voice` rejects it without a key.
+  `openrouter_voice` accepts only the stock voice IDs listed in settings.
+- A voice-off client can offer an inline explicit engine choice, then call
+  `save_voice` and resume `start(true)`. Opening that choice must not open the
+  microphone or send audio. An available key does not change Automatic.
 
 ## Terminal chats (lean)
 
@@ -1805,6 +1855,12 @@ connections never get the event). A scheduled one is sent once with
 | `cancel_notification { id }` | `null` |
 | `list_notification_inbox` | the notification center: this device's scheduled reminders (soonest first), then up to 500 from the last 30 days (newest first, by `due_at`), read and quiet ones included; whatever the device's `notify` choice |
 | `clear_notifications { ids }` | `null`: forget these sent ones (scheduled ones stay); every device gets `notifications_seen { ids }` |
+| `get_notification_policy` | `NotificationPolicy` shared by devices |
+| `set_notification_policy { policy }` | the saved policy, preserving separately edited source rules |
+| `set_notification_source { key, level }` | saved policy, level is `page`, `digest`, `silent` or null to restore |
+| `test_notification { delay_secs? }` | urgent `UserNotification`, up to an hour ahead, bypasses source and device opt-outs |
+| `notification_deliveries { id }` | `{ device_id, name, delivered }[]`, only accepted OS posts count |
+| `report_notification_delivery { ids }` | null, authenticated device's report, distinct from suppression acknowledgement |
 
 ### The notification center
 
@@ -1823,19 +1879,35 @@ downgrade can't turn one into an alert). An empty
 it marks nothing read and withdraws nothing (older apps ignore it), and it
 reaches devices with `notify` off too, without content.
 
-What is listed: agents' messages and reminders; long work (`notify_after_minutes`,
-an alert as before); a top-level chat's turn of a minute or more that ends
-(quiet, one per chat until read, not when the agent notified the user itself
-or helpers still work for it); an approval or question unanswered after 30 s
-(quiet, one per chat until read, read once answered); helpers' reports to a
-chat (quiet, counted in one item per chat until read); each scheduled run
-(one item per run, updated when the run continues: failed, paused and
-interrupted runs alert, finished and stopped ones are quiet); the end of a
-job's schedule (quiet). A quiet item about a chat's activity read within a
-minute of its last change is deleted instead of kept as read (it was never
-news). Shells map `kind` to their own settings (`job` → Scheduled tasks,
-`finished` → long tasks, `error` → errors) and no longer alert on
-`job_updated`.
+The server assigns `level` (`page`, `digest`, `silent`), `source` (bot,
+chat, job, helper, system or external), stable `source_key`, a short plain
+`reason` and `repeat_count` (at least one). Missing fields have serde defaults
+and TypeScript fields are optional for old servers. An ordinary exact repeat
+returns `grouped_into` with the original id and increments the existing count.
+Changed text has a fresh id and stays as a separate item. Urgent revisions
+always remain deliverable, even when repeated. No per-source time throttle
+can hide a first occurrence or urgent flag.
+
+`NotificationPolicy` is `{ hourly, daily_at, quiet, quiet_from, quiet_to,
+sources }`. Times are minutes after midnight in the server's local zone.
+Default daily time is 1080 (18:00), quiet hours are off. Daily allows up to
+four valid times. Source rules are `{ key, name, level }` ceilings and are
+set separately. Quiet hours move ordinary Page to Digest. Urgent bypasses
+quiet hours and viewing suppression, not explicit owner source ceilings.
+Tests bypass both ceilings and device opt-outs, but never OS permission.
+
+Digest members are `quiet=true`. A single summary is `kind=digest`,
+`level=digest`, `quiet=false` so the normal delivery path carries it without
+sound. Shared digests exclude private, read and muted items. Assembly and
+consumption are atomic. Empty digests send nothing. Daily/hourly scheduling
+is persisted and a missed time produces one catch-up summary.
+
+Presence is per device, not global. A desktop tile cannot hide a phone page.
+Viewing acknowledges only on that device. Explicit reads and entering a
+chat can still mark observed alerts read everywhere. New alerts arriving
+while a tile stays open do not implicitly become globally read. Accepted
+platform posts report delivery separately from `ack_notifications`; old
+clients may only acknowledge and therefore never claim a delivery receipt.
 
 Visibility is checked per request: `list_*`, `pending_notifications` and the
 id actions (`ack`, `seen`, `cancel`, `clear`) leave out or refuse
@@ -1850,11 +1922,12 @@ everything else working.
 
 ### Scheduled jobs: runs and limits
 
-Changed notification content gets a fresh `id` (the revision), with the previous
-id withdrawn by `notifications_seen`. Reads, clears and acknowledgements use
-the specific observed id; a stale request cannot consume newer content.
-A reconnect/app downgrade must negotiate typed notifications again. Without
-negotiation a new server sends no automatic payload on the legacy alert route.
+Changed notification content gets a fresh `id` (the revision). Reads, clears
+and acknowledgements use the specific observed id. A stale request cannot
+consume newer content. Distinct source results stay in the inbox while
+OS cards group under their stable source key. A reconnect/app downgrade must
+negotiate typed notifications again. Without negotiation a new server sends
+no automatic payload on the legacy alert route.
 
 Local cron, at-times and until use timezone rules for the target instant:
 Linux zoneinfo, Android system tzdata, Windows IANA bundle/CLDR mapping. Gaps

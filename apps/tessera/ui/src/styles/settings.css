@@ -2398,3 +2398,7 @@ button.card:hover {
 .help-legal-note {
   margin: 4px 0 0;
 }
+
+/* Voice setup remains easy to choose and preview on narrow touch devices. */
+#set-voice .input,
+#set-voice .btn { min-height: 44px; }

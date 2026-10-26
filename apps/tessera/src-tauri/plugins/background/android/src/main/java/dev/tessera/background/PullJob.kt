@@ -120,6 +120,7 @@ class PullJob : JobService() {
         for (i in 0 until a.length()) Notifications.withdraw(ctx, a.optString(i))
       }
       val accepted = org.json.JSONArray()
+      val delivered = org.json.JSONArray()
       o.optJSONArray("suppressed")?.let { a -> for (i in 0 until a.length()) accepted.put(a.getLong(i)) }
       synchronized(NotificationPrivacy.policyLock) {
         o.optJSONArray("posts")?.let { a ->
@@ -127,6 +128,7 @@ class PullJob : JobService() {
             val p = a.optJSONObject(i) ?: continue
             val args = PostArgs()
             args.tag = p.optString("tag")
+            args.notificationId = if (p.has("notificationId") && !p.isNull("notificationId")) p.getLong("notificationId") else null
             args.sessionId = p.optString("sessionId").takeIf { it.isNotEmpty() && !p.isNull("sessionId") }
             args.urgent = p.optBoolean("urgent")
             args.title = p.optString("title")
@@ -139,13 +141,14 @@ class PullJob : JobService() {
             args.`when` = p.optLong("when", 0)
             if (Notifications.post(ctx, args) && p.has("notificationId")) {
               accepted.put(p.getLong("notificationId"))
+              delivered.put(p.getLong("notificationId"))
             }
           }
         }
       }
       val dir = prefs(ctx).getString("dir", null)
       if (dir != null && accepted.length() > 0 && o.has("ackServer") && o.has("ackKey")) {
-        Native.ack(dir, JSONObject().put("server", o.getString("ackServer")).put("key", o.getString("ackKey")).put("ids", accepted).toString())
+        Native.ack(dir, JSONObject().put("server", o.getString("ackServer")).put("key", o.getString("ackKey")).put("ids", accepted).put("delivered", delivered).toString())
       }
       val wake = o.optLong("wakeAt", 0)
       if (wake > 0) wakeAt(ctx, wake)

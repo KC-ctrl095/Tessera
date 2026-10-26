@@ -958,9 +958,39 @@ wire! {
         Unknown,
     }
 
+    /// The server decides the level. Missing on old messages means Page.
+    #[derive(Copy, Eq, Default)]
+    #[serde(rename_all = "snake_case")]
+    pub enum NotificationLevel { #[default] Page, Digest, Silent }
+
+    #[derive(Default)]
+    #[serde(default)]
+    pub struct NotificationPolicy {
+        pub hourly: bool,
+        /// Minutes after midnight in the server's local time. Empty uses 18:00.
+        pub daily_at: Vec<u16>,
+        pub quiet: bool,
+        pub quiet_from: u16,
+        pub quiet_to: u16,
+        pub sources: Vec<NotificationSourceRule>,
+    }
+
+    pub struct NotificationSourceRule {
+        pub key: String,
+        pub name: String,
+        pub level: NotificationLevel,
+    }
+
+    pub struct NotificationDelivery {
+        pub device_id: String,
+        pub name: String,
+        /// The device reported an accepted OS post, not proof the person saw it.
+        pub delivered: bool,
+    }
     /// A message for the user from an agent (`notify`) or a test from
     /// Settings. Devices that take notifications show it as a system
     /// notification; tapping it opens `session_id`.
+    #[derive(Default)]
     pub struct UserNotification {
         #[cfg_attr(feature = "ts", ts(type = "number"))]
         pub id: u64,
@@ -1005,6 +1035,22 @@ wire! {
         #[serde(default, skip_serializing_if = "String::is_empty")]
         #[cfg_attr(feature = "ts", ts(as = "Option<String>", optional))]
         pub source_key: String,
+        #[serde(default)]
+        #[cfg_attr(feature = "ts", ts(as = "Option<NotificationLevel>", optional))]
+        pub level: NotificationLevel,
+        /// bot, chat, job, helper, system or external.
+        #[serde(default)]
+        #[cfg_attr(feature = "ts", ts(as = "Option<String>", optional))]
+        pub source: String,
+        #[serde(default)]
+        #[cfg_attr(feature = "ts", ts(as = "Option<String>", optional))]
+        pub reason: String,
+        #[serde(default)]
+        #[cfg_attr(feature = "ts", ts(as = "Option<u32>", optional))]
+        pub repeat_count: u32,
+        #[serde(default)]
+        #[cfg_attr(feature = "ts", ts(optional, type = "number"))]
+        pub grouped_into: Option<u64>,
     }
 
     /// What one device missed (`pending_notifications`).
@@ -1139,10 +1185,26 @@ wire! {
         pub snippet: String,
     }
 
+    /// Stable newest-first keyset boundary, shared by active and archived lists.
+    pub struct SessionListCursor {
+        #[cfg_attr(feature = "ts", ts(type = "number"))]
+        pub updated_at: u64,
+        pub id: String,
+    }
+
+    /// List metadata only. `task` is deliberately absent in these SessionInfo
+    /// rows. Open the chat for its full durable task ledger.
+    pub struct SessionListPage {
+        pub sessions: Vec<SessionInfo>,
+        pub next_cursor: Option<SessionListCursor>,
+    }
     pub struct ServerInfo {
         pub name: String,
         pub version: String,
         pub protocol: u32,
+        /// Cheap paged session metadata is supported. Absent on older servers.
+        #[serde(default)]
+        pub session_list_pages: bool,
         pub home: String,
         pub default_model: Option<ModelRef>,
         /// Speech-to-text is configured.
@@ -1987,9 +2049,9 @@ wire! {
         #[serde(default)]
         pub has_key: bool,
         /// `auto` (the device's own private engine, else the server's),
-        /// `device`, `server`, `openai` (the user's own key), `service` (the
-        /// one above) or `off`. Empty from older servers: `service` when
-        /// `enabled`, else off.
+        /// `device`, `server`, `openai` or `openrouter` (the user's own key),
+        /// `service` (the one above) or `off`. Empty from older servers means
+        /// `service` when `enabled`, otherwise off.
         #[serde(default)]
         pub engine: String,
         /// Recordings sent to the server are kept in its data folder.
@@ -2009,6 +2071,12 @@ wire! {
         /// the OpenAI model service's). Read-only.
         #[serde(default)]
         pub openai_key: bool,
+        /// An OpenRouter key is saved for the exact OpenRouter service. Read-only.
+        #[serde(default)]
+        pub openrouter_key: bool,
+        /// ElevenLabs voice through OpenRouter. Empty uses `sarah`.
+        #[serde(default)]
+        pub openrouter_voice: String,
         /// Recordings kept (`keep_audio`), and their total size. Read-only.
         #[serde(default)]
         pub kept: u32,
@@ -2061,7 +2129,7 @@ wire! {
 
     pub struct Transcript {
         pub text: String,
-        /// The engine that heard it (`server`, `openai`, `service`).
+        /// The engine that heard it (`server`, `openai`, `openrouter`, `service`).
         #[serde(default, skip_serializing_if = "String::is_empty")]
         #[cfg_attr(feature = "ts", ts(as = "Option<String>", optional))]
         pub engine: String,
@@ -2070,7 +2138,7 @@ wire! {
     /// Speech made from text (`speak`): base64 audio.
     pub struct SpeechAudio {
         pub audio: String,
-        /// `audio/wav` (the server's voice) or `audio/mpeg` (OpenAI).
+        /// `audio/wav` (the server's voice) or `audio/mpeg` (cloud speech).
         pub mime: String,
         /// Length in milliseconds (0 when unknown).
         #[cfg_attr(feature = "ts", ts(type = "number"))]
@@ -3214,6 +3282,14 @@ wire! {
         Hello { client: String, version: String },
         /// → `Vec<SessionInfo>`
         ListSessions { #[serde(default)] archived: bool },
+        /// → `SessionListPage`. Cheap bounded metadata, not full chat details.
+        ListSessionPage {
+            #[serde(default)] archived: bool,
+            #[serde(default)] limit: Option<u32>,
+            #[serde(default)] before: Option<SessionListCursor>,
+            /// Open tiles, even if old, archived, private, a helper or a job.
+            #[serde(default)] include_ids: Vec<String>,
+        },
         /// → `SessionInfo`
         CreateSession {
             #[serde(default)] cwd: Option<String>,
@@ -3751,7 +3827,7 @@ wire! {
         /// → `VoiceConfig`. `api_key` is write-only; omit to keep the stored one.
         SaveVoice { config: VoiceConfig, #[serde(default)] api_key: Option<String> },
         /// → `Transcript`. `audio` is base64 (wav is best; webm/ogg/mp3/m4a).
-        /// `engine`: `server`, `openai` or `service`, only as the voice setting
+        /// `engine`: `server`, `openai`, `openrouter` or `service`, only as the voice setting
         /// allows (absent: what the setting picks). `partial`: the words so
         /// far while the user still speaks (never kept; refused while the
         /// server's engine is busy).
@@ -3761,6 +3837,10 @@ wire! {
             #[serde(default, skip_serializing_if = "Option::is_none")]
             #[cfg_attr(feature = "ts", ts(optional))]
             engine: Option<String>,
+            /// Device language hint when no language is saved, e.g. `en-US`.
+            #[serde(default, skip_serializing_if = "Option::is_none")]
+            #[cfg_attr(feature = "ts", ts(optional))]
+            language: Option<String>,
             /// Client-selected id, scoped to this connection; `cancel_voice` drops the operation.
             #[serde(default, skip_serializing_if = "Option::is_none")]
             #[cfg_attr(feature = "ts", ts(optional))]
@@ -3863,6 +3943,18 @@ wire! {
         /// read ones included, quiet ones too. Independent of this device's
         /// system notification choice. Older servers reject it.
         ListNotificationInbox,
+        /// → NotificationPolicy. Shared by all devices.
+        GetNotificationPolicy,
+        /// → NotificationPolicy. Source rules are changed separately.
+        SetNotificationPolicy { policy: NotificationPolicy },
+        /// → NotificationPolicy. Set a ceiling, or null to restore defaults.
+        SetNotificationSource { key: String, level: Option<NotificationLevel> },
+        /// → UserNotification. Urgent test through the real delivery path.
+        TestNotification { #[serde(default)] #[cfg_attr(feature = "ts", ts(as = "Option<f64>", optional))] delay_secs: u64 },
+        /// → Vec<NotificationDelivery>. Accepted OS posts for an alert.
+        NotificationDeliveries { #[cfg_attr(feature = "ts", ts(type = "number"))] id: u64 },
+        /// → null. Only after the platform accepted posting these alerts.
+        ReportNotificationDelivery { #[cfg_attr(feature = "ts", ts(type = "Array<number>"))] ids: Vec<u64> },
         /// → `UserNotification`. Send one to the devices that take them, now
         /// or `delay_secs` from now (Settings: "Send a test").
         SendNotification {

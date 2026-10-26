@@ -1,4 +1,4 @@
-import { For, Match, Show, Switch, createEffect, createMemo, createResource, createSignal, on, onCleanup } from "solid-js";
+import { For, Match, Show, Suspense, Switch, createEffect, createMemo, createResource, createSignal, lazy, on, onCleanup } from "solid-js";
 import { connectionGeneration } from "../../lib/connectionGeneration";
 import type { Bot } from "../../proto/Bot";
 import { api, botById, ensureLoaded, isBotDm, isBusy, isRoom, modelLabel, state, type SessionState } from "../../lib/store";
@@ -20,6 +20,8 @@ import { GoalStrip } from "./TaskLedger";
 import { Transcript, type FollowHandle } from "./Transcript";
 import { createVoiceHost, VoiceContext } from "../../lib/voice-host";
 import { onPaneAction } from "../../lib/bus";
+
+const VoiceChoice = lazy(() => import("./VoiceChoice"));
 
 const SUGGESTIONS: { icon: IconName; text: string }[] = [
   { icon: "search", text: "Explain how this project is organized" },
@@ -46,7 +48,10 @@ export function ChatPane(props: { paneId: string }) {
   };
   const [detached, setDetached] = createSignal(false);
   let follow: FollowHandle | undefined;
-  onCleanup(onPaneAction(props.paneId, (action) => { if (action === "find") follow?.find(); }));
+  onCleanup(onPaneAction(props.paneId, (action) => {
+    if (action === "find") follow?.find();
+    else if (action === "voice" && state.ready && !document.hidden) void voiceHost.start(true);
+  }));
   const voiceHost = createVoiceHost(props.paneId, session);
 
   createEffect(
@@ -84,6 +89,7 @@ export function ChatPane(props: { paneId: string }) {
       <Show when={session()} keyed>
         {(s) => <SubagentBarSlot session={s} />}
       </Show>
+      <Show when={voiceHost.choice()}><Suspense><VoiceChoice host={voiceHost} /></Suspense></Show>
       <Show
         when={sid() && !empty()}
         fallback={

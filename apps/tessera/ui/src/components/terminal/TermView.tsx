@@ -5,20 +5,20 @@
 // that starts anywhere but where drawing stopped is the kept output coming
 // again after a reconnect: the screen is drawn afresh from it.
 //
-// It behaves like a native terminal: the system's monospace font (the app's
-// own has no box or block characters), at its natural line height so those
+// It behaves like a native terminal: a bundled monospace face, loaded before
+// measuring cells, at its natural line height so box and block characters
 // join up, Unicode 11 widths (emoji, CJK), 256 and true colour, 10,000 lines
 // to scroll back, find, text size. Selecting copies; right-click, Ctrl+Shift+V or Shift+Insert
 // pastes; Ctrl+click opens a web link. Every key goes to the program, except
 // the few the app uses to move between tiles (`leftToApp`).
 import "@xterm/xterm/css/xterm.css";
+import "../../styles/terminal-font.css";
 import { FitAddon } from "@xterm/addon-fit";
 import { SearchAddon } from "@xterm/addon-search";
 import { Unicode11Addon } from "@xterm/addon-unicode11";
 import { WebLinksAddon } from "@xterm/addon-web-links";
-import { Terminal, type ITheme } from "@xterm/xterm";
+import { Terminal } from "@xterm/xterm";
 import { createEffect, onCleanup, onMount } from "solid-js";
-import { resolvedTheme } from "../../lib/prefs";
 import {
   attachTerminal,
   closeTerminal,
@@ -33,13 +33,14 @@ import {
   saveFontSize,
   savedFontSize,
   TERM_FONT,
+  TERMINAL_THEMES,
   termAck,
   termInput,
   termResize,
   watchTerminal,
   type TerminalInfo,
 } from "../../lib/terminal";
-import { confirmDialog, promptDialog, toast, toastError } from "../../lib/ui";
+import { confirmDialog, promptDialog, toastError } from "../../lib/ui";
 import { copyText, openExternal } from "../../lib/util";
 
 export interface TermViewHandle {
@@ -65,6 +66,8 @@ export interface TermViewProps {
   termId?: string;
   machine: string | null;
   touch: boolean;
+  theme: "dark" | "light";
+  onTitle: (title: string) => void;
   /** Turn the next key typed into Ctrl or Alt with it (the extra row's sticky keys); returns what to send. */
   modify?: (data: string) => string;
   onOpened: (info: TerminalInfo) => void;
@@ -79,55 +82,21 @@ export interface TermViewProps {
 const ACK_BYTES = 32 << 10;
 const ACK_MS = 60;
 
-const DARK: ITheme = {
-  black: "#2b2724",
-  red: "#e4826a",
-  green: "#8fc48a",
-  yellow: "#e2c172",
-  blue: "#86a8e0",
-  magenta: "#c79ad2",
-  cyan: "#7cc5c0",
-  white: "#d9d2c6",
-  brightBlack: "#7a7268",
-  brightRed: "#f19a83",
-  brightGreen: "#a8d8a2",
-  brightYellow: "#f0d38f",
-  brightBlue: "#a2bff0",
-  brightMagenta: "#dcb2e5",
-  brightCyan: "#98dad5",
-  brightWhite: "#f4efe7",
-};
-
-const LIGHT: ITheme = {
-  black: "#2b2724",
-  red: "#b23a24",
-  green: "#2f7a32",
-  yellow: "#8a6410",
-  blue: "#2f56a8",
-  magenta: "#86407e",
-  cyan: "#1d7a74",
-  white: "#6f685f",
-  brightBlack: "#5b544b",
-  brightRed: "#c94a30",
-  brightGreen: "#3a8f3d",
-  brightYellow: "#9c7424",
-  brightBlue: "#3d5ca8",
-  brightMagenta: "#9a4c90",
-  brightCyan: "#25877f",
-  brightWhite: "#2b2724",
-};
-
-function themeOf(el: HTMLElement, light: boolean): ITheme {
-  const css = getComputedStyle(el);
-  const v = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback;
-  return {
-    ...(light ? LIGHT : DARK),
-    background: v("--pane-bg", light ? "#f8f5ef" : "#1d1b19"),
-    foreground: v("--text", light ? "#211e1a" : "#ece6dc"),
-    cursor: v("--accent", "#d4af5f"),
-    cursorAccent: v("--pane-bg", "#1d1b19"),
-    selectionBackground: light ? "rgba(156, 116, 36, 0.28)" : "rgba(212, 175, 95, 0.32)",
-  };
+/** The CSS is loaded with this chunk. Measure only after both real weights are ready. */
+let fontsReady: Promise<boolean> | undefined;
+function loadFonts(): Promise<boolean> {
+  return fontsReady ??= Promise.all([
+    document.fonts.load('400 14px "Tessera Terminal"'),
+    document.fonts.load('700 14px "Tessera Terminal"'),
+  ]).then((faces) => {
+    const loaded = faces.every((f) => f.length > 0);
+    if (!loaded) fontsReady = undefined;
+    return loaded;
+  }, () => {
+    // Offline or a damaged asset: the terminal still works in its fallback face.
+    fontsReady = undefined;
+    return false;
+  });
 }
 
 export default function TermView(props: TermViewProps) {
@@ -142,16 +111,27 @@ export default function TermView(props: TermViewProps) {
   let ackTimer: ReturnType<typeof setTimeout> | undefined;
   let resizeTimer: ReturnType<typeof setTimeout> | undefined;
   let unwatch: (() => void) | undefined;
+  let bellTimer: ReturnType<typeof setTimeout> | undefined;
+  let selTimer: ReturnType<typeof setTimeout> | undefined;
+  let ro: ResizeObserver | undefined;
+  let opened = false;
 
   const term = new Terminal({
     cursorBlink: true,
+    cursorStyle: "block",
+    cursorInactiveStyle: "outline",
+    fontWeight: "400",
+    fontWeightBold: "700",
+    drawBoldTextInBrightColors: false,
+    theme: TERMINAL_THEMES[props.theme],
     fontFamily: TERM_FONT,
     fontSize: savedFontSize() ?? defaultFontSize(props.touch),
     lineHeight: 1,
     scrollback: 10_000,
     // For Unicode 11 character widths (the `unicode` interface is still marked experimental).
     allowProposedApi: true,
-    // Links open only through the web links handler below (http and https, with Ctrl or a tap).
+    // Links open only through openLink below (http and https, with Ctrl or a tap),
+    // also the program's own (OSC 8) links, set once openLink exists.
     linkHandler: null,
   });
   const fit = new FitAddon();
@@ -174,6 +154,8 @@ export default function TermView(props: TermViewProps) {
     e.preventDefault();
     void openExternal(uri);
   };
+  // OSC 8 links would otherwise go through xterm's own window.open.
+  term.options.linkHandler = { activate: (e, uri) => void openLink(e, uri), allowNonHttpProtocols: false };
   term.loadAddon(
     new WebLinksAddon((e, uri) => void openLink(e, uri), {
       hover: (_e, uri) => {
@@ -245,7 +227,7 @@ export default function TermView(props: TermViewProps) {
   };
 
   const refit = () => {
-    if (!host.offsetWidth || !host.offsetHeight) return;
+    if (!opened || !host.offsetWidth || !host.offsetHeight) return;
     try {
       fit.fit();
     } catch {
@@ -292,22 +274,21 @@ export default function TermView(props: TermViewProps) {
   }
 
   const pasteClipboard = async () => {
+    if (disposed || ended) return;
     let text: string | null = null;
     try {
       text = await navigator.clipboard.readText();
     } catch {
-      // Phones' web views rarely let a page read the clipboard: a field takes the system's own Paste instead.
-      if (props.touch) {
-        text = await promptDialog({
-          title: "Paste into the terminal",
-          body: "Touch and hold in the field, choose Paste, then Paste here.",
-          label: "Text",
-          confirmLabel: "Paste",
-        });
-      } else {
-        toast({ level: "info", message: "Press Ctrl+Shift+V to paste" });
-      }
+      if (disposed || ended) return;
+      // Where clipboard reads are denied, use a normal field's system Paste.
+      text = await promptDialog({
+        title: "Paste into the terminal",
+        body: props.touch ? "Touch and hold in the field, choose Paste, then Paste here." : "Paste into the field with Ctrl+V, then choose Paste.",
+        label: "Text",
+        confirmLabel: "Paste",
+      });
     }
+    if (disposed || ended) return;
     if (text) term.paste(text);
     term.focus();
   };
@@ -320,102 +301,121 @@ export default function TermView(props: TermViewProps) {
     refit();
   };
 
+  const onContext = (e: MouseEvent) => {
+    if (props.touch) return;
+    e.preventDefault();
+    void pasteClipboard();
+  };
+
   onMount(() => {
-    term.open(host);
-    refit();
-    term.onData((data) => {
-      if (!id || ended) return;
-      typeIn(props.modify ? props.modify(data) : data);
+    // Keep this task separate from the component lifetime. Closing a tile while
+    // the fonts load must never open a late shell or focus a disposed terminal.
+    void loadFonts().then((loaded) => {
+      if (disposed) return;
+      host.dataset.font = loaded ? "loaded" : "fallback";
+      if (!loaded) term.options.fontFamily = '"DejaVu Sans Mono", Consolas, monospace';
+      host.setAttribute("aria-busy", "false");
+      term.open(host);
+      opened = true;
+      refit();
+      term.onData((data) => {
+        if (!id || ended) return;
+        typeIn(props.modify ? props.modify(data) : data);
+      });
+      term.onResize(() => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(tellSize, 80);
+      });
+      // Selecting copies, as in a native terminal, once the selection settles. Only the
+      // system clipboard is used here: the fallback would take the keyboard from the terminal.
+      term.onSelectionChange(() => {
+        clearTimeout(selTimer);
+        if (props.touch) return;
+        selTimer = setTimeout(() => {
+          const sel = term.getSelection();
+          if (sel) void navigator.clipboard?.writeText(sel).catch(() => {});
+        }, 120);
+      });
+      term.onTitleChange((title) => props.onTitle(title.replace(/[\x00-\x1f\x7f-\x9f\u061c\u200b-\u200f\u2028-\u202e\u2066-\u2069\ufeff]/g, "").trim().slice(0, 200)));
+      term.onBell(() => {
+        host.classList.add("term-bell");
+        clearTimeout(bellTimer);
+        bellTimer = setTimeout(() => host.classList.remove("term-bell"), 160);
+      });
+      term.attachCustomKeyEventHandler((e) => {
+        if (e.type !== "keydown") return true;
+        // The app's own keys for moving between tiles pass through.
+        if (leftToApp(e)) return false;
+        const key = e.key.toLowerCase();
+        const mod = e.ctrlKey || e.metaKey;
+        if ((e.ctrlKey && e.shiftKey && key === "c") || (e.metaKey && !e.shiftKey && key === "c")) {
+          const sel = term.getSelection();
+          if (sel) void copyText(sel);
+          e.preventDefault();
+          return false;
+        }
+        // Browser paste shortcuts vary across WebKit, WebView2 and Chromium.
+        // Read on this user gesture instead of leaving Ctrl+Shift+V to the browser.
+        if ((e.ctrlKey && e.shiftKey && key === "v") || (e.metaKey && !e.shiftKey && key === "v") || (e.shiftKey && !mod && e.key === "Insert")) {
+          e.preventDefault();
+          void pasteClipboard();
+          return false;
+        }
+        if (mod && e.shiftKey && key === "f") {
+          e.preventDefault();
+          props.onFind?.();
+          return false;
+        }
+        // Text size, as terminals do it: Ctrl+= / Ctrl++ bigger, Ctrl+- smaller, Ctrl+0 back to the default.
+        if (mod && !e.altKey && (key === "=" || key === "+" || key === "-" || key === "0")) {
+          e.preventDefault();
+          zoom(key === "-" ? -1 : key === "0" ? 0 : 1);
+          return false;
+        }
+        return true;
+      });
+      // Right-click pastes. Linux PRIMARY selection is left to xterm/the OS,
+      // rather than pretending the ordinary clipboard is the middle-click buffer.
+      host.addEventListener("contextmenu", onContext);
+      ro = new ResizeObserver(refit);
+      ro.observe(host);
+      props.handle({
+        copy: () => term.getSelection(),
+        paste: (text) => term.paste(text),
+        pasteClipboard,
+        selectAll: () => term.selectAll(),
+        clear: () => term.clear(),
+        focus: () => term.focus(),
+        send: typeIn,
+        hasSelection: () => term.hasSelection(),
+        find: (text, back) => (back ? search.findPrevious(text) : search.findNext(text)),
+        findDone: () => {
+          search.clearDecorations();
+          term.clearSelection();
+          term.focus();
+        },
+        zoom,
+      });
+      if (id) {
+        unwatch = watchTerminal(id, handlers);
+        void attach();
+      } else void open();
+      term.focus();
     });
-    term.onResize(() => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(tellSize, 80);
-    });
-    // Selecting copies, as in a native terminal, once the selection settles. Only the
-    // system clipboard is used here: the fallback would take the keyboard from the terminal.
-    let selTimer: ReturnType<typeof setTimeout> | undefined;
-    term.onSelectionChange(() => {
-      clearTimeout(selTimer);
-      if (props.touch) return;
-      selTimer = setTimeout(() => {
-        const sel = term.getSelection();
-        if (sel) void navigator.clipboard?.writeText(sel).catch(() => {});
-      }, 120);
-    });
-    onCleanup(() => clearTimeout(selTimer));
-    term.attachCustomKeyEventHandler((e) => {
-      if (e.type !== "keydown") return true;
-      // The app's own keys for moving between tiles pass through.
-      if (leftToApp(e)) return false;
-      const key = e.key.toLowerCase();
-      const mod = e.ctrlKey || e.metaKey;
-      if ((e.ctrlKey && e.shiftKey && key === "c") || (e.metaKey && !e.shiftKey && key === "c")) {
-        const sel = term.getSelection();
-        if (sel) void copyText(sel);
-        e.preventDefault();
-        return false;
-      }
-      // The browser's own paste follows (xterm.js takes it from there).
-      if ((e.ctrlKey && e.shiftKey && key === "v") || (e.metaKey && !e.shiftKey && key === "v") || (e.shiftKey && !mod && e.key === "Insert")) return false;
-      if (mod && e.shiftKey && key === "f") {
-        e.preventDefault();
-        props.onFind?.();
-        return false;
-      }
-      // Text size, as terminals do it: Ctrl+= / Ctrl++ bigger, Ctrl+- smaller, Ctrl+0 back to the default.
-      if (mod && !e.altKey && (key === "=" || key === "+" || key === "-" || key === "0")) {
-        e.preventDefault();
-        zoom(key === "-" ? -1 : key === "0" ? 0 : 1);
-        return false;
-      }
-      return true;
-    });
-    // Right-click pastes (what you selected is on the clipboard already).
-    const onContext = (e: MouseEvent) => {
-      if (props.touch) return;
-      e.preventDefault();
-      void pasteClipboard();
-    };
-    host.addEventListener("contextmenu", onContext);
-    const ro = new ResizeObserver(refit);
-    ro.observe(host);
-    onCleanup(() => {
-      ro.disconnect();
-      host.removeEventListener("contextmenu", onContext);
-    });
-    props.handle({
-      copy: () => term.getSelection(),
-      paste: (text) => term.paste(text),
-      pasteClipboard,
-      selectAll: () => term.selectAll(),
-      clear: () => term.clear(),
-      focus: () => term.focus(),
-      send: typeIn,
-      hasSelection: () => term.hasSelection(),
-      find: (text, back) => (back ? search.findPrevious(text) : search.findNext(text)),
-      findDone: () => {
-        search.clearDecorations();
-        term.clearSelection();
-        term.focus();
-      },
-      zoom,
-    });
-    if (id) {
-      unwatch = watchTerminal(id, handlers);
-      void attach();
-    } else void open();
-    term.focus();
   });
 
   createEffect(() => {
-    const light = resolvedTheme() === "light";
-    term.options.theme = themeOf(host ?? document.documentElement, light);
+    term.options.theme = TERMINAL_THEMES[props.theme];
   });
 
   onCleanup(() => {
     disposed = true;
     clearTimeout(ackTimer);
     clearTimeout(resizeTimer);
+    clearTimeout(bellTimer);
+    clearTimeout(selTimer);
+    ro?.disconnect();
+    host?.removeEventListener("contextmenu", onContext);
     unwatch?.();
     // The view went (Start again, another place, or the tile closed, which closes
     // the terminal too): it waits for this device a short while. Tiles in other
@@ -424,5 +424,5 @@ export default function TermView(props: TermViewProps) {
     term.dispose();
   });
 
-  return <div class="term-screen" ref={host} data-term-id={props.termId ?? ""} />;
+  return <div class="term-screen" ref={host} aria-label="Terminal" aria-busy="true" data-term-id={props.termId ?? ""} />;
 }

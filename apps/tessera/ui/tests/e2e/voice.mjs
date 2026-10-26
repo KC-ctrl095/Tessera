@@ -19,6 +19,7 @@ const fakeDevice = `(() => {
 })()`;
 async function until(p, expression, note) {
   for (let i = 0; i < 100; i++) { if (await p.eval(expression)) return; await sleep(100); }
+  console.log('voice timeout', note, await p.eval(`({ phase: document.querySelector('.voice-status')?.dataset.phase, note: document.querySelector('.voice-status')?.textContent, errors: [...document.querySelectorAll('.toast,.part-error,.form-error')].map(e => e.textContent), preview: window.__preview, engine: document.querySelector('[aria-label="Where speech is handled"]')?.value, buttons: [...document.querySelectorAll('#set-voice button')].map(e => [e.textContent, e.disabled]) })`), p.errors);
   throw Error(`Timed out: ${note}`);
 }
 const phase = (value) => `document.querySelector('.voice-status')?.dataset.phase === '${value}'`;
@@ -121,6 +122,9 @@ run(async () => {
   await p.eval(`document.querySelector('#set-voice form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))`);
   await until(p, `document.querySelector('#set-voice').textContent.includes('Save your OpenAI API key')`, 'missing key validation');
   check((await p.eval(apiCall('getVoice', ''))).engine === 'auto', 'OpenAI cannot be selected without saved API key');
+  await p.eval(`(() => { const s = document.querySelector('[aria-label="Where speech is handled"]'); s.value = 'openrouter'; s.dispatchEvent(new Event('change', { bubbles: true })); document.querySelector('#set-voice form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); })()`);
+  await until(p, `document.querySelector('#set-voice').textContent.includes('Save your OpenRouter API key')`, 'missing OpenRouter key validation');
+  check((await p.eval(apiCall('getVoice', ''))).engine === 'auto', 'OpenRouter cannot be selected without a saved key');
   await p.eval(`(() => { const s = document.querySelector('[aria-label="Where speech is handled"]'); s.value = 'service'; s.dispatchEvent(new Event('change', { bubbles: true })); })()`);
   await until(p, `!!document.querySelector('#set-voice input[type=password]')`, 'service key field');
   await p.eval(`__mod('lib/store.ts').then(m => { const original = m.api.saveVoice; m.api.saveVoice = async (config, key) => { window.__submittedKey = key; await new Promise(resolve => { window.__finishSave = resolve; }); m.api.saveVoice = original; return original(config, key); }; const model = [...document.querySelectorAll('#set-voice label')].find(label => label.querySelector('.field-label')?.textContent === 'Model').querySelector('input'); model.value = 'fixture-model'; model.dispatchEvent(new Event('input', { bubbles: true })); const address = document.querySelector('#set-voice input[placeholder="http://127.0.0.1:8080/v1"]'); address.value = 'http://127.0.0.1:8080/v1'; address.dispatchEvent(new Event('input', { bubbles: true })); const key = document.querySelector('#set-voice input[type=password]'); key.value = 'fixture-submitted-key'; key.dispatchEvent(new Event('input', { bubbles: true })); document.querySelector('#set-voice form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); })`);
@@ -134,13 +138,57 @@ run(async () => {
   await p.eval(`(() => { const s = document.querySelector('[aria-label="Where speech is handled"]'); s.value = 'off'; s.dispatchEvent(new Event('change', { bubbles: true })); document.querySelector('#set-voice form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); })()`);
   await until(p, `__mod('lib/store.ts').then(m => m.state.server.voice_engine === 'off')`, 'Off saved');
   await p.key('Escape', 'Escape', 0, 27); await sleep(250);
-  check(await p.eval(`!document.querySelector('[aria-label="Voice input"]') && !document.querySelector('[aria-label="Start voice conversation"]')`), 'Off hides both buttons');
+  check(await p.eval(`!!document.querySelector('[aria-label="Voice input"]') && !!document.querySelector('[aria-label="Start voice conversation"]')`), 'Off keeps explicit turn-on controls available');
+  await p.click('[aria-label="Start voice conversation"]'); await until(p, `!!document.querySelector('.voice-choice')`, 'voice off choice');
+  check(await p.eval(`document.querySelector('.voice-choice').textContent.includes('Voice is off')`), 'Off offers private choices before any capture');
+  await p.clickText('.voice-choice button', 'Not now');
   await p.eval(`__mod('lib/store.ts').then(async m => { await m.call({ method: 'mock_voice', params: { openai_key: true } }); const c = await m.api.getVoice(); await m.api.saveVoice({ ...c, engine: 'openai' }); m.setState('server', await m.api.hello()); })`);
   await p.click('[aria-label="Voice input"]'); await until(p, phase('listening'), 'explicit OpenAI mock choice'); await sleep(3300);
   await p.key('Enter', 'Enter', 0, 13); await until(p, `!document.querySelector('.voice-status')`, 'OpenAI mock transcription');
   const cloud = await p.eval(`__mod('lib/store.ts').then(m => m.call({ method: 'mock_voice', params: {} }))`);
   check(cloud.requests.filter(r => r.method === 'transcribe' && r.engine === 'openai').length === 1, 'explicit saved-key choice sends one cloud transcription (mock only)');
   check(!cloud.requests.some(r => r.engine === 'openai' && r.partial), 'cloud choice never uses repeated paid live-word requests');
+  await p.eval(`__mod('lib/store.ts').then(async m => { await m.call({ method: 'mock_voice', params: { openrouter_key: true } }); const c = await m.api.getVoice(); await m.api.saveVoice({ ...c, engine: 'openrouter', openrouter_voice: 'george' }); m.setState('server', await m.api.hello()); });`);
+  await p.eval(`__mod('lib/workspace.ts').then(m => m.setDraft(m.workspace.focused(), ''))`);
+  const played = await p.eval(`__audio.played`);
+  await p.click('[aria-label="Start voice conversation"]'); await until(p, phase('listening'), 'OpenRouter conversation'); await sleep(1100);
+  await p.eval(`__voiceGain.gain.value = 0`);
+  await until(p, `__audio.played > ${played}`, 'OpenRouter answer MP3 playback');
+  const router = await p.eval(`__mod('lib/store.ts').then(m => m.call({ method: 'mock_voice', params: {} }))`);
+  check(router.requests.filter(r => r.method === 'transcribe' && r.engine === 'openrouter').length === 1 && !router.requests.some(r => r.engine === 'openrouter' && r.partial), 'OpenRouter conversation transcribes once, with no paid partials');
+  check(router.requests.some(r => r.method === 'transcribe' && r.engine === 'openrouter' && r.language === 'en'), 'cloud input carries a device-language hint without changing shared settings');
+  check(router.requests.some(r => r.method === 'speak' && r.engine === 'openrouter' && r.voice === 'george'), 'OpenRouter conversation uses the saved voice for speech');
+  await p.click('.voice-status button');
   await p.close();
+  for (const [label, w, h, mobile] of [['desktop', 1440, 900, false], ['phone', 344, 812, true], ['fold', 841, 701, true]]) for (const theme of ['dark', 'light']) {
+    await mock('/__mock/reset'); await mock('/__mock/mosaics/reset');
+    const s = await device(); await s.viewport(w, h, mobile, mobile ? 2 : 1); await signIn(s, `Router ${label}`); await s.theme(theme);
+    await s.eval(`window.SpeechRecognition = class {}; window.__preview = { played: 0, paused: 0 }; window.Audio = class { play() { __preview.played++; return Promise.resolve(); } pause() { __preview.paused++; } removeAttribute() {} load() {} }; __mod('lib/store.ts').then(async m => { await m.call({ method: 'mock_voice', params: { openrouter_key: true, live: false } }); });`);
+    await s.eval(`__mod('lib/ui.ts').then(m => m.openSettings('voice'))`);
+    await until(s, `document.querySelector('#set-voice')?.textContent.includes('For quicker, more natural conversations')`, 'private speech recommendation');
+    check((await s.eval(apiCall('getVoice', ''))).engine === 'auto', `${label}/${theme}: recommendation leaves Automatic private`);
+    await s.eval(`(() => { const e = document.querySelector('[aria-label="Where speech is handled"]'); e.value = 'openrouter'; e.dispatchEvent(new Event('change', { bubbles: true })); const v = document.querySelector('[aria-label="OpenRouter voice"]'); v.value = 'george'; v.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+    // DOM activation keeps this functional check independent of animated modal
+    // scroll positioning. A separate hit-area assertion covers the control size.
+    await s.eval(`[...document.querySelectorAll('#set-voice button')].find(e => e.textContent.includes('Save and preview voice')).click()`);
+    await until(s, `__preview.played === 1`, 'explicit short voice preview');
+    check((await s.eval(apiCall('getVoice', ''))).openrouter_voice === 'george', `${label}/${theme}: preview saves chosen voice explicitly`);
+    await s.eval(`[...document.querySelectorAll('#set-voice button')].find(e => e.textContent.includes('Stop preview')).click()`);
+    check(await s.eval(`__preview.paused > 0 && document.documentElement.scrollWidth <= innerWidth`), `${label}/${theme}: preview stops and settings fit`);
+    check(await hitArea(s, '[aria-label="OpenRouter voice"]'), `${label}/${theme}: voice choice keeps a 44px hit area`);
+    await s.shot(`${SHOTS}/voice-settings-${label}-${theme}.png`);
+    await s.key('Escape', 'Escape', 0, 27);
+    await s.eval(`__mod('lib/store.ts').then(async m => { await m.api.saveVoice({ ...await m.api.getVoice(), engine: 'off' }); m.setState('server', 'voice_engine', 'off'); window.__micStarts = 0; const original = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices); navigator.mediaDevices.getUserMedia = (...args) => { __micStarts++; return original(...args); }; })`);
+    await s.click('[aria-label="Start voice conversation"]');
+    await until(s, `!!document.querySelector('.voice-choice')`, 'off recovery inline choice');
+    check(await s.eval(`__micStarts === 0 && document.querySelector('.voice-choice').textContent.includes('Voice is off')`), `${label}/${theme}: off entry offers choices without recording`);
+    check(await hitArea(s, '.voice-choice .btn-primary'), `${label}/${theme}: one-tap OpenRouter choice keeps a 44px hit area`);
+    await s.shot(`${SHOTS}/voice-choice-${label}-${theme}.png`);
+    await s.clickText('.voice-choice button', 'Use OpenRouter (your key)');
+    await until(s, phase('listening'), 'explicit engine choice starts listening');
+    check(await s.eval(`__micStarts === 1 && !document.querySelector('.voice-choice')`), `${label}/${theme}: one choice starts the original conversation once`);
+    await s.click('.voice-status button');
+    check(!s.errors.length, `${label}/${theme}: voice settings have no browser errors`, s.errors); await s.close();
+  }
   finish();
 });

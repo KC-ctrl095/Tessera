@@ -5,6 +5,59 @@ cargo test --workspace --exclude tessera-app     # 96 tests, ~10 s
 cd apps/tessera/ui && npm run build              # UI typecheck + build
 cd apps/tessera/ui && npm run mock               # UI against a scripted fake server (dev only)
 ```
+## Real-server launch benchmark (opt-in)
+
+`session-list.mjs` is in the normal mock e2e run. The heavier launch test is
+separate. It starts a real `tessera serve` with a newly marked synthetic home,
+empty HOME/XDG directories, no scheduler and a configured inert local model.
+It never reads production data or credentials. Allow about 3 GB for the dataset
+and more for the build. On a shared machine, run it at low priority so other work keeps going.
+
+```sh
+# Build the binary using your own CARGO_TARGET_DIR first.
+timeout 3600 nice -n 19 ionice -c3 env \
+  TESSERA_PERF_BIN=/absolute/path/to/tessera \
+  PERF_WORK=/absolute/path/to/a-new-output-directory \
+  PERF_PORT=18101 CDP_PORT=9441 \
+  CHROMIUM="$HOME/.local/share/tessera-browser/chrome" \
+  LAUNCH_PROFILE=1 bash scripts/launch-perf.sh
+```
+
+Run outside a `.git` directory, or rsync into a staging directory first as for
+normal e2e. Dependencies must already be installed in the UI directory. The
+runner refuses an existing output home. `LAUNCH_FULL=0` keeps all metadata but
+only the five largest histories. Default full mode models a heavy long-term user: 6,774
+sessions (chats, scheduled-job runs, helpers, channels), 489,230 entries and
+approximately 2.9 GB of synthetic bodies. The five large chats have
+17,844, 12,648, 11,480, 7,711 and 6,706 entries. `shape.json` records actual bytes.
+
+The measurement build is a production Vite build with opt-in source probes.
+It alone bypasses the bundle-byte check because instrumentation adds bytes.
+A separate normal `npm run build` MUST pass unchanged startup and size gates.
+No probes or bypass are shipped in normal builds.
+
+Chromium uses encrypted Noise `/web/`, desktop and 390/344 px phone viewports,
+4x/6x CPU throttling, browser-cache-cold and warm reloads, restored newest
+messages and reconnect. JSON metrics record each RPC's response bytes and
+client-observed duration, decrypt/parse, metadata installation, snapshot
+installation/render work, long tasks, sidebar/newest paint, and out-of-renderer
+CDP composer input-to-animation-frame latency. `LAUNCH_PROFILE=1` saves CPU
+profiles. `ONLY=phone-4x` limits cases. `LAUNCH_CHECKS=1 ONLY=desktop` additionally
+checks old pins, older sidebar search, helper counts, jobs, archive and bot/private
+reconnect. Pairing is inserted only into the explicitly marked throwaway store.
+The runner cleans up only its own server and start-identity-verified browser.
+
+For exact list-store read and serialization timings, stop that throwaway server
+and run the ignored Rust component benchmark below. It is not whole-RPC server
+time. Chromium RPC duration includes transport, scheduling, decrypt and parse.
+
+```sh
+TESSERA_LAUNCH_STORE=/your/output/home cargo test -p tessera-core --lib \
+  launch_store_component_timings -- --ignored --nocapture
+```
+
+For old-server fallback, run normal mock smoke/history tests with
+`MOCK_LEGACY_SESSION_LIST=1`. New mock servers negotiate paging by default.
 
 ## Automated suites
 

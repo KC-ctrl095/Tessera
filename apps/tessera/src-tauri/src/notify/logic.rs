@@ -214,6 +214,8 @@ pub(crate) struct Note {
     pub silent: bool,
     /// An agent asked for this one to alert like an approval.
     urgent_agent: bool,
+    server_policy: bool,
+    test: bool,
 }
 
 impl Note {
@@ -254,6 +256,8 @@ impl Note {
             when: None,
             silent: false,
             urgent_agent: false,
+            server_policy: false,
+            test: false,
         }
     }
 
@@ -286,6 +290,9 @@ impl Note {
             from: Some(clip(&n.from, TITLE_MAX)).filter(|f| !f.is_empty()),
             when: Some(n.due_at),
             urgent_agent: n.urgent,
+            server_policy: !n.reason.is_empty(),
+            test: n.kind == "test",
+            silent: n.level == tessera_proto::NotificationLevel::Digest,
             ..Self::new(
                 &key,
                 session,
@@ -362,12 +369,13 @@ fn limit_body_with(
 /// kind's setting, and what the server says about a chat or a job only with
 /// previews on; the final OS boundary reapplies the current policy.
 pub(crate) fn server_note(settings: &Settings, n: &UserNotification) -> Option<Note> {
-    if n.quiet || n.kind == "helper" { return None; }
+    if n.quiet || (n.kind == "helper" && !n.urgent) { return None; }
     let mut note = Note::agent(n);
+    if n.urgent { note.kind = Kind::Agent; }
     if n.source_key.is_empty() && note.session.is_none() {
         note.key = agent_key(n.id);
     }
-    if !settings.wants(note.kind) {
+    if n.kind != "test" && !settings.wants(note.kind) {
         return None;
     }
     if n.private || !settings.previews {
@@ -427,6 +435,7 @@ pub(crate) struct Ack {
     epoch: u64,
     client_epoch: Option<u64>,
     client_instance: Option<u64>,
+    delivered: bool,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -799,6 +808,7 @@ impl Inner {
             epoch: self.transport_epoch,
             client_epoch: None,
             client_instance: self.client_instance,
+            delivered: false,
         })
     }
 
@@ -832,6 +842,7 @@ impl Inner {
             epoch: note.transport_epoch,
             client_epoch: note.client_epoch,
             client_instance: note.client_instance,
+            delivered: true,
         }))
     }
 
@@ -857,7 +868,7 @@ impl Inner {
         let Some(note) = server_note(self.settings(), n) else {
             return vec![self.acknowledge(vec![n.id])];
         };
-        if self.foreground || !self.wants(note.kind) {
+        if (self.foreground && !note.server_policy && !note.test) || (!note.test && !self.wants(note.kind)) {
             return vec![self.acknowledge(vec![n.id])];
         }
         let mut out = Vec::new();
@@ -1186,10 +1197,11 @@ impl Inner {
         {
             note.generic();
         }
-        if self.foreground || !self.wants(note.kind) {
+        if !note.test && ((self.foreground && !note.server_policy) || !self.wants(note.kind)) {
             return None;
         }
         if let Some(last) = self.last_posted.get(&note.key).copied()
+            && !note.server_policy && !note.urgent_agent
             && now < last + PER_SESSION
         {
             match self.queued.get_mut(&note.key) {
@@ -1223,7 +1235,7 @@ impl Inner {
         }
         self.last_posted.insert(note.key.clone(), now);
         self.shown.insert(note.key.clone(), note.kind);
-        note.silent = self.settings().quiet_now();
+        note.silent |= !note.server_policy && self.settings().quiet_now() && !note.urgent_agent;
         Some(Action::Post(note))
     }
 

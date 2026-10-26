@@ -34,6 +34,20 @@ run(async () => {
       }
       const denied = await w.rpc('set_session_daybreak', { session_id: sid, enabled: true });
       check(!!denied.error, `${tag} server refuses unconfirmed Blue access`);
+      // Blue on the account's other model only: the toggle shows, says where it moves the chat, and does.
+      await catalog(p, 'programs=elsewhere', 'm.cyber_access_programs?.join() === "standard"');
+      await options(p);
+      await p.waitFor(`document.querySelector(${JSON.stringify(toggle)})`);
+      check(await p.eval(`document.querySelector('.pop-options').textContent.includes('Turning it on switches this chat to GPT-6.')`), `${tag} a model without Blue names the model it moves to`);
+      await p.click(toggle);
+      await p.waitFor(`__mod('lib/store.ts').then(s => { const i = s.state.sessions[${JSON.stringify(sid)}].info; return i.daybreak === true && i.model.model === 'gpt-6'; })`);
+      const moved = (await w.rpc('get_session', { session_id: sid })).result.info;
+      check(moved.daybreak === true && moved.model.model === 'gpt-6', `${tag} turning it on moves the chat to a model that offers Blue`, moved.model);
+      if (tag === 'phone-dark') await p.shot(`${SHOTS}/daybreak-elsewhere-${tag}.png`);
+      await close(p);
+      await w.rpc('set_session_daybreak', { session_id: sid, enabled: false });
+      await w.rpc('update_session', { session_id: sid, model: ref });
+      await p.waitFor(`__mod('lib/store.ts').then(s => s.state.sessions[${JSON.stringify(sid)}].info.model.model === 'gpt-5.5')`);
       await catalog(p, 'programs=blue&authenticated=0', '!p.authenticated');
       await options(p);
       check(!await p.eval(`!!document.querySelector(${JSON.stringify(toggle)})`), `${tag} signed-out account hides the control even with catalog metadata`);

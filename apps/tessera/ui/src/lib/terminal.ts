@@ -8,6 +8,8 @@
 // all again" (see `TermView`).
 //
 // This module is the only place that knows the wire shapes.
+import { createSignal } from "solid-js";
+import type { ITheme } from "@xterm/xterm";
 import type { Event } from "../proto/Event";
 import type { TerminalInfo } from "../proto/TerminalInfo";
 import type { TerminalSettings } from "../proto/TerminalSettings";
@@ -197,8 +199,8 @@ export const FONT_MAX = 28;
 
 /** The text size terminals start at on this device: smaller on narrow phone screens so more fits. */
 export function defaultFontSize(touch: boolean, width = window.innerWidth): number {
-  if (!touch) return 13;
-  return width < 420 ? 11.5 : 12.5;
+  if (!touch) return 14;
+  return width < 420 ? 13 : 14;
 }
 
 /** The text size chosen on this device (Ctrl+= / Ctrl+- / Ctrl+0, or the ⋯ menu), if any. */
@@ -220,5 +222,41 @@ export function saveFontSize(size: number | null) {
   }
 }
 
-/** The font: the system's own monospace fonts, which draw box and block characters (the app's font doesn't). */
-export const TERM_FONT = 'ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", "Noto Sans Mono", "Liberation Mono", "Droid Sans Mono", monospace';
+/** The bundled terminal face, loaded by TermView only. Other scripts can still fall back to the system. */
+export const TERM_FONT = '"Tessera Terminal", "DejaVu Sans Mono", Consolas, monospace';
+
+export type TerminalTheme = "dark" | "light" | "match";
+const THEME_KEY = "tessera.terminal.theme";
+function savedTerminalTheme(): TerminalTheme {
+  try {
+    const v = localStorage.getItem(THEME_KEY);
+    if (v === "light" || v === "match") return v;
+  } catch { /* private mode */ }
+  return "dark";
+}
+const [terminalTheme, updateTerminalTheme] = createSignal<TerminalTheme>(savedTerminalTheme());
+export { terminalTheme };
+export function setTerminalTheme(theme: TerminalTheme) {
+  updateTerminalTheme(theme);
+  try { localStorage.setItem(THEME_KEY, theme); } catch { /* this view only */ }
+}
+
+/** GNOME Terminal's Tango ANSI palette. Light keeps its hues with stronger contrast on white. */
+export const TERMINAL_THEMES: Record<"dark" | "light", ITheme> = {
+  dark: {
+    background: "#0c0c0c", foreground: "#d3d7cf", cursor: "#d3d7cf", cursorAccent: "#0c0c0c",
+    selectionBackground: "#3b5068", selectionForeground: "#ffffff", selectionInactiveBackground: "#343e4a",
+    black: "#2e3436", red: "#cc0000", green: "#4e9a06", yellow: "#c4a000",
+    blue: "#3465a4", magenta: "#75507b", cyan: "#06989a", white: "#d3d7cf",
+    brightBlack: "#555753", brightRed: "#ef2929", brightGreen: "#8ae234", brightYellow: "#fce94f",
+    brightBlue: "#729fcf", brightMagenta: "#ad7fa8", brightCyan: "#34e2e2", brightWhite: "#eeeeec",
+  },
+  light: {
+    background: "#ffffff", foreground: "#2e3436", cursor: "#2e3436", cursorAccent: "#ffffff",
+    selectionBackground: "#bdd4ef", selectionForeground: "#17293d", selectionInactiveBackground: "#dce3eb",
+    black: "#2e3436", red: "#a40000", green: "#386b05", yellow: "#806600",
+    blue: "#204a87", magenta: "#5c3566", cyan: "#006b70", white: "#555753",
+    brightBlack: "#676b65", brightRed: "#c01c28", brightGreen: "#447d10", brightYellow: "#8a7000",
+    brightBlue: "#3465a4", brightMagenta: "#864a86", brightCyan: "#087c80", brightWhite: "#777b75",
+  },
+};

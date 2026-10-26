@@ -942,7 +942,10 @@ impl AuthStore {
             bots: None,
             on_server: true,
             on_machines: Vec::new(),
-            machines_default: None,
+            // A new one stays on this server until the user picks machines
+            // for it (or lets it follow the setting for all of them): a lab
+            // or test machine must never get a fresh password by default.
+            machines_default: Some(false),
             chat: None,
         });
         s.kind = kind;
@@ -1882,12 +1885,15 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("auth.json");
         let store = AuthStore::load(path.clone()).unwrap();
-        // Follows the setting (new, nothing chosen).
+        // Follows the setting (the user chose that for it).
         token(
             &store,
             "PLAIN_KEY",
             "plain-value-111",
-            SecretScope::default(),
+            SecretScope {
+                machines_default: Some(true),
+                ..Default::default()
+            },
         );
         // Its own machine (an older app naming it, or the user picking it).
         token(
@@ -1991,6 +1997,51 @@ mod tests {
         assert!(!t.machines_default && t.on_server);
         assert!(store.set_secret_title("HOME_KEY", " ").is_err());
         assert!(store.set_secret_title("NOPE", "x").is_err());
+    }
+
+    #[test]
+    fn a_new_password_stays_on_this_server_even_when_all_machines_are_allowed() {
+        let dir = tempfile::tempdir().unwrap();
+        let store = AuthStore::load(dir.path().join("auth.json")).unwrap();
+        token(
+            &store,
+            "FRESH_KEY",
+            "fresh-value-444",
+            SecretScope::default(),
+        );
+        let all = ["m_lab".to_string(), "m_pc".to_string()];
+        let lab = store.secrets_for(
+            "x $FRESH_KEY",
+            &SecretUser::Chat,
+            SecretPlace::Machine("m_lab"),
+            &all,
+        );
+        assert!(
+            lab.env.is_empty(),
+            "a fresh password never reaches a machine by default"
+        );
+        let here = store.secrets_for("x $FRESH_KEY", &SecretUser::Chat, SecretPlace::Server, &all);
+        assert_eq!(here.env.len(), 1);
+        let info = store
+            .list_secrets()
+            .into_iter()
+            .find(|i| i.name == "FRESH_KEY")
+            .unwrap();
+        assert!(!info.machines_default && info.on_machines.is_empty() && info.on_server);
+        // Saving its value again keeps that choice.
+        token(
+            &store,
+            "FRESH_KEY",
+            "fresh-value-555",
+            SecretScope::default(),
+        );
+        let lab = store.secrets_for(
+            "x $FRESH_KEY",
+            &SecretUser::Chat,
+            SecretPlace::Machine("m_lab"),
+            &all,
+        );
+        assert!(lab.env.is_empty());
     }
 
     #[test]

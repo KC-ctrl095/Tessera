@@ -12,6 +12,8 @@ import { Segmented, Toggle } from "../primitives";
 import { Advanced, Card, LoadingBlock, Row } from "./kit";
 import { HeaderEditor, headerMap, type HeaderRow } from "./headers";
 import { VoiceTab } from "./VoiceTab";
+import { isAndroidApp } from "../../lib/native";
+import { PhoneAssistant } from "./PhoneAssistant";
 
 /**
  * What the server says about its browser. Coded against `get_browser` /
@@ -358,6 +360,7 @@ export function WebTab() {
     <div class="stack">
       <WebSearchTab />
       <BrowserCard />
+      <Show when={isAndroidApp}><PhoneAssistant /></Show>
       <section class="settings-section" id="set-voice">
         <h4 class="section-title">Voice</h4>
         <VoiceTab />

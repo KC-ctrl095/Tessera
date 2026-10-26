@@ -3,6 +3,7 @@ package dev.tessera.background
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.KeyguardManager
 import android.content.ActivityNotFoundException
 import android.content.ContentValues
 import android.content.Intent
@@ -14,6 +15,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.os.PowerManager
 import android.provider.MediaStore
 import android.provider.Settings
@@ -46,6 +48,7 @@ import kotlin.math.roundToInt
 @InvokeArg
 class PostArgs {
   lateinit var tag: String
+  var notificationId: Long? = null
   var sessionId: String? = null
   var urgent: Boolean = false
   var title: String = ""
@@ -138,6 +141,10 @@ class BackgroundPlugin(private val activity: Activity) : Plugin(activity) {
     var instance: BackgroundPlugin? = null
       private set
 
+    /** Who starts the assistant for the system's own gestures (AOSP, Samsung), known by name
+     *  because Android 11+ may hide their details from this app. */
+    private val SYSTEM_ASSIST = setOf("android", "com.android.systemui", "com.samsung.android.app.sidekey", "com.sec.android.app.launcher")
+
     /** The app is on screen: its own connection brings everything. */
     @Volatile
     var inFront = false
@@ -157,9 +164,55 @@ class BackgroundPlugin(private val activity: Activity) : Plugin(activity) {
   private fun voice(): Voice = voiceEngine ?: Voice(activity).also { voiceEngine = it }
   private val voiceAdmission = VoiceAdmission<Invoke>()
   private val speechAdmission = VoiceAdmission<Invoke>()
+  private val assistantEntry = AssistantEntry()
+  private fun unlocked() = !(activity.getSystemService(Activity.KEYGUARD_SERVICE) as KeyguardManager).isKeyguardLocked
+
+  private fun assist(intent: Intent?) {
+    if (intent == null) return
+    // Reopened from Recents after Android stopped the app: the old gesture, not a new one.
+    if (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0) return
+    // TauriActivity forwards singleTask onNewIntent to this plugin. Ignore every
+    // extra, URI and clip, including text supplied by another app.
+    if (assistantEntry.request(intent.action, SystemClock.elapsedRealtime(), fromSystem(intent))) {
+      intent.action = null // An activity recreation must not replay it.
+      trigger("assistant", JSObject())
+    }
+  }
+
+  /**
+   * The system's assist gesture (side key, corner swipe, headset button), not another
+   * app: only then does the microphone start by itself; otherwise the chat opens with
+   * the microphone one tap away. Android reports the launching package itself, but an
+   * app may claim another with the referrer extras, so those disqualify it. Read during
+   * onNewIntent, while Android points the referrer at the new intent.
+   */
+  private fun fromSystem(intent: Intent): Boolean {
+    if (intent.hasExtra(Intent.EXTRA_REFERRER) || intent.hasExtra(Intent.EXTRA_REFERRER_NAME)) return false
+    val referrer = activity.referrer ?: return false
+    val pkg = referrer.host?.takeIf { referrer.scheme == "android-app" } ?: return false
+    if (pkg == activity.packageName) return false
+    if (pkg in SYSTEM_ASSIST) return true
+    return try {
+      @Suppress("DEPRECATION")
+      activity.packageManager.getApplicationInfo(pkg, 0).flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM != 0
+    } catch (_: PackageManager.NameNotFoundException) {
+      false // Not visible to this app (Android 11+): not known to be the system.
+    }
+  }
 
   @Command
-  fun voiceStatus(invoke: Invoke) { val args = invoke.parseArgs(VoiceSayArgs::class.java); activity.runOnUiThread { if (!inFront) invoke.reject("Voice only runs while the app is on screen") else invoke.resolve(voice().status(args.language)) } }
+  fun assistantTakePending(invoke: Invoke) {
+    activity.runOnUiThread {
+      val taken = assistantEntry.take(SystemClock.elapsedRealtime(), inFront, !unlocked())
+      val out = JSObject()
+      out.put("pending", taken != AssistantEntry.NONE)
+      out.put("listen", taken == AssistantEntry.LISTEN)
+      invoke.resolve(out)
+    }
+  }
+
+  @Command
+  fun voiceStatus(invoke: Invoke) { val args = invoke.parseArgs(VoiceSayArgs::class.java); activity.runOnUiThread { if (!inFront || !unlocked()) invoke.reject("Voice only runs while the app is on screen and unlocked") else invoke.resolve(voice().status(args.language)) } }
 
   @Command
   fun voiceListen(invoke: Invoke) {
@@ -177,7 +230,7 @@ class BackgroundPlugin(private val activity: Activity) : Plugin(activity) {
       // Permission can finish before this queued action. End/background must
       // still win at the actual microphone start, not just before dispatch.
       val started = voiceAdmission.start(ticket, {
-        inFront && getPermissionState("microphone") == PermissionState.GRANTED
+        inFront && unlocked() && getPermissionState("microphone") == PermissionState.GRANTED
       }) { voice().start(invoke, args) }
       if (!started) invoke.reject("Microphone start was canceled. Tap voice again when the app is on screen.")
     }
@@ -195,7 +248,7 @@ class BackgroundPlugin(private val activity: Activity) : Plugin(activity) {
     if (!speechAdmission.request(invoke, args.operation)) { invoke.reject("Speech was canceled."); return }
     val ticket = speechAdmission.pending(invoke) ?: run { invoke.reject("Speech was canceled."); return }
     activity.runOnUiThread {
-      if (!speechAdmission.start(ticket, { inFront }) { voice().say(invoke, args) }) invoke.reject("Speech was canceled.")
+      if (!speechAdmission.start(ticket, { inFront && unlocked() }) { voice().say(invoke, args) }) invoke.reject("Speech was canceled.")
     }
   }
 
@@ -205,12 +258,16 @@ class BackgroundPlugin(private val activity: Activity) : Plugin(activity) {
 
   override fun load(webView: WebView) {
     this.webView = webView
+    // On cold WebView startup load can follow the first Activity onResume.
+    inFront = (activity as? AppCompatActivity)?.lifecycle?.currentState?.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED) == true
     Notifications.ensureChannels(activity)
     opened(activity.intent)
+    assist(activity.intent)
   }
 
   override fun onNewIntent(intent: Intent) {
     opened(intent)
+    assist(intent)
   }
 
   // Still visible at this point, so Android lets the service start; later,
@@ -225,6 +282,9 @@ class BackgroundPlugin(private val activity: Activity) : Plugin(activity) {
 
   override fun onResume(activity: AppCompatActivity) {
     inFront = true
+    // A request received while locked remains inert until the activity is visible
+    // and unlocked. The UI pulls the flag again here, never the intent's extras.
+    trigger("assistant", JSObject())
   }
 
   override fun onDestroy(activity: AppCompatActivity) {

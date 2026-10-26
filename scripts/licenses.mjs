@@ -32,6 +32,7 @@ const EXTRAS = [
   { eco: "Bundled", name: "Geologica (font)", version: "", expr: "OFL-1.1", files: ["apps/tessera/ui/src/assets/fonts/OFL-Geologica.txt"] },
   { eco: "Bundled", name: "Marcellus (font)", version: "", expr: "OFL-1.1", files: ["apps/tessera/ui/src/assets/fonts/OFL-Marcellus.txt"] },
   { eco: "Bundled", name: "Martian Mono (font)", version: "", expr: "OFL-1.1", files: ["apps/tessera/ui/src/assets/fonts/OFL-MartianMono.txt"] },
+  { eco: "Bundled", name: "Iosevka Term (font)", version: "33.3.1", expr: "OFL-1.1", files: ["apps/tessera/ui/src/assets/fonts/OFL-Iosevka.txt"] },
 ];
 
 // Which licence to use a package under when it offers a choice: the first
@@ -115,7 +116,9 @@ function kinds(raw) {
   // Licences kept as source comments ("// Permission to use…") read the same.
   const t = raw.replace(/^[ \t]*(\/\/+|#+|\*+|\/\*+|;+)[ \t]?/gm, "").replace(/\s+/g, " ");
   const out = new Set();
-  const mitLike = /Permission is hereby granted, free of charge, to any person/i.test(t);
+  const ofl = /SIL OPEN FONT LICENSE,? (?:Version |v)1\.1/i.test(t);
+  // OFL grants permission in similar words but is not a second MIT licence.
+  const mitLike = !ofl && /Permission is hereby granted, free of charge, to any person/i.test(t);
   if (mitLike) out.add(/shall be included in all copies/i.test(t) ? "MIT" : "MIT-0");
   if (/Apache License,? Version 2\.0/i.test(t) && /TERMS AND CONDITIONS FOR USE/i.test(t)) out.add("Apache-2.0");
   if (/LLVM Exceptions/i.test(t)) out.add("Apache-2.0 WITH LLVM-exception");
@@ -136,7 +139,7 @@ function kinds(raw) {
   if (/UNICODE, INC\. LICENSE AGREEMENT/i.test(t)) out.add("Unicode-DFS-2016");
   if (/Community Data License Agreement\s*-\s*Permissive\s*-\s*Version 2\.0/i.test(t)) out.add("CDLA-Permissive-2.0");
   if (/GNU LESSER GENERAL PUBLIC LICENSE/i.test(t)) out.add("LGPL-2.1-or-later");
-  if (/SIL OPEN FONT LICENSE Version 1\.1/i.test(t)) out.add("OFL-1.1");
+  if (ofl) out.add("OFL-1.1");
   return out;
 }
 

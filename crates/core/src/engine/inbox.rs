@@ -479,6 +479,7 @@ impl Inner {
             urgent: true,
             quiet: !alert,
             replace: Replace::Same,
+            ..Default::default()
         }) {
             tracing::warn!("couldn't list how job run {session} ended: {e}");
         }

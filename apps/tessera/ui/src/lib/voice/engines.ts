@@ -109,6 +109,8 @@ export function playback(language: string, device: boolean): Playback {
           speechSynthesis.speak(utterance);
         } else {
           if (!audio) return finish(new Error("No audio came from the server."));
+          // Only audio, and no more than the server's own 16 MiB limit (base64: 4/3).
+          if (!/^audio\/[a-z0-9.+-]+$/i.test(audio.mime) || audio.audio.length > 22_400_000) return finish(new Error("The server sent something that isn't speech."));
           const bytes = Uint8Array.from(atob(audio.audio), (c) => c.charCodeAt(0));
           const url = URL.createObjectURL(new Blob([bytes], { type: audio.mime }));
           const player = new Audio(url);

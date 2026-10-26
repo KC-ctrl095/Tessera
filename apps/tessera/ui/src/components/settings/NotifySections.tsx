@@ -1,7 +1,8 @@
 // Settings → Notifications: agents' messages (`notify`) — which devices get
 // them, quiet hours, what is scheduled, and a test from the server that
 // proves they arrive with the app closed.
-import { For, Show, createResource, createSignal } from "solid-js";
+import { For, Show, createResource, createSignal, onCleanup } from "solid-js";
+import type { NotificationDelivery } from "../../proto/NotificationDelivery";
 import type { DeviceInfo } from "../../proto/DeviceInfo";
 import type { UserNotification } from "../../proto/UserNotification";
 import { browserNotificationsOn, setBrowserNotifications } from "../../lib/alerts";
@@ -165,19 +166,15 @@ export function ScheduledCard() {
  */
 export function SendTest(props: { here?: () => void }) {
   const [busy, setBusy] = createSignal(false);
+  const [testId, setTestId] = createSignal<number>();
+  const [reports, { refetch }] = createResource(testId, (id) => call<NotificationDelivery[]>({ method: "notification_deliveries", params: { id } }).catch(() => []));
+  const timer = setInterval(() => { if (testId()) void refetch(); }, 5000);
+  onCleanup(() => clearInterval(timer));
   const send = async (delay: number) => {
     setBusy(true);
     try {
-      await call({
-        method: "send_notification",
-        params: {
-          title: delay ? "A minute has passed" : "Hello from your server",
-          body: delay
-            ? "This message was scheduled a minute ago. If you closed Tessera, it came in the background."
-            : "This is how messages from agents arrive.",
-          delay_secs: delay,
-        },
-      });
+      const n = await call<UserNotification>({ method: "test_notification", params: { delay_secs: delay } });
+      setTestId(n.id);
       if (delay)
         toast({
           level: "info",
@@ -210,9 +207,15 @@ export function SendTest(props: { here?: () => void }) {
           )
         }
       >
-        <Icon name="bell" size={15} /> Send a test
+        <Icon name="bell" size={15} /> Send a test alert
         <Icon name="chevronDown" size={13} />
       </button>
+      <Show when={testId()}>
+        <div class="setting-help" role="status">
+          <p>Test sent through the real alert path, even to devices turned off here. Phone permissions and Do Not Disturb still apply. A closed Android app checks within about 15 minutes, sometimes later in deep sleep. Delivered means the device accepted the alert, not that you read it.</p>
+          <For each={reports()}>{(d) => <p>{d.name} · {d.delivered ? "Delivered to this device" : "Waiting for a device report"}</p>}</For>
+        </div>
+      </Show>
     </div>
   );
 }

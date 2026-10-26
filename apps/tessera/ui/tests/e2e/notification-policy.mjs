@@ -41,6 +41,29 @@ run(async () => {
     await sleep(150);
     check(await p.eval(`window.__notificationSettings.enabled === ${mode !== 'off'} && window.__notificationSettings.finished === ${mode === 'on'} && !window.__notificationSettings.subagents && window.__notificationSettings.approvals && window.__notificationSettings.errors`), `${mode} saves existing compatible settings and disables old helper preference`);
   }
+  await p.waitFor(`document.querySelector('select[aria-label="Digest rhythm"]')`);
+  check(await p.eval(`document.querySelector('select[aria-label="Digest rhythm"]').value === 'daily' && document.querySelector('input[aria-label="Digest times"]').value === '18:00'`), 'daily 18:00 is the quiet digest default');
+  await p.eval(`(() => { const e = document.querySelector('select[aria-label="Digest rhythm"]'); e.value = 'hourly'; e.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+  await sleep(200);
+  check((await peer.rpc('get_notification_policy')).result.hourly, 'digest rhythm is saved on the server');
+  await p.eval(`(() => { const e = document.querySelector('select[aria-label="Digest rhythm"]'); e.value = 'daily'; e.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+  const source = (await peer.rpc('mock_inbox', { add: { title: 'Synthetic monitoring result', source_key: 'bot_settings', source: 'bot', from: 'Monitor', urgent: true } })).result;
+  await peer.rpc('set_notification_source', { key: source.source_key, level: 'digest' });
+  await p.eval(`__mod('lib/ui.ts').then(m => m.setSettingsTab(null))`);
+  await sleep(200);
+  await p.eval(`__mod('lib/ui.ts').then(m => m.setSettingsTab('notifications'))`);
+  await p.waitFor(`document.querySelector('.settings').textContent.includes('Sources you turned down')`);
+  await p.clickText('.settings button', 'Restore');
+  await sleep(200);
+  check(!(await peer.rpc('get_notification_policy')).result.sources.length, 'muting and downgrading are reversible in Settings');
+  await p.clickText('.settings button', 'Send a test alert');
+  await p.clickText('[role="menuitem"]', 'Now');
+  await p.waitFor(`document.querySelector('.settings').textContent.includes('Waiting for a device report')`);
+  const test = (await peer.rpc('list_notification_inbox')).result.find(n => n.kind === 'test');
+  check(test?.level === 'page' && test.urgent, 'server test uses the real urgent Page path');
+  await peer.rpc('report_notification_delivery', { ids: [test.id] });
+  await p.waitFor(`document.querySelector('.settings').textContent.includes('Delivered to this device')`, 10000);
+  check(await p.eval(`document.querySelector('.settings').textContent.includes('Delivered to this device')`), 'test reports only after the device says it posted');
   for (const [label, width, height] of [['desktop', 1440, 900], ['phone', 390, 844], ['cover', 344, 882], ['fold', 880, 1000]]) {
     await p.viewport(width, height, width < 1000, width < 1000 ? 2 : 1);
     for (const theme of ['light', 'dark']) {

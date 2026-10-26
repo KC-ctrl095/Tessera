@@ -1,4 +1,5 @@
 import type { VoiceConfig } from "../../proto/VoiceConfig";
+import type { SpeechAudio } from "../../proto/SpeechAudio";
 import { api, type SessionState } from "../store";
 import { compose, echo, idle, Pauses, sentence, spoken, type View } from "./flow";
 import { listen, playback, support, type Input, type Playback } from "./engines";
@@ -45,6 +46,9 @@ export class Conversation {
   private finishing = false;
   private suppressed = false;
   constructor(private cb: Callbacks) {}
+  private audible = false;
+  private echoUntil = 0;
+  private prepared?: { text: string; abort: AbortController; work: Promise<SpeechAudio> };
   private show(phase: View["phase"], note = "") { this.view = { ...this.view, phase, note }; this.cb.view(this.view); }
   private valid(gen: number) { return gen === this.generation && this.view.phase !== "idle"; }
   private fail(e: unknown) { this.stop(); this.cb.error(e); }
@@ -67,6 +71,7 @@ export class Conversation {
       const engine = this.cfg.engine || (this.cfg.enabled ? "service" : "off");
       if (engine === "off") throw new Error("Voice is off. Turn it on in Settings → Web & voice.");
       if (engine === "openai" && !this.cfg.openai_key) throw new Error("Save your OpenAI API key in Passwords & keys before choosing OpenAI voice.");
+      if (engine === "openrouter" && !this.cfg.openrouter_key) throw new Error("Save your OpenRouter API key in Passwords & keys before choosing OpenRouter voice.");
       const language = this.language();
       const local = engine === "auto" || engine === "device" || engine === "service" ? await support(language, this.inputAbort?.signal) : { listen: false, speak: false };
       if (!this.valid(gen)) return;
@@ -97,6 +102,10 @@ export class Conversation {
       const input = await listen(language, this.deviceListen, (text, final) => this.words(text, final, gen), (e) => { if (this.valid(gen)) this.fail(e); }, signal);
       if (!this.valid(gen)) { input.cancel(); return; }
       this.input = input;
+      if (conversation) {
+        try { await input.recorder?.cue?.(); navigator.vibrate?.(20); } catch { /* optional listening cue */ }
+        if (!this.valid(gen)) return;
+      }
       this.show("listening");
       this.timer = setInterval(() => this.tick(gen), 80);
       if (this.finishing) { const send = this.sendAfter; this.finishing = false; this.finish(send); }
@@ -126,7 +135,14 @@ export class Conversation {
     if (!this.view.conversation && now - recorder.startedAt >= 120_000) { this.finish(); return; }
     this.view.level = level; this.cb.view({ ...this.view });
     const vad = this.pauses.tick(level, now);
-    if (this.view.conversation && this.playing && vad.interrupt && now - this.spokenAt > 650) this.barge();
+    // Playback alone must not generate paid transcriptions or echo loops.
+    // Keep a short preroll only when sustained speech actually interrupts.
+    if (now < this.echoUntil) { this.pauses.reset(); recorder.reset(200); return; }
+    if (this.playing) {
+      if (this.view.conversation && vad.interrupt && (!this.audible || now - this.spokenAt > 400)) this.barge();
+      else if (vad.finish) { this.pauses.reset(); recorder.reset(300); }
+      return;
+    }
     if (this.view.conversation && vad.finish) { void this.transcribe(true, gen); return; }
     if (!this.pauses.heard && !this.playing) recorder.reset(300);
     // Live words only on a fast, private server; never duplicate paid requests.
@@ -134,7 +150,7 @@ export class Conversation {
       this.partialBusy = true; this.partialAt = now;
       const clip = recorder.snapshot(), audioGen = this.audioGeneration;
       const abort = this.partialAbort = new AbortController();
-      void api.transcribe(clip.audio, clip.mime, "server", true, abort.signal).then((r) => { if (this.valid(gen) && audioGen === this.audioGeneration && !this.finalizing) this.draft(r.text); }).catch(() => {}).finally(() => { if (this.partialAbort === abort) { this.partialBusy = false; this.partialAbort = undefined; } });
+      void api.transcribe(clip.audio, clip.mime, "server", true, abort.signal, this.cfg?.language || navigator.language).then((r) => { if (this.valid(gen) && audioGen === this.audioGeneration && !this.finalizing) this.draft(r.text); }).catch(() => {}).finally(() => { if (this.partialAbort === abort) { this.partialBusy = false; this.partialAbort = undefined; } });
     }
   }
   finish(send = false) {
@@ -164,7 +180,7 @@ export class Conversation {
       const clip = this.view.conversation ? recorder.snapshot() : await recorder.stop();
       if (!this.valid(gen)) return;
       if (this.view.conversation) recorder.reset();
-      const r = clip.ms >= 350 ? await api.transcribe(clip.audio, clip.mime, this.cfg?.engine === "auto" ? "server" : undefined, !final, this.inputAbort?.signal) : { text: "" };
+      const r = clip.ms >= 350 ? await api.transcribe(clip.audio, clip.mime, this.cfg?.engine === "auto" ? "server" : undefined, !final, this.inputAbort?.signal, this.cfg?.language || navigator.language) : { text: "" };
       if (!this.valid(gen)) return;
       this.finalizing = false;
       const text = r.text.trim();
@@ -194,6 +210,9 @@ export class Conversation {
     this.suppressed = true;
     const wasBusy = this.turnBusy;
     this.outputAbort?.abort(); this.outputAbort = undefined;
+    this.prepared?.abort.abort(); this.prepared = undefined;
+    this.audible = false; this.echoUntil = 0;
+    this.pauses.reset(); this.input?.recorder?.reset(650);
     this.outputGeneration++; this.output?.cancel(); this.queue = []; this.playing = false;
     this.finalStream = this.streamText; this.consumed = this.streamText.length;
     if (wasBusy) this.cb.interrupt();
@@ -232,7 +251,17 @@ export class Conversation {
       if (words) this.queue.push(words);
     }
     void this.drain();
+    this.prepare();
   }
+  private prepare() {
+    if (this.deviceSpeak || !this.audible || this.prepared || !this.queue.length) return;
+    const abort = new AbortController(), text = this.queue[0];
+    const work = api.speak(text, this.speechEngine(), abort.signal);
+    // A rejected lookahead is handled when consumed, not as an unhandled promise.
+    void work.catch(() => {});
+    this.prepared = { text, abort, work };
+  }
+  private speechEngine() { return this.cfg?.engine === "auto" || this.cfg?.engine === "service" ? "server" : undefined; }
   private async drain() {
     if (this.playing || !this.queue.length || !this.output) return;
     this.playing = true;
@@ -241,18 +270,29 @@ export class Conversation {
       while (this.queue.length && this.valid(gen) && outGen === this.outputGeneration) {
         const text = this.queue.shift()!;
         this.show("speaking");
-        const abort = this.outputAbort = new AbortController();
-        const audio = this.deviceSpeak ? undefined : await api.speak(text, this.cfg?.engine === "auto" || this.cfg?.engine === "service" ? "server" : undefined, abort.signal);
+        const ready = this.prepared; this.prepared = undefined;
+        const abort = this.outputAbort = ready?.abort ?? new AbortController();
+        const audio = this.deviceSpeak ? undefined : ready ? await ready.work : await api.speak(text, this.speechEngine(), abort.signal);
         if (!this.valid(gen) || outGen !== this.outputGeneration) return;
         this.spokenWords = text; this.spokenAt = Date.now(); this.pauses.reset(); this.input?.recorder?.reset();
+        this.audible = true;
+        this.prepare(); // At most one sentence ahead, while this audio is playing.
         await this.output.play(text, audio);
+        if (!this.valid(gen) || outGen !== this.outputGeneration) return;
+        this.audible = false;
       }
-      if (this.valid(gen) && outGen === this.outputGeneration) { this.playing = false; this.show(this.turnBusy ? "waiting" : "listening"); this.spokenAt = Date.now(); }
+      if (this.valid(gen) && outGen === this.outputGeneration) {
+        this.playing = false; this.show(this.turnBusy ? "waiting" : "listening"); this.spokenAt = Date.now();
+        this.echoUntil = Date.now() + 250;
+        this.pauses.reset(); this.input?.recorder?.reset();
+      }
     } catch (e) { if (this.valid(gen) && outGen === this.outputGeneration) this.fail(e); }
   }
   stop() {
     this.generation++; this.outputGeneration++; this.audioGeneration++; clearInterval(this.timer); this.timer = undefined;
     this.outputAbort?.abort(); this.outputAbort = undefined;
+    this.prepared?.abort.abort(); this.prepared = undefined;
+    this.audible = false; this.echoUntil = 0;
     this.partialAbort?.abort(); this.partialAbort = undefined;
     this.inputAbort?.abort(); this.inputAbort = undefined;
     this.input?.cancel(); this.input = undefined; this.output?.cancel(); this.output = undefined;

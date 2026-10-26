@@ -358,7 +358,8 @@ async fn a_notification_from_a_channel_names_the_bot_speaking() {
     let mut events = h.engine.subscribe();
     h.mock.push(Reply::Tools(vec![(
         "notify".into(),
-        json!({"title": "Bins", "body": "Put the bins out tonight."}),
+        // Asked for by the user: an alert (a bot's plain update would go in the digest).
+        json!({"title": "Bins", "body": "Put the bins out tonight.", "urgent": true}),
     )]));
     h.mock.push(Reply::Text("Reminder sent.".into()));
     h.send(&room.id, "@nova remind me about the bins").await;

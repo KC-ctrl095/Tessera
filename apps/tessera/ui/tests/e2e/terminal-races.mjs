@@ -4,6 +4,22 @@ run(async () => {
   const probe = await wsClient('terminal race probe');
   const p = await device(); await p.viewport(1440,900); await signIn(p,'Terminal races');
   await probe.rpc('set_terminal_settings',{settings:{access:'sandboxed',idle_minutes:60}});
+  await p.eval(`(() => {
+    const load = document.fonts.load.bind(document.fonts);
+    window.fontLoads = [];
+    document.fonts.load = (...args) => new Promise(resolve => fontLoads.push(() => load(...args).then(resolve)));
+  })()`);
+  await p.eval(`__mod('lib/backend.ts').then(({backend}) => {
+    window.fontCall = backend.call.bind(backend); window.fontOpens = 0;
+    backend.call = req => { if (req.method === 'terminal_open') fontOpens++; return fontCall(req); };
+  })`);
+  const waiting = await p.eval(`__mod('lib/workspace.ts').then(m => m.openPane({type:'terminal',machine:null}))`);
+  await p.waitFor(`fontLoads.length === 2`);
+  check(await p.eval(`fontOpens === 0 && !document.querySelector('.xterm-rows')`), 'no cells are measured and no shell opens while either font is loading');
+  await p.eval(`__mod('lib/workspace.ts').then(m => m.closePane('${waiting}'))`);
+  await p.eval(`Promise.all(fontLoads.map(load => load()))`); await sleep(200);
+  check(await p.eval(`fontOpens === 0 && !document.querySelector('.term-screen')`), 'closing during font loading cannot create a late shell');
+  await p.eval(`__mod('lib/backend.ts').then(({backend}) => backend.call = fontCall)`);
   for (const [label,w,h,mobile] of [['desktop',1440,900,false],['folded',344,780,true],['fold',841,701,true]]) for (const theme of ['light','dark']) {
     await p.viewport(w,h,mobile,mobile?2:1); await p.theme(theme);
     await p.eval(`__mod('lib/backend.ts').then(({backend}) => {

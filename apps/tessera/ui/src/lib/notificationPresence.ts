@@ -47,15 +47,18 @@ export function watchNotifications() {
     setVisible(false);
     presence();
   });
+  let viewed = "";
   createRoot(() =>
     createEffect(() => {
       presence();
       const f = workspace.focused();
       const id = f ? paneSession(f)?.info.id : undefined;
-      if (id && visible()) {
+      const next = visible() && id ? `${presenceServer}:${id}` : "";
+      if (next && next !== viewed && id) {
         notificationsSeen(id);
         chatSeen(id);
       }
+      viewed = next;
     }),
   );
 }

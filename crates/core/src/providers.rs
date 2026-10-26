@@ -1023,8 +1023,24 @@ impl Providers {
                     .filter(|m| llm::responses::daybreak_available(&m.cyber_access_programs))
                     .map(|m| m.id.as_str())
                     .collect();
+                // And what the others list instead ("gpt-6.1-sol: standard").
+                let others: Vec<String> = list
+                    .iter()
+                    .filter(|m| !llm::responses::daybreak_available(&m.cyber_access_programs))
+                    .map(|m| {
+                        format!(
+                            "{}: {}",
+                            m.id,
+                            if m.cyber_access_programs.is_empty() {
+                                "none listed".to_string()
+                            } else {
+                                m.cyber_access_programs.join("+")
+                            }
+                        )
+                    })
+                    .collect();
                 tracing::info!(
-                    "ChatGPT models: {} listed, {} with access programs, Daybreak Blue on: {}",
+                    "ChatGPT models: {} listed, {} with access programs, Daybreak Blue on: {}; others: {}",
                     list.len(),
                     list.iter()
                         .filter(|m| !m.cyber_access_programs.is_empty())
@@ -1033,6 +1049,11 @@ impl Providers {
                         "none".to_string()
                     } else {
                         blue.join(", ")
+                    },
+                    if others.is_empty() {
+                        "none".to_string()
+                    } else {
+                        others.join(", ")
                     }
                 );
                 Ok(Found {

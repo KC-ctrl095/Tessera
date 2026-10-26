@@ -9,6 +9,7 @@ use rusqlite::{Connection, OptionalExtension, params};
 use serde::{Deserialize, Serialize};
 use tessera_proto::{
     ContentPart, DeviceClient, DeviceInfo, Entry, EntryBody, Job, SearchHit, SessionInfo,
+    SessionListCursor, SessionListPage, SessionStatus,
 };
 
 use crate::util::{new_id, now_ms, sha256_hex};
@@ -833,6 +834,27 @@ impl Store {
               WHERE parent_id IS NULL AND json_extract(info, '$.parent_id') IS NOT NULL;
              CREATE INDEX IF NOT EXISTS sessions_parent_id ON sessions(parent_id);",
         )?;
+        // A maintained metadata projection. Old writers may update `info`:
+        // triggers keep summaries atomic on every path, not just chat saves.
+        for col in ["summary", "list_kind"] {
+            if !session_cols.iter().any(|c| c == col) {
+                conn.execute(&format!("ALTER TABLE sessions ADD COLUMN {col} TEXT"), [])?;
+            }
+        }
+        conn.execute_batch(
+            "UPDATE sessions SET summary=json_remove(info,'$.task'),
+                 list_kind=coalesce(json_extract(info,'$.kind'),'chat') WHERE summary IS NULL;
+             CREATE TRIGGER IF NOT EXISTS sessions_summary_insert AFTER INSERT ON sessions BEGIN
+               UPDATE sessions SET summary=json_remove(NEW.info,'$.task'),
+                 list_kind=coalesce(json_extract(NEW.info,'$.kind'),'chat') WHERE id=NEW.id;
+             END;
+             CREATE TRIGGER IF NOT EXISTS sessions_summary_update AFTER UPDATE OF info ON sessions BEGIN
+               UPDATE sessions SET summary=json_remove(NEW.info,'$.task'),
+                 list_kind=coalesce(json_extract(NEW.info,'$.kind'),'chat') WHERE id=NEW.id;
+             END;
+             CREATE INDEX IF NOT EXISTS sessions_list_page ON sessions(archived,updated_at DESC,id DESC)
+               WHERE list_kind IN ('chat','channel');",
+        )?;
         if conn
             .query_row("SELECT 1 FROM meta WHERE key = 'fts_batched'", [], |_| {
                 Ok(())
@@ -1082,6 +1104,103 @@ impl Store {
         Ok(out)
     }
 
+    /// Bounded keyset sidebar metadata. Pinned/open extras do not move the
+    /// cursor. Only selected summaries are parsed, never historical job rows.
+    pub fn list_session_page(
+        &self,
+        archived: bool,
+        limit: u32,
+        before: Option<&SessionListCursor>,
+        include_ids: &[String],
+    ) -> Result<SessionListPage> {
+        store_call!(self.list_session_page(archived, limit, before, include_ids));
+        let conn = self.conn.lock();
+        let limit = limit.clamp(1, 200) as usize;
+        let read = |r: &rusqlite::Row<'_>| -> rusqlite::Result<(String, bool, u64)> {
+            Ok((r.get(0)?, r.get(1)?, r.get(2)?))
+        };
+        let mut q = conn.prepare_cached(
+            "SELECT s.summary,s.archived,coalesce(ss.revision,0) FROM sessions s
+             LEFT JOIN session_state ss ON ss.id=s.id
+             WHERE s.archived=?1 AND s.list_kind IN ('chat','channel')
+               AND (?2 IS NULL OR (s.updated_at,s.id) < (?2,?3))
+             ORDER BY s.updated_at DESC,s.id DESC LIMIT ?4",
+        )?;
+        let mut rows = q
+            .query_map(
+                params![
+                    archived,
+                    before.map(|b| b.updated_at),
+                    before.map(|b| &b.id),
+                    limit + 1
+                ],
+                read,
+            )?
+            .collect::<rusqlite::Result<Vec<_>>>()?;
+        let more = rows.len() > limit;
+        rows.truncate(limit);
+        let decode = |(raw, archived, revision): (String, bool, u64)| -> Result<SessionInfo> {
+            let mut i: SessionInfo = serde_json::from_str(&raw)?;
+            i.archived = archived;
+            i.revision = revision;
+            if !matches!(i.status, SessionStatus::Idle | SessionStatus::Error) {
+                i.status = SessionStatus::Idle;
+            }
+            Ok(i)
+        };
+        let mut sessions = rows.into_iter().map(decode).collect::<Result<Vec<_>>>()?;
+        let next_cursor = if more {
+            sessions.last().map(|i| SessionListCursor {
+                updated_at: i.updated_at,
+                id: i.id.clone(),
+            })
+        } else {
+            None
+        };
+        if before.is_none() {
+            let mut pinned = conn.prepare_cached(
+                "SELECT s.summary,s.archived,coalesce(ss.revision,0) FROM sessions s
+                 LEFT JOIN session_state ss ON ss.id=s.id
+                 WHERE s.archived=?1 AND s.list_kind IN ('chat','channel')
+                   AND json_extract(s.summary,'$.pinned')=1",
+            )?;
+            let mut extras = pinned
+                .query_map([archived], read)?
+                .collect::<rusqlite::Result<Vec<_>>>()?;
+            let mut open = conn.prepare_cached(
+                "SELECT s.summary,s.archived,coalesce(ss.revision,0) FROM sessions s
+                 LEFT JOIN session_state ss ON ss.id=s.id WHERE s.id=?1",
+            )?;
+            for id in include_ids.iter().take(128) {
+                if let Some(row) = open.query_row([id], read).optional()? {
+                    extras.push(row);
+                }
+            }
+            for row in extras {
+                let i = decode(row)?;
+                if !sessions.iter().any(|s| s.id == i.id) {
+                    sessions.push(i);
+                }
+            }
+        }
+        drop(q);
+        drop(conn);
+        // Idle private chats may no longer have a loaded engine Rt. Their
+        // summaries still live only in memory, and the engine filters owner.
+        if before.is_none() && !archived {
+            for p in self.private.lock().values() {
+                if let Some((info, _)) = &p.info {
+                    let mut summary = info.clone();
+                    summary.task = None;
+                    sessions.push(summary);
+                }
+            }
+        }
+        Ok(SessionListPage {
+            sessions,
+            next_cursor,
+        })
+    }
     pub fn list_sessions(&self, archived: bool) -> Result<Vec<SessionInfo>> {
         store_call!(self.list_sessions(archived));
         let conn = self.conn.lock();
@@ -2669,6 +2788,8 @@ mod tests {
     use super::*;
     use tessera_proto::*;
     include!("store/history_tests.rs");
+    include!("store/session_page_tests.rs");
+    include!("store/launch_perf_test.rs");
 
     fn info(id: &str) -> SessionInfo {
         SessionInfo {

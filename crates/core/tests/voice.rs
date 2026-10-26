@@ -65,6 +65,7 @@ async fn transcribe(
                 audio: b64(audio),
                 mime: "audio/wav".into(),
                 engine: engine.map(str::to_string),
+                language: None,
                 operation: None,
                 partial,
             },
@@ -593,6 +594,7 @@ async fn speech_errors_scrub_echoed_service_and_openai_keys_and_transport_userin
             audio: b64(&speech_wav(1.0)),
             mime: "audio/wav".into(),
             engine: None,
+            language: None,
             operation: None,
             partial: false,
         },
@@ -1043,4 +1045,60 @@ async fn inactive_unresolvable_saved_service_does_not_block_other_engines() {
         .contains("HTTPS")
     );
     assert_eq!(get(&h).await.engine, "openai");
+}
+
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64")
+))]
+#[tokio::test]
+async fn device_language_hint_saves_detection_without_overriding_shared_language() {
+    let h = harness(vec![], 100_000).await;
+    fake_engines(
+        h.dir.path(),
+        "#!/bin/sh\nwhile [ $# -gt 0 ]; do if [ \"$1\" = -l ]; then echo \"language $2\"; exit 0; fi; shift; done\n",
+    );
+    for (hint, saved, expected) in [
+        (Some("en-US"), "", "en"),
+        (Some("nl-NL"), "de", "de"),
+        (None, "", "auto"),
+    ] {
+        save(&h, |c| c.language = saved.into()).await.unwrap();
+        let result = h
+            .engine
+            .handle(
+                Request::Transcribe {
+                    audio: b64(&speech_wav(1.0)),
+                    mime: "audio/wav".into(),
+                    engine: Some("server".into()),
+                    language: hint.map(str::to_string),
+                    operation: None,
+                    partial: false,
+                },
+                None,
+            )
+            .await
+            .unwrap();
+        let transcript: Transcript = serde_json::from_value(result).unwrap();
+        assert_eq!(transcript.text, format!("language {expected}"));
+        assert_eq!(get(&h).await.language, saved, "the hint is not persisted");
+    }
+    for hint in ["en?key=bad", "en\nother", "a-very-long-language-code"] {
+        let error = h
+            .engine
+            .handle(
+                Request::Transcribe {
+                    audio: b64(&speech_wav(1.0)),
+                    mime: "audio/wav".into(),
+                    engine: None,
+                    language: Some(hint.into()),
+                    operation: None,
+                    partial: false,
+                },
+                None,
+            )
+            .await
+            .unwrap_err();
+        assert_eq!(error.code, ErrorCode::BadRequest);
+    }
 }

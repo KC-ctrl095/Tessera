@@ -4668,3 +4668,8 @@ button.file-chip:disabled {
 .voice-status > button { min-width: 44px; height: 44px; min-height: 44px; flex: none; border-radius: 6px; }
 .voice-progress { width: 100%; accent-color: var(--accent); }
 @media (max-width: 400px) { .voice-level { width: 20px; } .voice-status { gap: 5px; padding-left: 8px; } }
+
+.voice-choice { flex: none; margin: 8px 12px; padding: 12px; border: 1px solid var(--hairline); border-radius: 10px; background: var(--surface); font-size: .85rem; }
+.voice-choice p { margin: 6px 0; }
+.voice-choice-private { display: flex; flex-wrap: wrap; gap: 6px; }
+.voice-choice button { min-height: 44px; white-space: normal; }

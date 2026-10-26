@@ -1,4 +1,5 @@
 // Eager rewind eligibility and dialog opening. Confirmation stays with the lazy dialog.
+import { createMemo, createRoot } from "solid-js";
 import type { SessionInfo } from "../proto/SessionInfo";
 import { isBotDm, isBusy, state } from "./store";
 import { setRewindDialog, toast } from "./ui";
@@ -7,11 +8,17 @@ import { setRewindDialog, toast } from "./ui";
 export const canRewind = (info: SessionInfo | undefined): info is SessionInfo =>
   !!info && !info.private && info.kind !== "subagent" && !isBotDm(info);
 
+/** Shared across every turn footer. A long chat must not scan the entire
+ * reactive catalog once per rendered user message on each snapshot. */
+const busyParents = createRoot(() => createMemo(() => new Set(
+  Object.values(state.sessions).filter((s) => s.info.parent_id && s.info.kind === "subagent" && !s.info.internal && isBusy(s.info)).map((s) => s.info.parent_id),
+)));
+
 /** The agent or one of its subagents is working: the server refuses until they stop. */
 export function rewindBlocked(info: SessionInfo | undefined): boolean {
   if (!info || isBusy(info)) return true;
   // The harness's own helpers (the memory review) don't count: the user never started them.
-  return Object.values(state.sessions).some((s) => s.info.parent_id === info.id && s.info.kind === "subagent" && !s.info.internal && isBusy(s.info));
+  return busyParents().has(info.id);
 }
 
 export const REWIND_BLOCKED = "Stop the agent first";

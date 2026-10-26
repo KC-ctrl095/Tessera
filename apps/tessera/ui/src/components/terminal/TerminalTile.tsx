@@ -8,7 +8,8 @@
 import "../../styles/terminal.css";
 import { For, Match, Show, Suspense, Switch, createEffect, createResource, createSignal, lazy, onCleanup } from "solid-js";
 import { ensureMachines, listMachines, machinePlatform, onMachinesChanged, type MachineInfo } from "../../lib/machines";
-import { closeTerminal, ctrlOf, fullAccessWarning, KEYS, setTerminalSettings, terminalStatus, type TerminalInfo, type TerminalStatus } from "../../lib/terminal";
+import { closeTerminal, ctrlOf, fullAccessWarning, KEYS, setTerminalSettings, terminalStatus, terminalTheme, setTerminalTheme, TERMINAL_THEMES, type TerminalInfo, type TerminalStatus, type TerminalTheme } from "../../lib/terminal";
+import { resolvedTheme } from "../../lib/prefs";
 import { confirmDialog, setDrawerOpen, toast } from "../../lib/ui";
 import { copyText, touchUi } from "../../lib/util";
 import { closePane, registerComposer, setPaneContent, workspace } from "../../lib/workspace";
@@ -56,6 +57,12 @@ export function TerminalTile(props: { paneId: string }) {
   const [needle, setNeedle] = createSignal("");
   const [missed, setMissed] = createSignal(false);
   let findInput: HTMLInputElement | undefined;
+  const [title, setTitle] = createSignal("");
+  const colorTheme = (): "dark" | "light" => {
+    const theme = terminalTheme();
+    return theme === "match" ? resolvedTheme() : theme;
+  };
+  const colors = () => TERMINAL_THEMES[colorTheme()];
 
   // Moving the focus here (Alt+arrows) puts the keyboard in the terminal, and so
   // does typing over the tile with the mouse on it (like a chat's message box).
@@ -124,6 +131,7 @@ export function TerminalTile(props: { paneId: string }) {
     setEnded(null);
     setFailed(null);
     setInfo(null);
+    setTitle("");
     set({ machine: content().machine });
     setRun((n) => n + 1);
   };
@@ -178,6 +186,7 @@ export function TerminalTile(props: { paneId: string }) {
     if (openId) void closeTerminal(openId);
     openId = undefined;
     setInfo(null);
+    setTitle("");
     setEnded(null);
     setFailed(null);
     set({ machine });
@@ -221,6 +230,15 @@ export function TerminalTile(props: { paneId: string }) {
       });
       items.push({ separator: true });
     }
+    items.push({
+      label: "Colours",
+      more: (["dark", "light", "match"] as TerminalTheme[]).map((theme) => ({
+        label: theme === "match" ? "Match app" : theme === "dark" ? "Dark" : "Light",
+        description: theme === "dark" ? "Default" : undefined,
+        checked: terminalTheme() === theme,
+        onSelect: () => setTerminalTheme(theme),
+      })),
+    });
     if (ended() || failed()) items.push({ label: "Start again", icon: "refresh", onSelect: startAgain });
     // Every place a terminal may open now: this server (if on) and each machine that allows it itself.
     const here = chosen() ? (content().machine ?? null) : undefined;
@@ -267,7 +285,7 @@ export function TerminalTile(props: { paneId: string }) {
           </span>
           <div class="title-stack">
             <div class="title-line">
-              <span class="title-static">Terminal</span>
+              <span class="title-static" title={title() || "Terminal"}>{title() || "Terminal"}</span>
             </div>
             <span class="head-sub board-sub">
               <span class="sub-text term-sub">{sub()}</span>
@@ -297,7 +315,7 @@ export function TerminalTile(props: { paneId: string }) {
           </Show>
         </div>
       </header>
-      <div class="board-body term-body">
+      <div class="board-body term-body" data-term-theme={(chosen() || content().termId) && !failed() ? colorTheme() : undefined} style={{ "--term-bg": colors().background, "--term-fg": colors().foreground }}>
         <Switch>
           <Match when={status.loading || machines.loading}>
             <div class="board-loading">
@@ -353,6 +371,8 @@ export function TerminalTile(props: { paneId: string }) {
                     termId={content().termId}
                     machine={content().machine ?? null}
                     touch={touch}
+                    theme={colorTheme()}
+                    onTitle={setTitle}
                     modify={modify}
                     handle={setView}
                     onFind={openFind}

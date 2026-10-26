@@ -456,7 +456,7 @@ pub struct VoiceSettings {
     pub base_url: String,
     pub model: String,
     pub language: String,
-    /// `auto`, `device`, `server`, `openai`, `service` or `off`; empty in
+    /// `auto`, `device`, `server`, `openai`, `openrouter`, `service` or `off`; empty in
     /// files written before it existed (see [`VoiceSettings::engine`]).
     pub engine: String,
     /// Keep what reaches the server in `<data>/voice/recordings`.
@@ -465,6 +465,8 @@ pub struct VoiceSettings {
     pub server_model: String,
     /// A voice id; empty = the one for `language` (English otherwise).
     pub server_voice: String,
+    /// ElevenLabs voice through OpenRouter; empty = Sarah.
+    pub openrouter_voice: String,
 }
 
 impl Default for VoiceSettings {
@@ -479,12 +481,21 @@ impl Default for VoiceSettings {
             keep_audio: false,
             server_model: "auto".into(),
             server_voice: String::new(),
+            openrouter_voice: String::new(),
         }
     }
 }
 
 impl VoiceSettings {
-    pub const ENGINES: [&str; 6] = ["auto", "device", "server", "openai", "service", "off"];
+    pub const ENGINES: [&str; 7] = [
+        "auto",
+        "device",
+        "server",
+        "openai",
+        "openrouter",
+        "service",
+        "off",
+    ];
 
     /// The choice in effect. A file from before the choice existed keeps the
     /// service it had set up; without one it starts on `auto` (private

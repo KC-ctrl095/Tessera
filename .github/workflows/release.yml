@@ -199,32 +199,42 @@ jobs:
     name: Signed Android ARM64 APK
     needs: check
     runs-on: ubuntu-24.04
+    outputs:
+      signed: ${{ steps.key.outputs.signed }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.TAG }}
-      - name: Require the public release signing identity
+      - name: The public release signing identity
+        id: key
         env:
           KEY: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
           if [ -z "$KEY" ] || [ -z "$PASSWORD" ] || [ -z "$ALIAS" ]; then
-            echo '::error::Set ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD and ANDROID_KEY_ALIAS repository secrets. Unsigned/debug APKs will not be published.'
-            exit 1
+            # The release goes out without the Android app; unsigned/debug APKs are never published.
+            echo '::warning::No Android release signing key (ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS): this release has no Android app.'
+            echo signed=false >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+          echo signed=true >> "$GITHUB_OUTPUT"
           umask 077
           printf '%s' "$KEY" | base64 --decode > "$RUNNER_TEMP/tessera-release.jks"
           printf '%s' "$PASSWORD" > "$RUNNER_TEMP/tessera-release.pass"
       - uses: actions/setup-node@v4
+        if: steps.key.outputs.signed == 'true'
         with:
           node-version: 22
       - uses: actions/setup-java@v4
+        if: steps.key.outputs.signed == 'true'
         with:
           distribution: temurin
           java-version: 17
       - uses: android-actions/setup-android@v3
+        if: steps.key.outputs.signed == 'true'
       - name: Android SDK and Rust
+        if: steps.key.outputs.signed == 'true'
         run: |
           sdkmanager 'platforms;android-37' 'build-tools;37.0.0' 'ndk;29.0.13846066'
           echo "NDK_HOME=$ANDROID_HOME/ndk/29.0.13846066" >> "$GITHUB_ENV"
@@ -232,6 +242,7 @@ jobs:
           rustup default stable
           cargo install tauri-cli --version "$(sed -n 's/^TAURI_CLI=//p' scripts/install.sh)" --locked
       - name: Generate ignored Tauri Gradle and ProGuard files
+        if: steps.key.outputs.signed == 'true'
         working-directory: apps/tessera/src-tauri
         run: |
           # Generate into an empty directory, then restore all our checked-in
@@ -240,6 +251,7 @@ jobs:
           cargo tauri android init --ci
           cp -a "$RUNNER_TEMP/android-custom/." gen/android/
       - name: Build with vendor patch guards and sign for release
+        if: steps.key.outputs.signed == 'true'
         env:
           RUST_MIN_STACK: '134217728'
           TESSERA_ANDROID_PUBLIC_RELEASE: '1'
@@ -254,6 +266,7 @@ jobs:
         if: always()
         run: rm -f "$RUNNER_TEMP/tessera-release.jks" "$RUNNER_TEMP/tessera-release.pass"
       - uses: actions/upload-artifact@v4
+        if: steps.key.outputs.signed == 'true'
         with:
           name: tessera-android-arm64
           path: tessera-android-arm64.apk
@@ -289,6 +302,8 @@ jobs:
           cp scripts/install.ps1 dist/install.ps1
           cd dist && sha256sum -- * > SHA256SUMS && cat SHA256SUMS
       - name: Require the whole launch release
+        env:
+          TESSERA_RELEASE_ANDROID: ${{ needs.android.outputs.signed }}
         run: python3 scripts/check-release.py dist
       # Anyone can check where a file came from: gh attestation verify <file> --repo <owner/repo>
       - uses: actions/attest-build-provenance@v2
@@ -297,11 +312,17 @@ jobs:
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
+          ANDROID: ${{ needs.android.outputs.signed }}
         run: |
+          notes=.github/release-notes.md
+          if [ "$ANDROID" != "true" ]; then
+            { printf '%s\n\n' '> The Android app is not in this release yet: its release signing key is not set up. Build it from source (scripts/android.sh) or check back later.'; cat .github/release-notes.md; } > "$RUNNER_TEMP/notes.md"
+            notes="$RUNNER_TEMP/notes.md"
+          fi
           pre=""
           case "$TAG" in *-*) pre="--prerelease" ;; esac
           if gh release view "$TAG" > /dev/null 2>&1; then
             gh release upload "$TAG" dist/* --clobber
           else
-            gh release create "$TAG" dist/* --verify-tag --title "Tessera $TAG" --notes-file .github/release-notes.md $pre
+            gh release create "$TAG" dist/* --verify-tag --title "Tessera $TAG" --notes-file "$notes" $pre
           fi

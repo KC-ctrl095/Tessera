@@ -286,7 +286,8 @@
  * remove_fields drops fields, a token's `value` field becomes its value, `totp` must be a base32 seed, hosts lose
  * http(s):// and a trailing /; bots/on_server/on_machines left out keep what is set (`bots: null` = any chat);
  * `new_name` renames it (taken → bad_request); `machines_default` true/false switches between following the
- * setting and its own machines (left out: kept, but naming machines makes them its own). `set_secret_title
+ * setting and its own machines (left out: kept, but naming machines makes them its own; a new one starts with its
+ * own, none: this server only). `set_secret_title
  * { name, title }` → SecretInfo changes only the title; `suggest_secret_titles` → [{ name, title, suggested }]
  * for titles that say little ("saved from a chat"), from the name, kind, sites and machine names. No reply ever holds a value. `set_secret` / `delete_secret`
  * still work. `mock_secret_check { name, field?, value }` → whether the stored value equals `value` (tests). A bash call naming a secret's variables ($OPENWEATHER_KEY, $GITHUB_PASSWORD, $GITHUB_OTP, …) marks
@@ -2632,7 +2633,7 @@ function buildState(fresh = false) {
     lan: false, // the mock pretends to listen on this machine only (SetupStatus.lan, RemoteStatus.lan_urls)
     bind: '127.0.0.1:7878', // server.bind from the next start (set_server_bind); the mock never really rebinds
     boundAt: '127.0.0.1:7878',
-    voice: { enabled: false, provider: 'local', base_url: '', model: '', language: '', has_key: false, engine: 'auto', keep_audio: false, server_model: 'auto', server_voice: '', openai_key: false, kept: 0, kept_bytes: 0,
+    voice: { enabled: false, provider: 'local', base_url: '', model: '', language: '', has_key: false, engine: 'auto', keep_audio: false, server_model: 'auto', server_voice: '', openai_key: false, openrouter_key: false, openrouter_voice: 'sarah', kept: 0, kept_bytes: 0,
       server: { state: 'missing', error: null, listen: false, speak: false, live: true, model: 'tiny', voice: 'en_US-lessac-medium', voices: [{ id: 'en_US-lessac-medium', label: 'English · Lessac', language: 'en', installed: false, size_bytes: 60000000 }], download_bytes: 100000000, done_bytes: 0, total_bytes: 0 } },
     voiceRequests: [],
     voiceKey: null,
@@ -2717,6 +2718,7 @@ function privateGuard(params, conn) {
 function privateFilter(method, result, conn) {
   const mine = (sid) => !sid || seesSession(sid, conn?.deviceId);
   if (method === 'list_sessions' && Array.isArray(result)) return result.filter((i) => mine(i.id));
+  if (method === 'list_session_page') return { ...result, sessions: result.sessions.filter(i => mine(i.id)) };
   if ((method === 'list_boards' || method === 'list_notifications') && Array.isArray(result)) return result.filter((x) => mine(x.session_id));
   if (method === 'pending_notifications' && result && typeof result === 'object')
     return { ...result, new: (result.new ?? []).filter((n) => mine(n.session_id)), waiting: (result.waiting ?? []).filter((w) => mine(w.session_id)) };
@@ -4984,7 +4986,8 @@ function saveSecret({ name, kind = 'token', description = '', fields = {}, remov
     if (!/^[A-Z_][A-Z0-9_]*$/.test(target) || target.length > 64) throw badRequest('secret names look like environment variables: A–Z, 0–9 and _ (e.g. GITHUB_TOKEN)');
     if (state.secrets.has(target)) throw badRequest(`${target} is taken; pick another name`);
   }
-  const s = old ? { ...old, fields: { ...old.fields } } : { value: '', updated_at: 0, kind, description: '', fields: {}, ask, hosts: [], on_server: true, on_machines: [] };
+  // A new one stays on this server until machines are picked for it (auth.rs).
+  const s = old ? { ...old, fields: { ...old.fields } } : { value: '', updated_at: 0, kind, description: '', fields: {}, ask, hosts: [], on_server: true, on_machines: [], machines_default: false };
   if (bots !== undefined) s.bots = bots === null ? undefined : idList(bots);
   if (on_server !== undefined && on_server !== null) s.on_server = on_server !== false;
   if (on_machines !== undefined && on_machines !== null) {
@@ -6059,7 +6062,24 @@ function copySession(src, entries, title) {
 const handlers = {
   hello(p, conn) {
     conn.client = `${p.client ?? '?'} ${p.version ?? ''}`.trim();
-    return state.serverInfo;
+    return { ...state.serverInfo, ...(process.env.MOCK_LEGACY_SESSION_LIST ? {} : { session_list_pages: true }) };
+  },
+  list_session_page(p) {
+    const cmp = (a, b) => b.updated_at - a.updated_at || (a.id < b.id ? 1 : a.id > b.id ? -1 : 0);
+    const all = [...state.sessions.values()].map(r => r.info);
+    const eligible = all.filter(i => i.archived === !!p.archived && ['chat','channel'].includes(i.kind)).sort(cmp);
+    const limit = Math.max(1, Math.min(200, p.limit ?? 100));
+    const rows = eligible.filter(i => !p.before || cmp(i, p.before) > 0).slice(0, limit + 1);
+    const more = rows.length > limit;
+    rows.length = Math.min(rows.length, limit);
+    const last = rows.at(-1);
+    const next_cursor = more ? {updated_at:last.updated_at, id:last.id} : null;
+    if (!p.before) for (const i of all) {
+      if ((p.include_ids ?? []).slice(0,128).includes(i.id) || i.archived === !!p.archived && (i.pinned || i.private || !['idle','error'].includes(i.status))) {
+        if (!rows.some(r => r.id === i.id)) rows.push(i);
+      }
+    }
+    return { sessions: rows.map(({task, ...summary}) => summary), next_cursor };
   },
   list_sessions(p) {
     const archived = !!p.archived;
@@ -7357,14 +7377,16 @@ const handlers = {
     if (state.voiceSaveDelay) await new Promise((r) => setTimeout(r, state.voiceSaveDelay));
     const c = need(p, 'config');
     const engine = c.engine || (c.enabled ? 'service' : state.voice.engine === 'service' ? 'auto' : state.voice.engine);
-    oneOf(engine, ['auto', 'device', 'server', 'openai', 'service', 'off'], 'voice engine');
+    oneOf(engine, ['auto', 'device', 'server', 'openai', 'openrouter', 'service', 'off'], 'voice engine');
     if (engine === 'openai' && !state.voice.openai_key) throw badRequest('Save your OpenAI API key in Passwords & keys first');
+    if (engine === 'openrouter' && !state.voice.openrouter_key) throw badRequest('Save your OpenRouter API key in Passwords & keys first');
+    if (c.openrouter_voice && !['sarah', 'george', 'adam', 'alice', 'bella', 'bill', 'brian', 'callum', 'charlie', 'chris', 'daniel', 'eric', 'harry', 'jessica', 'laura', 'liam', 'lily', 'matilda', 'river', 'roger', 'will'].includes(c.openrouter_voice)) throw badRequest('Choose an OpenRouter voice');
     if (engine === 'service' && (!c.enabled || !/^https?:\/\//.test(c.base_url))) throw badRequest('Set up a transcription service first');
     if (typeof p.api_key === 'string') state.voiceKey = p.api_key.trim() || null;
-    const { server, openai_key, kept, kept_bytes } = state.voice;
-    state.voice = { ...state.voice, ...c, engine, server, openai_key, kept, kept_bytes, has_key: !!state.voiceKey };
+    const { server, openai_key, openrouter_key, kept, kept_bytes } = state.voice;
+    state.voice = { ...state.voice, ...c, engine, server, openai_key, openrouter_key, openrouter_voice: c.openrouter_voice || 'sarah', kept, kept_bytes, has_key: !!state.voiceKey };
     state.serverInfo.voice_engine = engine;
-    state.serverInfo.voice = engine === 'service' ? !!c.enabled : engine === 'openai' ? openai_key : ['auto', 'server'].includes(engine) && server.listen;
+    state.serverInfo.voice = engine === 'service' ? !!c.enabled : engine === 'openai' ? openai_key : engine === 'openrouter' ? openrouter_key : ['auto', 'server'].includes(engine) && server.listen;
     return state.voice;
   },
   install_voice() {
@@ -7378,6 +7400,7 @@ const handlers = {
   delete_voice_recordings() { state.voice.kept = state.voice.kept_bytes = 0; return state.voice; },
   mock_voice(p) {
     if (p.openai_key !== undefined) state.voice.openai_key = !!p.openai_key;
+    if (p.openrouter_key !== undefined) state.voice.openrouter_key = !!p.openrouter_key;
     if (p.live !== undefined) state.voice.server.live = !!p.live;
     return { config: state.voice, requests: state.voiceRequests };
   },
@@ -7388,7 +7411,9 @@ const handlers = {
     const bytes = Buffer.from(audio, 'base64');
     if (bytes.length < 200) throw badRequest('The recording is empty');
     if (engine === 'server' && !state.voice.server.listen) throw badRequest('Download the speech engines first');
-    state.voiceRequests.push({ method: 'transcribe', engine, partial: !!p.partial, mime, wav: bytes.subarray(0, 4).toString() === 'RIFF', bytes: bytes.length });
+    const language = state.voice.language || p.language || '';
+    if (language.length > 16 || !/^[a-zA-Z0-9-]*$/.test(language)) throw badRequest('Use a short speech language code such as en or en-US.');
+    state.voiceRequests.push({ method: 'transcribe', engine, partial: !!p.partial, mime, wav: bytes.subarray(0, 4).toString() === 'RIFF', bytes: bytes.length, language: language.split('-')[0] });
     if (state.voice.keep_audio && !p.partial) { state.voice.kept++; state.voice.kept_bytes += bytes.length; }
     await new Promise((r) => setTimeout(r, p.partial ? 50 : 200));
     return { text: 'Please tell me a short story about the moon.', engine };
@@ -7397,7 +7422,8 @@ const handlers = {
     let engine = mockVoiceRoute(p.engine);
     if (engine === 'service') engine = 'server';
     if (engine === 'server' && !state.voice.server.speak) throw badRequest('Download the voice first');
-    state.voiceRequests.push({ method: 'speak', engine, chars: String(p.text).length });
+    state.voiceRequests.push({ method: 'speak', engine, chars: String(p.text).length, voice: engine === 'openrouter' ? state.voice.openrouter_voice : undefined });
+    if (engine === 'openrouter') return { audio: Buffer.from('ID3 mock mp3').toString('base64'), mime: 'audio/mpeg', ms: 0 };
     const bytes = Buffer.alloc(44 + 32000); bytes.write('RIFF'); bytes.writeUInt32LE(bytes.length - 8, 4); bytes.write('WAVEfmt ', 8); bytes.writeUInt32LE(16, 16); bytes.writeUInt16LE(1, 20); bytes.writeUInt16LE(1, 22); bytes.writeUInt32LE(16000, 24); bytes.writeUInt32LE(32000, 28); bytes.writeUInt16LE(2, 32); bytes.writeUInt16LE(16, 34); bytes.write('data', 36); bytes.writeUInt32LE(32000, 40);
     return { audio: bytes.toString('base64'), mime: 'audio/wav', ms: 1000 };
   },
@@ -9574,8 +9600,12 @@ async function handleHttp(req, res) {
     if (!prov) return sendJson(res, 404, { code: 'not_found', message: 'no such provider' });
     prov.authenticated = url.searchParams.get('authenticated') !== '0';
     const mode = url.searchParams.get('programs') ?? 'blue';
+    // `elsewhere`: this one model lists only standard while the others offer Blue
+    // (as an account might list gpt-6.1-sol standard only, gpt-6-sol with Blue).
+    const only = url.searchParams.get('model') ?? 'gpt-5.5';
     for (const model of prov.models) {
       if (mode === 'missing') delete model.cyber_access_programs;
+      else if (mode === 'elsewhere') model.cyber_access_programs = model.id === only ? ['standard'] : ['standard', 'daybreak_blue'];
       else model.cyber_access_programs = mode === 'blue' ? ['standard', 'daybreak_blue'] : mode === 'red' ? ['standard', 'daybreak_red'] : mode === 'empty' ? [] : ['standard'];
     }
     broadcast({ type: 'providers_changed' });
@@ -9733,24 +9763,47 @@ function jobRunEnded(job, run, outcome) {
 // seen everywhere. Files are held in memory: `mock_share` adds one (an
 // agent's `share_file` call in a chat, or a web view download).
 function notifyState() {
-  state.notify ??= { list: [], nextId: 1, shown: new Map(), off: new Set() };
+  state.notify ??= { list: [], nextId: 1, shown: new Map(), off: new Set(), presence: new Map(), delivered: new Map(), policy: { hourly: false, daily_at: [1080], quiet: false, quiet_from: 1320, quiet_to: 420, sources: [] } };
   state.sharedFiles ??= new Map();
   return state.notify;
 }
 function broadcastNotification(n) {
   const ns = notifyState();
   const data = Buffer.from(JSON.stringify({ event: { type: 'notification', notification: notificationPayload(n) } }));
-  for (const c of clients) if ((!n.kind || c.automaticNotifications) && !ns.off.has(c.deviceId) && seesSession(n.session_id, c.deviceId)) c.sendRaw(data);
+  for (const c of clients) if ((!n.kind || c.automaticNotifications) && (!ns.off.has(c.deviceId) || n.kind === 'test') && notificationDelivery(n, c)) c.sendRaw(data);
 }
 // The notification center (store/notify.rs): `kind` says what it's about, a `quiet` one is never a
 // system notification, `replace` keeps one per chat ("unread": until read; "same": one per run).
 // An empty `notifications_seen` tells devices their notification center changed.
 const inboxChanged = () => broadcast({ type: 'notifications_seen', ids: [] });
-function addNotification({ title, body = '', session_id = null, from = 'Tessera', urgent = false, delay = 0, kind = '', quiet = false, replace = null, source_key = '', private: privateHint = false }) {
+function notificationDelivery(n, conn) {
+  if (!notificationVisible(n, conn) || n.quiet || n.seen) return false;
+  if (n.urgent || n.kind === 'test') return true;
+  const view = notifyState().presence.get(conn?.deviceId);
+  return !(view && now() - view.at < 45000 && view.chats.includes(n.session_id));
+}
+function addNotification({ title, body = '', session_id = null, from = 'Tessera', urgent = false, delay = 0, kind = '', quiet = false, replace = null, source_key = '', source = '', reason = '', level = '', private: privateHint = false }) {
   const ns = notifyState();
   const t = now();
-  const fields = { title: String(title || from).slice(0, 80), body: String(body).slice(0, 600), from, urgent: !!urgent, ...(kind ? { kind } : {}), ...(source_key ? { source_key } : {}), ...(quiet ? { quiet: true } : {}), ...((privateHint || state.sessions.get(session_id)?.info.private) ? { private: true } : {}) };
-  const earlier = replace && session_id
+  const bot = state.sessions.get(session_id)?.info.bot_id;
+  source ||= kind === 'helper' ? 'helper' : source_key.startsWith('job_') ? 'job' : bot ? 'bot' : session_id ? 'chat' : 'system';
+  source_key ||= bot ? `bot_${bot}` : session_id ? (source === 'chat' ? session_id : `${source}_${session_id}`) : 'system';
+  level ||= urgent || ['approval', 'secret', 'error', 'test'].includes(kind) ? 'page' : kind === 'helper' || (quiet && kind !== 'job') ? 'silent' : ['bot', 'job'].includes(source) || ['job', 'message', 'progress'].includes(kind) ? 'digest' : !kind || kind === 'finished' ? 'page' : 'silent';
+  reason ||= urgent ? `${from} marked this urgent` : ['approval', 'secret'].includes(kind) ? 'an approval is waiting' : level === 'digest' ? 'updates go in the digest' : level === 'silent' ? 'routine status, kept without an alert' : 'you asked for this alert';
+  const rule = ns.policy.sources.find((s) => s.key === source_key);
+  const rank = { page: 0, digest: 1, silent: 2 };
+  if (rule && kind !== 'test' && rank[rule.level] > rank[level]) { level = rule.level; reason = level === 'silent' ? 'you muted this source' : 'you chose less from this source'; }
+  const minute = new Date(t).getHours() * 60 + new Date(t).getMinutes();
+  const p = ns.policy;
+  const inQuiet = p.quiet && (p.quiet_from < p.quiet_to ? minute >= p.quiet_from && minute < p.quiet_to : p.quiet_from > p.quiet_to && (minute >= p.quiet_from || minute < p.quiet_to));
+  if (level === 'page' && !urgent && inQuiet) { level = 'digest'; reason = 'quiet hours, saved for the digest'; }
+  quiet = kind === 'digest' ? false : level !== 'page';
+  if (!delay && !['finished', 'test', 'digest'].includes(kind)) {
+    const duplicate = [...ns.list].reverse().find((n) => n.sent && n.source_key === source_key && n.title === title && n.body === body && (n.kind || '') === kind && n.urgent === urgent);
+    if (duplicate && !urgent) { duplicate.repeat_count = (duplicate.repeat_count || 1) + 1; duplicate.reason = 'repeat of an earlier alert, grouped'; inboxChanged(); return { ...notificationPayload(duplicate), grouped_into: duplicate.id }; }
+  }
+  const fields = { level, source, reason, repeat_count: 1, title: String(title || from).slice(0, 80), body: String(body).slice(0, 600), from, urgent: !!urgent, ...(kind ? { kind } : {}), ...(source_key ? { source_key } : {}), ...(quiet ? { quiet: true } : {}), ...((privateHint || state.sessions.get(session_id)?.info.private) ? { private: true } : {}) };
+  const earlier = !source_key && replace && session_id
     ? [...ns.list].reverse().find((x) => x.sent && x.session_id === session_id && (x.kind ?? '') === kind && (replace === 'same' || !x.seen))
     : null;
   if (earlier) {
@@ -9761,9 +9814,12 @@ function addNotification({ title, body = '', session_id = null, from = 'Tessera'
     for (const shown of ns.shown.values()) shown.delete(previous);
     broadcast({ type: 'notifications_seen', ids: [previous] });
   }
-  const n = { id: ns.nextId++, ...fields, session_id, created_at: t, due_at: t + (quiet ? 0 : delay * 1000), sent: quiet || delay <= 0, seen: false };
+  const n = { id: ns.nextId++, ...fields, session_id, created_at: t, due_at: t + delay * 1000, sent: delay <= 0, seen: false };
   ns.list.push(n);
   pruneNotifications();
+  if (n.sent && !n.urgent && !n.quiet) for (const [device, view] of ns.presence) {
+    if (t - view.at < 45000 && view.chats.includes(n.session_id)) { const shown = ns.shown.get(device) ?? new Set(); shown.add(n.id); ns.shown.set(device, shown); }
+  }
   if (!quiet) broadcastNotification(n);
   inboxChanged();
   if (!n.sent)
@@ -9777,7 +9833,7 @@ function addNotification({ title, body = '', session_id = null, from = 'Tessera'
 }
 function notificationPayload(n) {
   return n.private || state.sessions.get(n.session_id)?.info.private
-    ? { ...n, private: true, title: 'Tessera', body: '', from: '' }
+    ? { ...n, private: true, title: 'Tessera', body: '', from: '', reason: 'private chat activity', source_key: '' }
     : n;
 }
 function pruneNotifications() {
@@ -9828,6 +9884,42 @@ function shareFile({ session_id = null, board_id = null, name, size = 2048, sour
   return file;
 }
 Object.assign(handlers, {
+  get_notification_policy() { return notifyState().policy; },
+  set_notification_policy({ policy }) {
+    if (policy.daily_at.length > 4 || policy.daily_at.some((m) => m < 0 || m >= 1440) || policy.quiet_from < 0 || policy.quiet_from >= 1440 || policy.quiet_to < 0 || policy.quiet_to >= 1440) throw badRequest('choose valid times');
+    notifyState().policy = { ...policy, sources: notifyState().policy.sources };
+    return notifyState().policy;
+  },
+  set_notification_source({ key, level }, conn) {
+    const ns = notifyState();
+    const n = ns.list.find((n) => n.source_key === key && !n.private && notificationVisible(n, conn));
+    const old = ns.policy.sources.find((s) => s.key === key);
+    if (!n && !old) throw badRequest('no such notification source');
+    ns.policy.sources = ns.policy.sources.filter((s) => s.key !== key);
+    if (level) {
+      ns.policy.sources.push({ key, name: n?.from || old?.name || 'Tessera', level });
+      for (const n of ns.list.filter((n) => n.source_key === key)) {
+        if (level === 'silent' || (level === 'digest' && n.level === 'page')) { n.level = level; n.quiet = true; n.reason = level === 'silent' ? 'you muted this source' : 'you chose less from this source'; }
+      }
+    }
+    inboxChanged();
+    return ns.policy;
+  },
+  test_notification(p) { return addNotification({ title: 'Test alert', body: 'An urgent test from your server.', kind: 'test', source: 'system', source_key: 'system_test', urgent: true, delay: p.delay_secs || 0 }); },
+  report_notification_delivery(p, conn) { checkNotificationIds(p.ids || [], conn); for (const id of p.ids || []) { const ids = notifyState().delivered.get(id) || new Set(); ids.add(conn.deviceId); notifyState().delivered.set(id, ids); } return null; },
+  notification_deliveries(p, conn) { checkNotificationIds([p.id], conn); return deviceList(conn).filter((d) => d.client !== 'machine').map((d) => ({ device_id: d.id, name: d.name, delivered: notifyState().delivered.get(p.id)?.has(d.id) || false })); },
+  mock_digest() {
+    const ns = notifyState();
+    const rows = ns.list.filter((n) => n.sent && !n.seen && !n.private && n.level === 'digest' && n.kind !== 'digest' && !n.digest_done);
+    if (!rows.length) return null;
+    rows.forEach((n) => { n.digest_done = true; });
+    const groups = new Map();
+    for (const n of rows) {
+      const source = groups.get(n.source_key) || { name: n.from || n.source, count: 0 };
+      source.count += n.repeat_count; groups.set(n.source_key, source);
+    }
+    return addNotification({ title: 'Your digest', body: [...groups.values()].map(({ name, count }) => `${name} · ${count}`).join('\n'), kind: 'digest', source_key: 'system_digest', source: 'system', level: 'digest', reason: 'scheduled summary, without sound' });
+  },
   negotiate_notifications(_p, conn) {
     if (notifyState().legacy) throw badRequest('invalid request: unknown variant `negotiate_notifications`');
     conn.automaticNotifications = true;
@@ -9835,7 +9927,13 @@ Object.assign(handlers, {
   },
   notification_presence(p, conn) {
     if (notifyState().legacy) throw badRequest('invalid request: unknown variant `notification_presence`');
-    for (const session_id of p.active ? p.session_ids ?? [] : []) handlers.seen_notifications({ session_id }, conn);
+    if (p.active) {
+      notifyState().presence.set(conn.deviceId, { at: now(), chats: p.session_ids ?? [] });
+      const shown = notifyState().shown.get(conn.deviceId) ?? new Set();
+      for (const n of notifyState().list) if (!n.urgent && n.sent && !n.quiet && (p.session_ids || []).includes(n.session_id)) shown.add(n.id);
+      notifyState().shown.set(conn.deviceId, shown);
+    }
+    else notifyState().presence.delete(conn.deviceId);
     return null;
   },
   pending_notifications_v2(p, conn) {
@@ -9896,7 +9994,7 @@ Object.assign(handlers, {
     const on = !ns.off.has(conn.deviceId);
     const due = ns.list.filter((n) => !n.sent && notificationVisible(n, conn)).map((n) => n.due_at);
     return {
-      new: on ? ns.list.filter((n) => (!n.kind || automatic) && n.sent && !n.quiet && !n.seen && !shown.has(n.id) && notificationVisible(n, conn)).map(notificationPayload) : [],
+      new: ns.list.filter((n) => (on || n.kind === 'test') && (!n.kind || automatic) && n.sent && !n.quiet && !n.seen && !shown.has(n.id) && notificationDelivery(n, conn)).map(notificationPayload),
       seen: ns.list.filter((n) => n.seen && shown.has(n.id)).map((n) => n.id),
       next_due: on && due.length ? Math.min(...due) : undefined,
       waiting: [],
@@ -10428,6 +10526,9 @@ function termRun(t, line) {
   else if (cmd === 'whoami') out = 'me\r\n';
   else if (word === 'echo') out = rest.join(' ') + '\r\n';
   else if (cmd === 'colors') out = '\x1b[31mred\x1b[0m \x1b[32mgreen\x1b[0m \x1b[33myellow\x1b[0m \x1b[34mblue\x1b[0m \x1b[1mbold\x1b[0m\r\n';
+  else if (word === 'title') out = `\x1b]2;${rest.join(' ')}\x07`;
+  else if (word === 'title0') out = `\x1b]0;${rest.join(' ')}\x07`;
+  else if (cmd === 'bell') out = '\x07';
   else if (word === 'flood') {
     t.flood = Math.max(1, Math.min(8 << 20, Number(rest[0]) || 1 << 20));
     return termPump(t);
@@ -10666,8 +10767,9 @@ for (const sig of ['SIGINT', 'SIGTERM']) {
 function mockVoiceRoute(asked) {
   const choice = state.voice.engine;
   if (choice === 'off' || choice === 'device') throw badRequest('The server does not handle speech with this choice');
-  const chosen = ['openai', 'service'].includes(choice) ? choice : 'server';
+  const chosen = ['openai', 'openrouter', 'service'].includes(choice) ? choice : 'server';
   if (asked && asked !== 'server' && asked !== chosen) throw badRequest('Choose that speech service in Settings first');
   if ((asked || chosen) === 'openai' && !state.voice.openai_key) throw badRequest('No OpenAI API key is saved');
+  if ((asked || chosen) === 'openrouter' && !state.voice.openrouter_key) throw badRequest('No OpenRouter API key is saved');
   return asked || chosen;
 }

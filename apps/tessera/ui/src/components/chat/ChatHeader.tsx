@@ -93,6 +93,7 @@ export function ChatHeader(props: { session: SessionState | undefined }) {
 
   onMount(() => {
     const off = onPaneAction(pane.paneId, (a: PaneAction) => {
+      if (a === "voice") return setPop(null);
       if (a === "find") return;
       if (a === "rename") {
         if (info()) setEditing(true);

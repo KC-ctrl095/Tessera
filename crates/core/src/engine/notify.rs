@@ -20,38 +20,108 @@ pub(crate) const TITLE_MAX: usize = 80;
 pub(crate) const BODY_MAX: usize = 600;
 /// A scheduled notification can wait this long at most.
 pub(crate) const MAX_DELAY_MS: u64 = 366 * 86_400_000;
-/// Agents' notifications per chat per hour, and scheduled ones in all.
+/// How many alerts an agent's notifications may page from one source in an
+/// hour (more go in the digest, saying why: a runaway or misled agent can't
+/// ring every device all night), and scheduled ones in all.
 const MAX_PER_HOUR: usize = 12;
 const MAX_SCHEDULED: usize = 100;
 /// The notification center lists this many sent ones at most.
 const INBOX_MAX: u32 = 500;
 
-/// Ignore cosmetic case, whitespace and clock/date stamps, but preserve
-/// measurements and counts. A changed number can be genuine news.
-fn scheduled_text(title: &str, body: &str) -> String {
-    format!("{title} {body}")
-        .split_whitespace()
-        .filter(|word| {
-            let word = word.trim_matches(|c: char| !c.is_ascii_alphanumeric());
-            let clock = word.contains(':')
-                && word
-                    .chars()
-                    .all(|c| c.is_ascii_digit() || ":.Zz+-Tt".contains(c));
-            let date = word.len() >= 10
-                && word.as_bytes().get(4) == Some(&b'-')
-                && word.as_bytes().get(7) == Some(&b'-')
-                && word
-                    .chars()
-                    .all(|c| c.is_ascii_digit() || "-:TtZz+.".contains(c));
-            !clock && !date
-        })
-        .map(|word| {
-            word.trim_matches(|c: char| !c.is_alphanumeric())
-                .to_lowercase()
-        })
-        .filter(|word| !word.is_empty())
-        .collect::<Vec<_>>()
-        .join(" ")
+use tessera_proto::{
+    NotificationDelivery, NotificationLevel, NotificationPolicy, NotificationSourceRule,
+};
+
+fn default_level(n: &NewNotification) -> (NotificationLevel, String) {
+    use NotificationLevel::*;
+    let (level, reason) = if n.urgent {
+        (
+            Page,
+            format!(
+                "{} marked this urgent",
+                if n.from.is_empty() {
+                    "Tessera"
+                } else {
+                    &n.from
+                }
+            ),
+        )
+    } else if matches!(n.kind.as_str(), "approval" | "secret") {
+        (Page, "an approval is waiting".into())
+    } else if n.kind == "error" {
+        (Page, "work stopped and needs you".into())
+    } else if n.kind == "reminder" {
+        (Page, "a reminder you asked for".into())
+    } else if n.kind == "helper" || (n.quiet && n.kind != "job") {
+        (Silent, "routine activity, kept without an alert".into())
+    } else if n.source == "bot"
+        || n.source == "job"
+        || matches!(n.kind.as_str(), "job" | "message" | "progress")
+    {
+        (
+            Digest,
+            if n.source == "job" || n.kind == "job" {
+                "a scheduled check finished"
+            } else {
+                "agents' updates go in the digest"
+            }
+            .into(),
+        )
+    } else if n.kind == "finished" {
+        (Page, "a reply you asked for is ready".into())
+    } else if n.kind.is_empty() || n.kind == "test" {
+        (Page, "you asked for this alert".into())
+    } else {
+        (Silent, "routine status, kept without an alert".into())
+    };
+    (level, reason)
+}
+
+fn quiet_at(policy: &NotificationPolicy, minute: u16) -> bool {
+    policy.quiet
+        && if policy.quiet_from < policy.quiet_to {
+            policy.quiet_from <= minute && minute < policy.quiet_to
+        } else if policy.quiet_from > policy.quiet_to {
+            minute >= policy.quiet_from || minute < policy.quiet_to
+        } else {
+            false
+        }
+}
+
+fn cap_level(level: NotificationLevel, cap: NotificationLevel) -> NotificationLevel {
+    use NotificationLevel::*;
+    match (level, cap) {
+        (Silent, _) | (_, Silent) => Silent,
+        (Digest, _) | (_, Digest) => Digest,
+        _ => Page,
+    }
+}
+
+fn policy_level(
+    n: &NewNotification,
+    policy: &NotificationPolicy,
+    minute: u16,
+) -> (NotificationLevel, String) {
+    let (mut level, mut reason) = default_level(n);
+    if n.kind != "test" {
+        if let Some(rule) = policy.sources.iter().find(|r| r.key == n.source_key) {
+            let capped = cap_level(level, rule.level);
+            if capped != level {
+                reason = if capped == NotificationLevel::Silent {
+                    "you muted this source"
+                } else {
+                    "you chose less from this source"
+                }
+                .into();
+            }
+            level = capped;
+        }
+        if level == NotificationLevel::Page && !n.urgent && quiet_at(policy, minute) {
+            level = NotificationLevel::Digest;
+            reason = "quiet hours, saved for the digest".into();
+        }
+    }
+    (level, reason)
 }
 
 /// Long work's notifications by their title. A self-recovering usage
@@ -224,6 +294,132 @@ impl Inner {
             ));
         }
         match req {
+            Request::GetNotificationPolicy => to_value(self.notification_policy().map_err(bad)?),
+            Request::SetNotificationPolicy { mut policy } => {
+                if policy.daily_at.len() > 4
+                    || policy.daily_at.iter().any(|m| *m >= 1440)
+                    || policy.quiet_from >= 1440
+                    || policy.quiet_to >= 1440
+                {
+                    return Err(bad("choose valid times, at most four a day"));
+                }
+                let _gate = self.notification_gate.lock();
+                policy.sources = self.notification_policy().map_err(bad)?.sources;
+                self.store
+                    .kv_set(
+                        "notification_policy",
+                        &serde_json::to_string(&policy).map_err(internal)?,
+                    )
+                    .map_err(internal)?;
+                self.store
+                    .kv_set("notification_digest_next", "")
+                    .map_err(internal)?;
+                self.sched.notify_one();
+                to_value(policy)
+            }
+            Request::SetNotificationSource { key, level } => {
+                let _gate = self.notification_gate.lock();
+                let mut policy = self.notification_policy().map_err(bad)?;
+                let item = self
+                    .visible_notifications(
+                        self.store.notifications(INBOX_MAX).map_err(internal)?,
+                        device,
+                    )
+                    .into_iter()
+                    .find(|n| !n.private && n.source_key == key);
+                let name = item
+                    .map(|n| if n.from.is_empty() { n.source } else { n.from })
+                    .or_else(|| {
+                        policy
+                            .sources
+                            .iter()
+                            .find(|r| r.key == key)
+                            .map(|r| r.name.clone())
+                    })
+                    .ok_or_else(|| bad("no such notification source"))?;
+                policy.sources.retain(|r| r.key != key);
+                if let Some(level) = level {
+                    if policy.sources.len() >= 500 {
+                        return Err(bad("too many source choices"));
+                    }
+                    policy.sources.push(NotificationSourceRule {
+                        key: key.clone(),
+                        name,
+                        level,
+                    });
+                    for mut n in self
+                        .store
+                        .notifications(INBOX_MAX)
+                        .map_err(internal)?
+                        .into_iter()
+                        .filter(|n| !n.private && n.sent && n.source_key == key)
+                    {
+                        n.level = cap_level(n.level, level);
+                        n.quiet = n.level != NotificationLevel::Page;
+                        n.reason = if level == NotificationLevel::Silent {
+                            "you muted this source"
+                        } else {
+                            "you chose less from this source"
+                        }
+                        .into();
+                        self.store
+                            .update_notification_policy(&n)
+                            .map_err(internal)?;
+                    }
+                }
+                self.store
+                    .kv_set(
+                        "notification_policy",
+                        &serde_json::to_string(&policy).map_err(internal)?,
+                    )
+                    .map_err(internal)?;
+                self.inbox_changed();
+                to_value(policy)
+            }
+            Request::TestNotification { delay_secs } => {
+                if delay_secs > 3600 {
+                    return Err(bad("a test can wait up to an hour"));
+                }
+                // One waiting test at a time: tests must never crowd out reminders.
+                if self
+                    .store
+                    .notifications(0)
+                    .map_err(internal)?
+                    .iter()
+                    .any(|n| n.kind == "test" && !n.sent)
+                {
+                    return Err(bad("a test alert is already on its way"));
+                }
+                let n = self.send_notification(NewNotification { title: "Test alert".into(), body: "An urgent test from your server. Open Settings to check device reports.".into(), kind: "test".into(), source: "system".into(), source_key: "system_test".into(), from: "Tessera".into(), urgent: true, due_at: now_ms() + delay_secs * 1000, ..Default::default() }).map_err(bad)?;
+                to_value(n)
+            }
+            Request::NotificationDeliveries { id } => {
+                self.check_notification_ids(&[id], device)?;
+                let list = self
+                    .store
+                    .devices(device)
+                    .map_err(internal)?
+                    .into_iter()
+                    .filter(|d| d.client != DeviceClient::Machine)
+                    .map(|d| NotificationDelivery {
+                        delivered: self
+                            .store
+                            .notification_delivered(id, &d.id)
+                            .unwrap_or(false),
+                        device_id: d.id,
+                        name: d.name,
+                    })
+                    .collect::<Vec<_>>();
+                to_value(list)
+            }
+            Request::ReportNotificationDelivery { ids } => {
+                self.check_notification_ids(&ids, device)?;
+                let d = device.ok_or_else(|| bad("a device login is required"))?;
+                self.store
+                    .report_notification_delivery(d, &ids)
+                    .map_err(internal)?;
+                Ok(Value::Null)
+            }
             Request::SetDeviceNotify { id, notify } => {
                 if !self
                     .store
@@ -310,8 +506,23 @@ impl Inner {
                         presence.remove(d);
                     }
                 }
-                for s in session_ids {
-                    self.notifications_seen(&[], Some(&s));
+                if active {
+                    let viewed = self
+                        .store
+                        .unshown_notifications(d, now_ms())
+                        .map_err(internal)?
+                        .into_iter()
+                        .filter(|n| {
+                            !n.urgent
+                                && n.session_id
+                                    .as_ref()
+                                    .is_some_and(|s| session_ids.contains(s))
+                        })
+                        .map(|n| n.id)
+                        .collect::<Vec<_>>();
+                    self.store
+                        .mark_notifications_shown(d, &viewed)
+                        .map_err(internal)?;
                 }
                 Ok(Value::Null)
             }
@@ -450,9 +661,18 @@ impl Inner {
             .is_none_or(|s| self.notification_chat_visible(s, device))
     }
 
-    /// Presence is short-lived and scoped to this engine. Never let an
-    /// abandoned tab silence the user's phone indefinitely.
-    fn chat_in_view(&self, session: &str) -> bool {
+    /// Presence only affects the device that sent it. A desktop never owns
+    /// the phone's alert, and merely viewing a tile does not mark a new alert read.
+    fn chat_in_view(&self, session: &str, device: Option<&str>) -> bool {
+        device
+            .and_then(|d| self.notification_presence.lock().get(d).cloned())
+            .is_some_and(|(at, chats)| {
+                at.elapsed().as_secs() < 45 && chats.iter().any(|s| s == session)
+            })
+    }
+
+    /// Some device shows this chat, focused, right now (fresh presence).
+    fn chat_watched_anywhere(&self, session: &str) -> bool {
         self.notification_presence
             .lock()
             .values()
@@ -463,42 +683,12 @@ impl Inner {
         if !self.notification_visible(n, device) || n.quiet || n.seen {
             return false;
         }
-        if !n.sent {
+        if n.kind == "test" || n.urgent {
             return true;
         }
-        if let Ok(Some(owner)) = self.store.notification_owner(n.id)
-            && device != Some(owner.as_str())
-        {
-            return false;
-        }
-        let presence = self.notification_presence.lock();
-        let active = presence
-            .iter()
-            .filter(|(_, (at, _))| at.elapsed().as_secs() < 45)
-            .max_by_key(|(_, (at, _))| *at);
-        if let Some((owner, (_, chats))) = active {
-            // The foreground device owns in-app delivery. All other
-            // devices, including Android background polls, stay quiet.
-            return device == Some(owner.as_str())
-                && n.session_id.as_ref().is_none_or(|s| !chats.contains(s));
-        }
-        true
-    }
-
-    fn bind_notification_owner(&self, n: &UserNotification) {
-        if !n.sent || n.quiet {
-            return;
-        }
-        let owner = self
-            .notification_presence
-            .lock()
-            .iter()
-            .filter(|(_, (at, _))| at.elapsed().as_secs() < 45)
-            .max_by_key(|(_, (at, _))| *at)
-            .map(|(device, _)| device.clone());
-        if let Some(owner) = owner {
-            let _ = self.store.set_notification_owner(n.id, &owner);
-        }
+        !n.session_id
+            .as_deref()
+            .is_some_and(|s| self.chat_in_view(s, device))
     }
 
     pub(super) fn job_notification_source(&self, session: &str) -> String {
@@ -510,49 +700,151 @@ impl Inner {
             .unwrap_or_default()
     }
 
-    /// Repeated scheduled checks are not news. The durable timestamp is
-    /// independent of inbox reads/replacement and survives server restarts.
-    fn scheduled_policy(&self, n: &mut NewNotification, except: u64) -> Result<(), String> {
-        if n.source_key.is_empty() || n.quiet || n.due_at > now_ms() {
+    fn notification_policy(&self) -> Result<NotificationPolicy, String> {
+        self.store
+            .kv_get("notification_policy")
+            .map_err(|e| e.to_string())
+            .map(|v| {
+                v.and_then(|s| serde_json::from_str(&s).ok())
+                    .unwrap_or_else(|| NotificationPolicy {
+                        daily_at: vec![18 * 60],
+                        quiet_from: 22 * 60,
+                        quiet_to: 7 * 60,
+                        ..Default::default()
+                    })
+            })
+    }
+
+    fn apply_notification_policy(&self, n: &mut NewNotification) -> Result<(), String> {
+        if n.source.is_empty() {
+            if n.kind == "helper" {
+                n.source = "helper".into();
+            } else if let Some(session) = &n.session_id {
+                let job = self.job_notification_source(session);
+                if !job.is_empty() {
+                    n.source = "job".into();
+                    n.source_key = job;
+                } else {
+                    let bot = if matches!(n.kind.as_str(), "" | "message" | "progress") {
+                        self.rt(session)
+                            .ok()
+                            .and_then(|rt| self.speaker_id(&rt.st.lock()))
+                    } else {
+                        None
+                    };
+                    if let Some(bot) = bot {
+                        n.source = "bot".into();
+                        n.source_key = format!("bot_{bot}");
+                    } else {
+                        n.source = "chat".into();
+                    }
+                }
+            } else if n.source_key.starts_with("job_") {
+                n.source = "job".into();
+            } else {
+                n.source = "system".into();
+            }
+        }
+        if n.source_key.is_empty() {
+            n.source_key = n
+                .session_id
+                .as_ref()
+                .map(|s| {
+                    if n.source == "chat" {
+                        s.clone()
+                    } else {
+                        format!("{}_{s}", n.source)
+                    }
+                })
+                .unwrap_or_else(|| "system".into());
+        }
+        let time = jiff::Timestamp::now()
+            .to_zoned(jiff::tz::TimeZone::try_system().unwrap_or(jiff::tz::TimeZone::UTC));
+        (n.level, n.reason) = policy_level(
+            n,
+            &self.notification_policy()?,
+            time.hour() as u16 * 60 + time.minute() as u16,
+        );
+        // An agent's notifications (urgent ones too) page at most
+        // MAX_PER_HOUR times an hour per source; the rest go in the digest.
+        // Never rejected, never silent. Approvals, secrets and errors come
+        // from Tessera itself and aren't counted. Scheduled ones count when due.
+        if n.level == NotificationLevel::Page
+            && matches!(n.kind.as_str(), "" | "message" | "reminder")
+            && n.due_at <= now_ms()
+        {
+            let now = now_ms();
+            let mut pages = self.notification_pages.lock();
+            pages.retain(|_, times| {
+                times.retain(|t| now < t.saturating_add(3_600_000));
+                !times.is_empty()
+            });
+            let times = pages.entry(n.source_key.clone()).or_default();
+            if times.len() >= MAX_PER_HOUR {
+                n.level = NotificationLevel::Digest;
+                n.reason = format!(
+                    "more than {MAX_PER_HOUR} alerts from here in an hour; the rest go in the digest"
+                );
+            } else {
+                times.push(now);
+            }
+        }
+        // A reply the user is watching on some device (focused there in the
+        // last 45 s) needs no alert on another: they have it already. Only
+        // replies: approvals and urgent news stay each device's own.
+        if n.level == NotificationLevel::Page
+            && n.kind == "finished"
+            && !n.urgent
+            && n.session_id
+                .as_deref()
+                .is_some_and(|s| self.chat_watched_anywhere(s))
+        {
+            n.level = NotificationLevel::Silent;
+            n.reason = "you were watching this chat".into();
+        }
+        n.quiet = n.level != NotificationLevel::Page;
+        Ok(())
+    }
+
+    fn deliver_digest(&self, now: u64) -> Result<(), String> {
+        let policy = self.notification_policy()?;
+        let next = self
+            .store
+            .kv_get("notification_digest_next")
+            .map_err(|e| e.to_string())?
+            .and_then(|v| v.parse::<u64>().ok());
+        if next.is_some_and(|at| at <= now) {
+            if let Some(notification) = self
+                .store
+                .assemble_notification_digest(now)
+                .map_err(|e| e.to_string())?
+            {
+                let _ = self.events.send(Event::Notification { notification });
+                self.inbox_changed();
+            }
+        } else if next.is_some() {
             return Ok(());
         }
-        let now = now_ms();
-        let previous = self
-            .store
-            .notification_source(&n.source_key, except)
-            .map_err(|e| e.to_string())?;
-        use sha2::Digest;
-        let fingerprint = format!(
-            "{:x}",
-            sha2::Sha256::digest(scheduled_text(&n.title, &n.body).as_bytes())
-        );
-        let fingerprint_key = format!("notify_text:{}", n.source_key);
-        let previous_fingerprint = self
-            .store
-            .kv_get(&fingerprint_key)
-            .map_err(|e| e.to_string())?;
-        let repeated = previous_fingerprint.as_deref() == Some(&fingerprint)
-            || previous.as_ref().is_some_and(|p| {
-                scheduled_text(&p.title, &p.body) == scheduled_text(&n.title, &n.body)
-            });
-        let key = format!("notify_last:{}", n.source_key);
-        let last = self
-            .store
-            .kv_get(&key)
-            .map_err(|e| e.to_string())?
-            .and_then(|v| v.parse::<u64>().ok())
-            .unwrap_or(0);
-        n.quiet = (repeated && (!n.urgent || now < last.saturating_add(900_000)))
-            || (!n.urgent && now < last.saturating_add(3_600_000));
+        let next = if policy.hourly {
+            now / 3_600_000 * 3_600_000 + 3_600_000
+        } else {
+            let times = if policy.daily_at.is_empty() {
+                vec![18 * 60]
+            } else {
+                policy.daily_at
+            };
+            times
+                .into_iter()
+                .filter_map(|minute| {
+                    crate::jobs::next_run(&format!("{} {} * * *", minute % 60, minute / 60), now)
+                        .ok()
+                })
+                .min()
+                .ok_or("could not schedule the digest in the server time zone")?
+        };
         self.store
-            .kv_set(&fingerprint_key, &fingerprint)
-            .map_err(|e| e.to_string())?;
-        if !n.quiet {
-            self.store
-                .kv_set(&key, &now.to_string())
-                .map_err(|e| e.to_string())?;
-        }
-        Ok(())
+            .kv_set("notification_digest_next", &next.to_string())
+            .map_err(|e| e.to_string())
     }
     /// Redact at the wire boundary too, including explicit messages to old apps.
     fn notification_payload(&self, mut n: UserNotification) -> UserNotification {
@@ -564,6 +856,8 @@ impl Inner {
             n.title = "Tessera".into();
             n.body.clear();
             n.from.clear();
+            n.reason = "private chat activity".into();
+            n.source_key.clear();
         }
         n
     }
@@ -649,16 +943,7 @@ impl Inner {
                 "{MAX_SCHEDULED} notifications are already scheduled; cancel some first."
             ));
         }
-        self.scheduled_policy(&mut n, 0)?;
-        // A reply already visible on any device must never replay as an
-        // unseen completion on a phone later.
-        if n.due_at <= now_ms()
-            && n.session_id
-                .as_deref()
-                .is_some_and(|s| self.chat_in_view(s))
-        {
-            n.quiet = true;
-        }
+        self.apply_notification_policy(&mut n)?;
         let Some((stored, recorded)) = self
             .store
             .record_notification_once(&n, window)
@@ -666,11 +951,29 @@ impl Inner {
         else {
             return Ok(None);
         };
-        if !matches!(recorded, crate::store::Recorded::Same) {
-            self.bind_notification_owner(&stored);
+        if stored.sent && !stored.urgent && !stored.quiet {
+            let viewers = self
+                .notification_presence
+                .lock()
+                .iter()
+                .filter(|(_, (at, chats))| {
+                    at.elapsed().as_secs() < 45
+                        && stored
+                            .session_id
+                            .as_ref()
+                            .is_some_and(|s| chats.contains(s))
+                })
+                .map(|(device, _)| device.clone())
+                .collect::<Vec<_>>();
+            for device in viewers {
+                self.store
+                    .mark_notifications_shown(&device, &[stored.id])
+                    .map_err(|e| e.to_string())?;
+            }
         }
         let stored = self.notification_payload(stored);
         if recorded == crate::store::Recorded::Same {
+            self.inbox_changed();
             return Ok(Some(stored));
         }
         if let crate::store::Recorded::Changed { previous } = recorded {
@@ -678,15 +981,7 @@ impl Inner {
                 ids: vec![previous],
             });
         }
-        // A quiet one is never a system notification: devices only learn
-        // that their notification center changed (below).
-        if stored.sent
-            && (!stored.quiet || !stored.source_key.is_empty())
-            && let Ok(ids) = self.store.supersede_notifications(&stored)
-            && !ids.is_empty()
-        {
-            let _ = self.events.send(Event::NotificationsSeen { ids });
-        }
+        // Distinct news stays in the inbox. Only an exact repeat is grouped.
         if !stored.quiet {
             let _ = self.events.send(Event::Notification {
                 notification: stored.clone(),
@@ -852,7 +1147,8 @@ impl Inner {
             .unwrap_or_default()
     }
 
-    /// `notify` from an agent: rate-limited, from the chat the user sees.
+    /// `notify` from an agent, from the chat the user sees (its pages are
+    /// capped per source and hour in `apply_notification_policy`).
     pub(super) fn tool_notify(
         &self,
         session_id: &str,
@@ -865,23 +1161,16 @@ impl Inner {
             plain_line(&n.title, TITLE_MAX),
             plain_text(&n.body, BODY_MAX)
         );
-        {
-            let mut recent = recent_sends().lock();
-            recent.retain(|_, v| {
-                v.retain(|(t, _)| now < t + 3_600_000);
-                !v.is_empty()
-            });
-            let mine = recent.entry(session.clone()).or_default();
-            if n.at.is_none() && mine.iter().any(|(t, k)| *k == key && now < t + 600_000) {
-                return Err("That notification was already sent a moment ago.".into());
-            }
-            if mine.len() >= MAX_PER_HOUR {
-                return Err(format!(
-                    "Already {MAX_PER_HOUR} notifications from this chat in the last hour; that's enough. Put the rest in the chat."
-                ));
-            }
-            mine.push((now, key));
+        // No per-source time throttle. New text and urgent items must never
+        // be rejected because another result arrived earlier in the hour.
+        let mut recent = recent_sends().lock();
+        let mine = recent.entry(session.clone()).or_default();
+        mine.retain(|(t, _)| now < t + 3_600_000);
+        mine.push((now, key));
+        if mine.len() > MAX_PER_HOUR {
+            mine.remove(0);
         }
+        drop(recent);
         let sent = self.send_notification(NewNotification {
             title: n.title,
             body: n.body,
@@ -890,6 +1179,16 @@ impl Inner {
             urgent: n.urgent,
             due_at: n.at.unwrap_or(now),
             source_key: self.job_notification_source(&session),
+            // A reminder (`at`, later) is something the user asked for: it
+            // alerts like urgent news; other updates go in the digest.
+            kind: if n.urgent {
+                ""
+            } else if n.at.is_some_and(|at| at > now.saturating_add(30_000)) {
+                "reminder"
+            } else {
+                "message"
+            }
+            .into(),
             ..Default::default()
         })?;
         let devices = self
@@ -904,6 +1203,9 @@ impl Inner {
             due_at: sent.due_at,
             scheduled: !sent.sent,
             quiet: sent.quiet,
+            level: sent.level,
+            reason: sent.reason,
+            grouped_into: sent.grouped_into,
             devices,
         })
     }
@@ -942,35 +1244,32 @@ impl Inner {
                 let mut policy = NewNotification {
                     title: notification.title.clone(),
                     body: notification.body.clone(),
+                    session_id: notification.session_id.clone(),
+                    from: notification.from.clone(),
+                    source: notification.source.clone(),
                     source_key: notification.source_key.clone(),
+                    kind: notification.kind.clone(),
                     urgent: notification.urgent,
-                    quiet: notification.quiet,
                     due_at: now,
                     ..Default::default()
                 };
-                if let Err(error) = self.scheduled_policy(&mut policy, notification.id) {
+                if let Err(error) = self.apply_notification_policy(&mut policy) {
                     tracing::warn!(%error, "due notification policy failed");
                     continue;
                 }
-                notification.quiet = policy.quiet
-                    || notification
-                        .session_id
-                        .as_deref()
-                        .is_some_and(|s| self.chat_in_view(s));
-                if notification.quiet {
-                    let _ = self.store.quiet_notification(notification.id);
-                }
-                if let Ok(ids) = self.store.supersede_notifications(&notification)
-                    && !ids.is_empty()
-                {
-                    let _ = self.events.send(Event::NotificationsSeen { ids });
-                }
-                self.bind_notification_owner(&notification);
-                let notification = self.notification_payload(notification);
+                notification.level = policy.level;
+                notification.reason = policy.reason;
+                notification.quiet = policy.quiet;
+                let _ = self.store.update_notification_policy(&notification);
                 if !notification.quiet {
-                    let _ = self.events.send(Event::Notification { notification });
+                    let _ = self.events.send(Event::Notification {
+                        notification: self.notification_payload(notification),
+                    });
                 }
             }
+        }
+        if let Err(error) = self.deliver_digest(now) {
+            tracing::warn!(%error, "digest failed");
         }
         if any {
             self.inbox_changed();
@@ -985,11 +1284,12 @@ impl Inner {
         let on = device.is_none_or(|d| self.store.device_notify(d).unwrap_or(true));
         let (new, seen) = match device {
             Some(d) => (
-                if on {
-                    self.store.unshown_notifications(d, now).map_err(internal)?
-                } else {
-                    Vec::new()
-                },
+                self.store
+                    .unshown_notifications(d, now)
+                    .map_err(internal)?
+                    .into_iter()
+                    .filter(|n| on || n.kind == "test")
+                    .collect(),
                 self.store.seen_since_shown(d, now).map_err(internal)?,
             ),
             None => (Vec::new(), Vec::new()),
@@ -1009,15 +1309,7 @@ impl Inner {
             })
             .collect();
         let mut waiting = self.waiting_chats();
-        waiting.retain(|w| mine(Some(&w.session_id)) && !self.chat_in_view(&w.session_id));
-        if self
-            .notification_presence
-            .lock()
-            .values()
-            .any(|(at, _)| at.elapsed().as_secs() < 45)
-        {
-            waiting.clear();
-        }
+        waiting.retain(|w| mine(Some(&w.session_id)) && !self.chat_in_view(&w.session_id, device));
         let all = self.visible_notifications(
             self.store.notifications(INBOX_MAX).map_err(internal)?,
             device,
@@ -1381,282 +1673,76 @@ mod tests {
         assert!(!format!("{} {}", n.title, n.body).contains("Private service"));
         e.0.activity_resolved(&id, "secret");
         assert!(!e.0.notification_action_pending(&id));
-    }
-
-    #[tokio::test]
-    async fn notification_policy_presence_owns_delivery_and_expires() {
-        let (e, _dir, rt) = super::super::test_support::engine().await;
-        let session = rt.st.lock().info.id.clone();
-        let n =
-            e.0.send_notification(NewNotification {
-                title: "Asked for this".into(),
-                session_id: Some(session.clone()),
-                ..Default::default()
-            })
-            .unwrap();
-        e.0.notification_presence
-            .lock()
-            .insert("laptop".into(), (std::time::Instant::now(), vec![]));
-        assert!(e.0.notification_delivery(&n, Some("laptop")));
-        assert!(!e.0.notification_delivery(&n, Some("phone")));
-        e.0.notification_presence.lock().insert(
-            "laptop".into(),
-            (std::time::Instant::now(), vec![session.clone()]),
-        );
-        assert!(!e.0.notification_delivery(&n, Some("laptop")));
-        let viewed =
-            e.0.send_notification(NewNotification {
-                title: "Reply".into(),
-                session_id: Some(session.clone()),
-                ..Default::default()
-            })
-            .unwrap();
-        assert!(viewed.quiet, "a viewed reply must not replay later");
-        let future =
-            e.0.send_notification(NewNotification {
-                title: "Tomorrow's reminder".into(),
-                session_id: Some(session.clone()),
-                due_at: now_ms() + 60_000,
-                ..Default::default()
-            })
-            .unwrap();
-        assert!(
-            !future.sent && !future.quiet,
-            "looking now must not cancel a future reminder"
-        );
-        e.0.notification_presence.lock().insert(
-            "laptop".into(),
-            (
-                std::time::Instant::now() - Duration::from_secs(46),
-                vec![session],
-            ),
-        );
-        assert!(
-            e.0.notification_delivery(&n, Some("phone")),
-            "abandoned foreground leases expire"
-        );
-        e.0.notification_presence
-            .lock()
-            .insert("laptop".into(), (std::time::Instant::now(), vec![]));
-        let owned =
-            e.0.send_notification(NewNotification {
-                title: "Explicit news elsewhere".into(),
-                ..Default::default()
-            })
-            .unwrap();
-        e.0.notification_presence.lock().clear();
-        assert!(e.0.notification_delivery(&owned, Some("laptop")));
-        assert!(
-            !e.0.notification_delivery(&owned, Some("phone")),
-            "foreground event ownership prevents a delayed duplicate after lease expiry"
-        );
-    }
-
-    #[tokio::test]
-    async fn notification_policy_one_live_chat_revision_and_silent_helpers() {
-        let (e, _dir, rt) = super::super::test_support::engine().await;
-        let id = rt.st.lock().info.id.clone();
-        let a =
-            e.0.send_notification(NewNotification {
-                title: "First".into(),
-                session_id: Some(id.clone()),
-                ..Default::default()
-            })
-            .unwrap();
-        let b =
-            e.0.send_notification(NewNotification {
-                title: "Second".into(),
-                session_id: Some(id.clone()),
-                ..Default::default()
-            })
-            .unwrap();
-        assert!(e.store().notification(a.id).unwrap().unwrap().seen);
-        assert!(!e.store().notification(b.id).unwrap().unwrap().seen);
-        e.0.keep_activity(
-            &id,
-            "helper",
-            "Helper finished",
-            "Report".into(),
-            crate::store::Replace::Unread,
-        );
-        let helper = e
+        // Asked again after the first was answered: a fresh, unread alert.
+        e.0.secret_entry_needed(&id, &entry);
+        let again = e
             .store()
-            .unread_notification(&id, "helper")
+            .unread_notification(&id, "secret")
             .unwrap()
-            .unwrap();
-        assert!(helper.quiet);
-        assert!(!e.0.notification_delivery(&helper, Some("phone")));
+            .expect("the second request is listed again");
+        assert!(!again.quiet && !again.seen && again.id != n.id);
+        assert!(e.0.notification_action_pending(&id));
+        assert!(e.0.notification_delivery(&again, Some("phone")));
     }
 
-    fn job_alert(body: &str, urgent: bool) -> NewNotification {
-        NewNotification {
-            title: "Monitor".into(),
-            body: body.into(),
-            source_key: "job_test".into(),
-            urgent,
-            ..Default::default()
-        }
-    }
-
+    /// A runaway or misled agent can't ring every device all night: its
+    /// pages are capped per source and hour, the rest kept in the digest.
     #[tokio::test]
-    async fn notification_policy_scheduled_burst_repeat_and_urgent_failure() {
-        let (e, _dir, _rt) = super::super::test_support::engine().await;
-        assert!(
-            !e.0.send_notification(job_alert("Healthy at 18:15", false))
-                .unwrap()
-                .quiet
-        );
-        for at in [
-            "18:30", "18:40", "18:50", "18:55", "19:00", "19:05", "19:15", "19:25",
-        ] {
-            assert!(
-                e.0.send_notification(job_alert(&format!("HEALTHY  at  {at}"), false))
-                    .unwrap()
-                    .quiet
-            );
-        }
-        assert_eq!(
-            e.store().notifications(500).unwrap().len(),
-            1,
-            "one item across run chats"
-        );
-        assert!(
-            e.0.send_notification(job_alert("Queue has 3 items", false))
-                .unwrap()
-                .quiet,
-            "changed nonurgent burst waits"
-        );
-        assert!(
-            !e.0.send_notification(job_alert("Failure needs your attention", true))
-                .unwrap()
-                .quiet,
-            "new urgent failure bypasses hourly throttle"
-        );
-        assert!(
-            e.0.send_notification(job_alert("Failure needs your attention", true))
-                .unwrap()
-                .quiet
-        );
-        assert!(
-            !e.0.send_notification(job_alert("A different failure needs your attention", true))
-                .unwrap()
-                .quiet
-        );
-        e.store()
-            .kv_set(
-                "notify_last:job_test",
-                &now_ms().saturating_sub(901_000).to_string(),
-            )
-            .unwrap();
-        assert!(
-            !e.0.send_notification(job_alert("A different failure needs your attention", true))
-                .unwrap()
-                .quiet,
-            "unresolved urgent failure can remind after fifteen minutes"
-        );
-    }
-
-    #[tokio::test]
-    async fn notification_policy_repeat_memory_survives_inbox_clear_and_reopen() {
-        let (e, dir, rt) = super::super::test_support::engine().await;
-        let first =
-            e.0.send_notification(job_alert("Nothing changed", false))
-                .unwrap();
-        e.store().clear_notifications(&[first.id]).unwrap();
-        e.store()
-            .kv_set(
-                "notify_last:job_test",
-                &now_ms().saturating_sub(7_200_000).to_string(),
-            )
-            .unwrap();
-        drop(rt);
-        drop(e);
-        let e = Engine::open(Paths::at(dir.path()), EngineOptions { scheduler: false })
-            .await
-            .unwrap();
-        assert!(
-            e.0.send_notification(job_alert("Nothing changed", false))
-                .unwrap()
-                .quiet,
-            "read/clear do not reset duplicate state"
-        );
-        assert!(
-            !e.0.send_notification(job_alert("There are 4 new results", false))
-                .unwrap()
-                .quiet
-        );
-        assert_ne!(
-            scheduled_text("Monitor", "4 new results"),
-            scheduled_text("Monitor", "5 new results")
-        );
-    }
-
-    #[tokio::test]
-    async fn notification_policy_scenario_counts() {
+    async fn an_agents_urgent_alerts_page_at_most_twelve_times_an_hour() {
         let (e, _dir, rt) = super::super::test_support::engine().await;
         let id = rt.st.lock().info.id.clone();
-        let mut alerts = 0;
-        for _ in 0..5 {
-            e.0.keep_activity(
-                &id,
-                "helper",
-                "A helper reported",
-                "Report".into(),
-                crate::store::Replace::Unread,
-            );
-        }
-        for _ in 0..3 {
-            let n =
-                e.0.send_notification(NewNotification {
-                    title: "Needs your approval".into(),
-                    kind: "approval".into(),
-                    session_id: Some(id.clone()),
-                    ..Default::default()
-                })
+        let mut levels = Vec::new();
+        for i in 0..14 {
+            let sent =
+                e.0.tool_notify(
+                    &id,
+                    crate::tools::notify::Outgoing {
+                        title: format!("Alert {i}"),
+                        body: "Different text each time.".into(),
+                        urgent: true,
+                        at: None,
+                    },
+                )
                 .unwrap();
-            alerts += usize::from(!n.quiet);
+            levels.push(sent.level);
         }
-        let reply =
+        assert!(
+            levels[..MAX_PER_HOUR]
+                .iter()
+                .all(|l| *l == NotificationLevel::Page)
+        );
+        assert!(
+            levels[MAX_PER_HOUR..]
+                .iter()
+                .all(|l| *l == NotificationLevel::Digest),
+            "{levels:?}"
+        );
+        // Tessera's own approvals still page.
+        let approval =
             e.0.send_notification(NewNotification {
-                title: "Finished".into(),
-                kind: "finished".into(),
-                session_id: Some(id),
+                title: "Waiting for your approval".into(),
+                kind: "approval".into(),
+                session_id: Some(id.clone()),
                 ..Default::default()
             })
             .unwrap();
-        alerts += usize::from(!reply.quiet);
-        for _ in 0..8 {
-            alerts += usize::from(
-                !e.0.send_notification(job_alert("Healthy, nothing changed", false))
-                    .unwrap()
-                    .quiet,
-            );
-        }
-        assert_eq!(
-            (5 + 3 + 1 + 8, alerts),
-            (17, 5),
-            "two-hour scenario, device away"
-        );
-        let mut daily_alerts = 0;
-        for _ in 0..53 {
-            let mut n = job_alert("The check is unchanged", false);
-            n.source_key = "job_day".into();
-            daily_alerts += usize::from(!e.0.send_notification(n).unwrap().quiet);
-        }
-        daily_alerts += usize::from(
-            !e.0.send_notification(NewNotification {
-                title: "The one explicitly requested interactive alert".into(),
-                ..Default::default()
-            })
-            .unwrap()
-            .quiet,
-        );
-        assert_eq!(
-            (53 + 1, daily_alerts),
-            (54, 2),
-            "conditional estimate if the 53 observed job messages all repeat one source"
-        );
+        assert_eq!(approval.level, NotificationLevel::Page);
     }
+
+    #[tokio::test]
+    async fn one_test_alert_waits_at_a_time() {
+        let (e, _dir, _rt) = super::super::test_support::engine().await;
+        let first = e
+            .handle(Request::TestNotification { delay_secs: 600 }, None)
+            .await;
+        assert!(first.is_ok(), "{first:?}");
+        let second = e
+            .handle(Request::TestNotification { delay_secs: 600 }, None)
+            .await;
+        assert!(second.is_err_and(|err| err.message.contains("already on its way")));
+    }
+
+    include!("notify_policy_tests.rs");
 
     #[test]
     fn text_is_plain_and_bounded() {

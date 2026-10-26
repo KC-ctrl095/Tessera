@@ -1531,8 +1531,8 @@ async fn connection(
                             Ok(Event::Notification { ref notification })
                                 if !notification.kind.is_empty() && !writer_automatic.load(Relaxed) => continue,
                             // Only to the devices that take notifications.
-                            Ok(Event::Notification { .. })
-                                if !writer_engine.takes_notifications(&writer_device) => continue,
+                            Ok(Event::Notification { ref notification })
+                                if notification.kind != "test" && !writer_engine.takes_notifications(&writer_device) => continue,
                             // Another device's private chat: nothing of it comes here.
                             Ok(event) if !writer_engine.event_for_device(&event, &writer_device) => continue,
                             Ok(event) => event,

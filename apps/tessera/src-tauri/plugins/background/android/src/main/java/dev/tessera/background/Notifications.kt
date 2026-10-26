@@ -25,6 +25,8 @@ import javax.crypto.spec.SecretKeySpec
  * one chat are grouped under it.
  */
 internal object Notifications {
+  const val CHANNEL_PAGES = "tessera.pages"
+  const val CHANNEL_DIGEST = "tessera.digest"
   const val CHANNEL_APPROVALS = "tessera.approvals"
   const val CHANNEL_ACTIVITY = "tessera.activity"
   const val CHANNEL_CONNECTION = "tessera.connection"
@@ -44,6 +46,7 @@ internal object Notifications {
 
   /** The chat an agent's message opens (to remove it with the chat's). */
   private const val EXTRA_FOR = "dev.tessera.background.for"
+  private const val EXTRA_REVISION = "dev.tessera.background.revision"
 
   private const val ACTION_OPEN = "dev.tessera.background.OPEN"
   private const val EXTRA_SESSION = "dev.tessera.background.session"
@@ -93,7 +96,17 @@ internal object Notifications {
       description = "Files saved to Downloads from a chat"
       setShowBadge(false)
     }
-    nm.createNotificationChannels(listOf(approvals, activity, connection, agents, quiet, downloads))
+    val pages = NotificationChannel(CHANNEL_PAGES, "Page", NotificationManager.IMPORTANCE_HIGH).apply {
+      description = "Action needed, urgent news and replies you asked for"
+      lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+    }
+    val digest = NotificationChannel(CHANNEL_DIGEST, "Digest", NotificationManager.IMPORTANCE_LOW).apply {
+      description = "Grouped updates without sound or vibration"
+      setSound(null, null)
+      enableVibration(false)
+      lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+    }
+    nm.createNotificationChannels(listOf(pages, digest, approvals, activity, connection, agents, quiet, downloads))
   }
 
   @SuppressLint("MissingPermission") // canPost() checks it
@@ -101,13 +114,8 @@ internal object Notifications {
     val session = args.sessionId
     if (!validId(args.tag) || (session != null && !validId(session)) || !canPost(ctx)) return false
     ensureChannels(ctx)
-    val channel = when {
-      args.silent -> CHANNEL_QUIET
-      args.urgent -> CHANNEL_APPROVALS
-      args.agent -> CHANNEL_AGENTS
-      else -> CHANNEL_ACTIVITY
-    }
-    val loud = args.urgent || args.agent
+    val channel = if (args.silent) CHANNEL_DIGEST else CHANNEL_PAGES
+    val loud = !args.silent
     NotificationPrivacy.dispatch({ PullJob.previews(ctx) }, { previews ->
       val text = NotificationPrivacy.message(previews, args.private, args.title, args.body, args.publicBody, args.sub)
       val public = NotificationCompat.Builder(ctx, channel)
@@ -115,6 +123,11 @@ internal object Notifications {
         .setContentTitle("Tessera")
         .setContentText(text.publicBody)
         .build()
+      val sameRevision = args.notificationId?.let { revision ->
+        ctx.getSystemService(NotificationManager::class.java)?.activeNotifications.orEmpty().any {
+          it.tag == args.tag && it.id == ID_SESSION && it.notification.extras.getLong(EXTRA_REVISION, -1L) == revision
+        }
+      } ?: true
       val b = NotificationCompat.Builder(ctx, channel)
         .setSmallIcon(R.drawable.tessera_notification)
         .setContentTitle(text.title)
@@ -133,8 +146,9 @@ internal object Notifications {
         .setSilent(args.silent)
         // The same message shown again (the app and a background check
         // both had it) replaces itself without a second alert.
-        .setOnlyAlertOnce(true)
+        .setOnlyAlertOnce(args.silent || sameRevision)
         .setContentIntent(openIntent(ctx, session))
+      args.notificationId?.let { revision -> b.addExtras(android.os.Bundle().apply { putLong(EXTRA_REVISION, revision) }) }
       text.subtitle?.takeIf { it.isNotBlank() }?.let { b.setSubText(it) }
       if (args.`when` > 0) b.setWhen(args.`when`).setShowWhen(true)
       if (session != null) {

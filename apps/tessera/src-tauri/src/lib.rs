@@ -17,6 +17,8 @@ use tauri::{AppHandle, Emitter, Manager, State};
 use tessera_client::{Client, ClientEvent, ConnectionStatus, ServerConfig};
 use tessera_proto::{ApiError, ErrorCode, Request};
 
+#[cfg(mobile)]
+mod assistant;
 mod boards;
 mod credential_write;
 mod server_config;
@@ -1587,6 +1589,8 @@ fn handlers() -> impl Fn(tauri::ipc::Invoke) -> bool + Send + Sync + 'static {
 #[cfg(mobile)]
 fn handlers() -> impl Fn(tauri::ipc::Invoke) -> bool + Send + Sync + 'static {
     tauri::generate_handler![
+        assistant::assistant_watch,
+        assistant::assistant_take_pending,
         voice::voice_status,
         voice::voice_listen,
         voice::voice_finish,

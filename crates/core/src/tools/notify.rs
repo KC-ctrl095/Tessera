@@ -23,6 +23,9 @@ pub struct Sent {
     pub due_at: u64,
     pub scheduled: bool,
     pub quiet: bool,
+    pub level: tessera_proto::NotificationLevel,
+    pub reason: String,
+    pub grouped_into: Option<u64>,
     /// The devices that take notifications.
     pub devices: Vec<String>,
 }
@@ -33,7 +36,7 @@ impl Tool for Notify {
     }
 
     fn description(&self) -> String {
-        "Notify the user on their devices, even with Tessera closed. Only requested news or awaited results, not progress. Scheduled checks notify only for a meaningful change or needed action, never every run. `at` sends later.".into()
+        "Notify the user, even with Tessera closed. Updates go in a digest. Use urgent only for security incidents, outages lasting minutes, or results the user asked for. No routine progress. `at` sends a reminder later (it always alerts).".into()
     }
 
     fn schema(&self) -> Value {
@@ -98,16 +101,26 @@ impl Tool for Notify {
             };
             match ctx.host.notify(&ctx.session_id, out) {
                 Ok(sent) if sent.scheduled => ToolOutput::text(format!(
-                    "Scheduled for {} (server time), id {}. It will show on: {}.",
+                    "Scheduled for {} (server time), alert #{}. Policy is checked again when due. Receiving devices currently include {}.",
                     crate::jobs::fmt_time(sent.due_at),
                     sent.id,
                     list(&sent.devices)
                 ))
                 .with_details(json!({"notification": sent.id, "due_at": sent.due_at})),
-                Ok(sent) if sent.quiet => ToolOutput::text("Saved quietly in the inbox. Already seen, repeated or too frequent to alert again.")
-                    .with_details(json!({"notification": sent.id, "quiet": true})),
-                Ok(sent) => ToolOutput::text(format!("Notification saved for receiving devices: {}.", list(&sent.devices)))
-                    .with_details(json!({"notification": sent.id})),
+                Ok(sent) if sent.grouped_into.is_some() => ToolOutput::text(format!(
+                    "Grouped as a repeat of #{}. Count updated in the inbox. No new page.",
+                    sent.grouped_into.unwrap()
+                ))
+                .with_details(json!({"notification": sent.id, "grouped_into": sent.grouped_into})),
+                Ok(sent) => {
+                    let action = match sent.level {
+                        tessera_proto::NotificationLevel::Page => "Paged receiving devices",
+                        tessera_proto::NotificationLevel::Digest => "Put in the digest",
+                        tessera_proto::NotificationLevel::Silent => "Silent in the inbox",
+                    };
+                    ToolOutput::text(format!("{action}. {}. Alert #{}.", sent.reason, sent.id))
+                        .with_details(json!({"notification": sent.id, "level": sent.level, "quiet": sent.quiet}))
+                }
                 Err(e) => ToolOutput::error(e),
             }
         })

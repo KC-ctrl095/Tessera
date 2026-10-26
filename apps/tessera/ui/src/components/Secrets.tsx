@@ -79,6 +79,12 @@ export function machinesOf(onMachines: string[], follows: boolean | undefined, s
   return security.secret_machines === "picked" ? security.secret_machines_picked ?? [] : [];
 }
 
+/** The machines (ids, of those listed) whose commands may use a saved one now. */
+export function reachableMachines(s: Pick<SecretInfo, "on_machines" | "machines_default">, security: SecurityInfo | null | undefined, machines: MachineInfo[]): string[] {
+  const ids = machinesOf(s.on_machines ?? [], s.machines_default, security);
+  return ids === "all" ? machines.map((m) => m.id) : ids.filter((id) => machines.some((m) => m.id === id));
+}
+
 /** A list row's "where": "This server", "This server and Desktop", "This server and all your machines". */
 export function whereLabel(s: Pick<SecretInfo, "on_server" | "on_machines" | "machines_default">, security: SecurityInfo | null | undefined, machines: MachineInfo[]): string {
   const onServer = s.on_server ?? true;
@@ -127,7 +133,8 @@ const blank = (kind: SecretKind): Draft => ({
   bots: null,
   onServer: true,
   onMachines: [],
-  machinesDefault: true,
+  // New ones start on this server only (as the server saves them too).
+  machinesDefault: false,
   machinesTouched: false,
 });
 
@@ -787,6 +794,43 @@ export function SecretsTab() {
   // Only while the search box shows (a list that got short again shows all).
   const shown = createMemo(() => saved().filter((s) => matches(s, saved().length > SEARCH_FROM ? query().trim() : "")));
   const adding = () => editing()?.startsWith("new:") ?? false;
+  const reach = (s: SecretInfo) => (s.chat ? [] : reachableMachines(s, security(), machines() ?? []));
+  /** Saved ones other computers can use, and those computers' names. */
+  const roaming = createMemo(() => saved().filter((s) => reach(s).length > 0));
+  const roamingOn = createMemo(() => {
+    const ids = new Set(roaming().flatMap(reach));
+    return (machines() ?? []).filter((m) => ids.has(m.id)).map((m) => m.name);
+  });
+  const [narrowing, setNarrowing] = createSignal(false);
+  /** Every saved one back to this server only, and the setting for all of them off. */
+  const keepHere = async () => {
+    // One kept off this server (only for a machine) stays as it is: moving it here would widen it.
+    const list = roaming().filter((s) => s.on_server !== false);
+    const skipped = roaming().length - list.length;
+    if (!list.length) return;
+    const ok = await confirmDialog({
+      title: list.length === 1 ? "Keep it on this server only?" : `Keep ${list.length} on this server only?`,
+      body:
+        `Commands on ${roamingOn().join(", ")} won't get them any more. You can still allow a machine for one password when you edit it.` +
+        (skipped ? ` ${skipped === 1 ? "One that is only for a machine stays" : `${skipped} that are only for a machine stay`} as set.` : ""),
+      confirmLabel: "Keep on this server",
+    });
+    if (!ok) return;
+    setNarrowing(true);
+    let failed = 0;
+    for (const s of list) {
+      try {
+        await api.saveSecret({ name: s.name, kind: s.kind, description: s.description, fields: {}, ask: s.ask, hosts: s.hosts, on_machines: [], machines_default: false });
+      } catch {
+        failed++;
+      }
+    }
+    if (security()?.secret_machines !== undefined && security()?.secret_machines !== "off") await setSecurityPatch({ secret_machines: "off" });
+    setNarrowing(false);
+    void refetch();
+    if (failed) toast({ level: "error", message: `${failed} couldn't be changed` });
+    else toast({ level: "success", message: "Kept on this server only", timeout: 2200 });
+  };
   const done = (ok: boolean) => {
     setEditing(null);
     if (ok) void refetch();
@@ -874,8 +918,12 @@ export function SecretsTab() {
                 {accessLabel(s().bots, ACCESS_WORDS.any)}
                 <Show when={s().bots == null}>{s().ask ? " · asks first" : " · doesn't ask"}</Show>
               </span>
-              <span class="cred-where">
-                <Icon name={s().on_server === false ? "laptop" : "server"} size={13} />
+              <span
+                class="cred-where"
+                classList={{ loose: reach(s()).length > 0 }}
+                data-tip={reach(s()).length ? "Commands an agent runs on those computers can use it" : undefined}
+              >
+                <Icon name={reach(s()).length ? "alert" : s().on_server === false ? "laptop" : "server"} size={13} />
                 {whereLabel(s(), security(), machines() ?? [])}
               </span>
               <span class="secret-meta">
@@ -908,6 +956,20 @@ export function SecretsTab() {
             <MachinesCard info={i()} machines={machines() ?? []} busy={securityBusy()} onSet={(p) => void setSecurityPatch(p)} />
           </>
         )}
+      </Show>
+      <Show when={roaming().length}>
+        <div class="card cred-roaming" role="note">
+          <Icon name="alert" size={15} />
+          <span class="grow">
+            {roaming().length === 1 ? "1 password" : `${roaming().length} passwords`} can be used on other computers ({roamingOn().join(", ")}). Keep important ones away from test or lab machines.
+          </span>
+          <button type="button" class="btn btn-sm cred-roaming-fix" disabled={narrowing()} onClick={() => void keepHere()}>
+            <Show when={narrowing()}>
+              <Spinner size={13} />
+            </Show>
+            Keep on this server
+          </button>
+        </div>
       </Show>
       <TitlesCard
         list={titles() ?? []}

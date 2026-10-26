@@ -370,6 +370,7 @@ mod tests {
                 quiet: false,
                 private: true,
                 source_key: String::new(),
+                ..Default::default()
             },
         };
         assert!(e.event_for_device(&n, "phone") && !e.event_for_device(&n, "laptop"));

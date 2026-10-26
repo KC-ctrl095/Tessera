@@ -121,6 +121,8 @@ pub(crate) struct Inner {
     bot_memories: Mutex<HashMap<String, Arc<Memory>>>,
     events: broadcast::Sender<Event>,
     notification_presence: Mutex<HashMap<String, (std::time::Instant, Vec<String>)>>,
+    /// When each source's agent notifications paged in the last hour (engine/notify.rs).
+    notification_pages: Mutex<HashMap<String, Vec<u64>>>,
     notification_gate: Mutex<()>,
     /// Devices revoked while running: their open connections close at once.
     revoked: broadcast::Sender<String>,
@@ -496,6 +498,7 @@ impl Engine {
             sched: tokio::sync::Notify::new(),
             job_admissions: Mutex::new(HashMap::new()),
             notification_presence: Default::default(),
+            notification_pages: Default::default(),
             notification_gate: Default::default(),
             lanes: Mutex::new(HashMap::new()),
             claude: Default::default(),
@@ -682,7 +685,9 @@ impl Engine {
 
     pub async fn handle(&self, req: Request, device: Option<&str>) -> ApiResult {
         let label = match &req {
-            Request::ListSessions { .. } => &crate::activity::LIST,
+            Request::ListSessions { .. } | Request::ListSessionPage { .. } => {
+                &crate::activity::LIST
+            }
             Request::GetSession { .. } | Request::GetSessionPage { .. } => {
                 &crate::activity::SNAPSHOT
             }
@@ -763,6 +768,61 @@ impl Inner {
                     // Another device's private chats are never listed.
                     list.retain(|s| me.device_sees(&s.id, device.as_deref()));
                     to_value(list)
+                })
+                .await
+                .map_err(internal)?
+            }
+            Request::ListSessionPage {
+                archived,
+                limit,
+                before,
+                include_ids,
+            } => {
+                let include_ids: Vec<_> = include_ids.into_iter().take(128).collect();
+                let me = self.clone();
+                let device = device.map(str::to_owned);
+                tokio::task::spawn_blocking(move || {
+                    let _activity = crate::activity::enter(&crate::activity::LIST);
+                    let mut page = me
+                        .store
+                        .list_session_page(
+                            archived,
+                            limit.unwrap_or(100),
+                            before.as_ref(),
+                            &include_ids,
+                        )
+                        .map_err(internal)?;
+                    let first = before.is_none();
+                    // Copy Arcs before state locks (the same lock order as the
+                    // legacy list). Live badges/private chats override disk.
+                    for rt in me.live_sessions() {
+                        let st = rt.st.lock();
+                        let i = &st.info;
+                        let existing = page.sessions.iter().position(|s| s.id == i.id);
+                        let essential = first
+                            && (include_ids.iter().any(|id| id == &i.id)
+                                || (i.archived == archived
+                                    && (i.pinned
+                                        || i.private
+                                        || st.running
+                                        || !matches!(
+                                            i.status,
+                                            SessionStatus::Idle | SessionStatus::Error
+                                        ))));
+                        if existing.is_none() && !essential {
+                            continue;
+                        }
+                        let mut summary = i.clone();
+                        summary.task = None;
+                        if let Some(at) = existing {
+                            page.sessions[at] = summary;
+                        } else {
+                            page.sessions.push(summary);
+                        }
+                    }
+                    page.sessions
+                        .retain(|s| me.device_sees(&s.id, device.as_deref()));
+                    to_value(page)
                 })
                 .await
                 .map_err(internal)?
@@ -1120,6 +1180,12 @@ impl Inner {
             Request::SetDeviceNotify { .. }
             | Request::ListNotifications
             | Request::ListNotificationInbox
+            | Request::GetNotificationPolicy
+            | Request::SetNotificationPolicy { .. }
+            | Request::SetNotificationSource { .. }
+            | Request::TestNotification { .. }
+            | Request::NotificationDeliveries { .. }
+            | Request::ReportNotificationDelivery { .. }
             | Request::SendNotification { .. }
             | Request::PendingNotifications
             | Request::PendingNotificationsV2
@@ -1728,11 +1794,18 @@ impl Inner {
                 audio,
                 mime,
                 engine,
+                language,
                 partial,
                 operation: _,
             } => to_value(
-                self.transcribe(&audio, &mime, engine.as_deref(), partial)
-                    .await?,
+                self.transcribe(
+                    &audio,
+                    &mime,
+                    engine.as_deref(),
+                    partial,
+                    language.as_deref(),
+                )
+                .await?,
             ),
             Request::Speak { text, engine, .. } => {
                 to_value(self.speak(&text, engine.as_deref()).await?)
@@ -1979,6 +2052,7 @@ impl Inner {
             name,
             version: env!("CARGO_PKG_VERSION").into(),
             protocol: PROTOCOL_VERSION,
+            session_list_pages: true,
             home: self.default_cwd().display().to_string(),
             default_model: self.default_model(),
             voice: self.voice_ready(),
@@ -7632,6 +7706,11 @@ impl Inner {
             }
             let now = now_ms();
             if let Ok(Some(due)) = self.store.next_notification_due() {
+                next = next.min(after(due, now));
+            }
+            if let Ok(Some(at)) = self.store.kv_get("notification_digest_next")
+                && let Ok(due) = at.parse::<u64>()
+            {
                 next = next.min(after(due, now));
             }
             if let Ok(jobs) = self.store.jobs() {

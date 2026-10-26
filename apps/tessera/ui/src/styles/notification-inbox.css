@@ -49,6 +49,7 @@
   padding: 0;
 }
 .inbox-list li {
+  flex-wrap: wrap;
   display: flex;
   align-items: flex-start;
   border-bottom: 1px solid var(--border);
@@ -160,6 +161,10 @@
   font-size: 11px;
   line-height: 1.5;
 }
+/* Source controls live one step below the alert, never inside its chat button. */
+.inbox-source-actions { display: flex; flex-basis: 100%; flex-wrap: wrap; gap: 4px; padding: 0 10px 6px 30px; }
+.inbox-source-actions button { min-height: 44px; padding: 8px 12px; color: var(--text-2); font-size: 12px; border-radius: var(--r-xs); }
+.inbox-source-actions button:hover { background: var(--hover); }
 /* A phone: a full screen to go into, its controls big enough for a finger. */
 @media (max-width: 700px) {
   .modal-backdrop:has(.notification-inbox) {

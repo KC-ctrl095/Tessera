@@ -7,13 +7,15 @@ import { errorMessage, toast } from "../../lib/ui";
 import { Icon, Spinner } from "../icons";
 import { Toggle } from "../primitives";
 import { Advanced, Card, LoadingBlock, Row, ThisDevice } from "./kit";
+import { playback, support } from "../../lib/voice/engines";
 
 const choices = [
   ["auto", "Automatic", "Private speech on this device, otherwise your server. No cloud speech."],
   ["device", "On this device", "Offline engines only. Support depends on the device and language."],
   ["server", "On my server", "Whisper and Piper on your own server. Downloads once on first use."],
   ["openai", "OpenAI with my key", "Paid speech services. Your audio goes to OpenAI only when you choose this."],
-  ["off", "Off", "Hide the microphone and voice conversation buttons."],
+  ["openrouter", "OpenRouter (your key)", "Paid cloud speech through OpenRouter and its speech providers. Your chosen chat model still answers."],
+  ["off", "Off", "No recording. Voice buttons offer an explicit turn-on choice."],
 ];
 const services = [
   ["local", "Whisper on another machine", "http://127.0.0.1:8080/v1", "whisper-large-v3-turbo"],
@@ -21,6 +23,7 @@ const services = [
   ["openai", "OpenAI (cloud)", "https://api.openai.com/v1", "gpt-4o-mini-transcribe"],
   ["custom", "Another service", "", ""],
 ];
+const routerVoices = ["sarah", "george", "adam", "alice", "bella", "bill", "brian", "callum", "charlie", "chris", "daniel", "eric", "harry", "jessica", "laura", "liam", "lily", "matilda", "river", "roger", "will"];
 export function VoiceTab() {
   const [cfg, { mutate, refetch }] = createResource(() => api.getVoice());
   const timer = setInterval(() => { if (cfg()?.server?.state === "installing") void refetch(); }, 1000);
@@ -37,24 +40,32 @@ function VoiceForm(props: { initial: VoiceConfig; status: () => VoiceConfig; onS
   const [language, setLanguage] = createSignal(init.language);
   const [serverModel, setServerModel] = createSignal(init.server_model || "auto");
   const [serverVoice, setServerVoice] = createSignal(init.server_voice || "");
+  const [routerVoice, setRouterVoice] = createSignal(init.openrouter_voice || "sarah");
+  const [local] = createResource(() => language() || navigator.language || "en-US", (lang) => support(lang));
+  const [previewing, setPreviewing] = createSignal(false);
+  let previewAbort: AbortController | undefined;
+  const output = playback("en-US", false);
+  const stopPreview = () => { previewAbort?.abort(); previewAbort = undefined; output.cancel(); setPreviewing(false); };
+  onCleanup(stopPreview);
   const [keep, setKeep] = createSignal(!!init.keep_audio);
   const [key, setKey] = createSignal("");
   const [hasKey, setHasKey] = createSignal(init.has_key);
   const [busy, setBusy] = createSignal(false);
   const [error, setError] = createSignal("");
   const server = () => props.status().server;
-  const form = () => JSON.stringify([engine(), provider(), base().trim(), model().trim(), language().trim(), serverModel(), serverVoice(), keep()]);
+  const form = () => JSON.stringify([engine(), provider(), base().trim(), model().trim(), language().trim(), serverModel(), serverVoice(), routerVoice(), keep()]);
   const [kept, setKept] = createSignal(form());
   const dirty = () => form() !== kept() || key().trim() !== "";
   const save = async (e?: Event) => {
     e?.preventDefault(); setError("");
     if (engine() === "openai" && !props.status().openai_key) { setError("Save your OpenAI API key in Passwords & keys as OPENAI_API_KEY, or add OpenAI under Models. A ChatGPT sign-in does not pay for speech."); return; }
+    if (engine() === "openrouter" && !props.status().openrouter_key) { setError("Save your OpenRouter API key in Passwords & keys as OPENROUTER_API_KEY, or add the official OpenRouter service under Models."); return; }
     if (engine() === "service" && (!/^https?:\/\//.test(base()) || !model().trim())) { setError("Enter the service's address and speech model."); return; }
     if (engine() === "service" && ["groq", "openai"].includes(provider()) && !hasKey() && !key().trim()) { setError("Paste the API key for the transcription service."); return; }
     const submitted = form(), submittedKey = key();
     setBusy(true);
     try {
-      const config = { ...props.status(), engine: engine(), enabled: engine() === "service", provider: provider(), base_url: base().trim(), model: model().trim(), language: language().trim(), server_model: serverModel(), server_voice: serverVoice(), keep_audio: keep() };
+      const config = { ...props.status(), engine: engine(), enabled: engine() === "service", provider: provider(), base_url: base().trim(), model: model().trim(), language: language().trim(), server_model: serverModel(), server_voice: serverVoice(), openrouter_voice: routerVoice(), keep_audio: keep() };
       const saved = await api.saveVoice(config, submittedKey.trim() || null);
       props.onSaved(saved); setHasKey(saved.has_key); if (key() === submittedKey) setKey(""); setKept(submitted);
       try { setState("server", await api.hello()); } catch { if (state.server) { setState("server", "voice_engine", saved.engine); setState("server", "voice", saved.enabled); } }
@@ -66,6 +77,18 @@ function VoiceForm(props: { initial: VoiceConfig; status: () => VoiceConfig; onS
     if (!await save()) return;
     try { props.onSaved(await api.installVoice()); } catch (e) { setError(errorMessage(e)); }
   };
+  const preview = async () => {
+    if (previewing()) { stopPreview(); return; }
+    const abort = previewAbort = new AbortController();
+    setPreviewing(true); setError("");
+    try {
+      const saved = dirty() ? await save() : props.status();
+      if (!saved || abort.signal.aborted || saved.engine !== "openrouter") return;
+      const audio = await api.speak("Hello there. What would you like to do today?", "openrouter", abort.signal);
+      if (!abort.signal.aborted) await output.play("", audio);
+    } catch (e) { if (!abort.signal.aborted) setError(errorMessage(e)); }
+    finally { if (previewAbort === abort) { previewAbort = undefined; setPreviewing(false); } }
+  };
   return (
     <form class="stack" onSubmit={save}>
       <Card>
@@ -73,12 +96,21 @@ function VoiceForm(props: { initial: VoiceConfig; status: () => VoiceConfig; onS
         <p class="field-help">Talk to your chat and hear it answer. Automatic never uses cloud speech. The text still goes to the chat model you selected.</p>
         <Show when={!modern}><p class="field-help warn-note">Update your Tessera server for private speech and spoken answers. This server supports transcription services only.</p></Show>
         <label class="field"><span class="field-label">Where speech is handled</span>
-          <select class="input" aria-label="Where speech is handled" value={engine()} onChange={(e) => setEngine(e.currentTarget.value)}>
-            <For each={choices.filter(([id]) => modern || id === "off")} >{([id, label]) => <option value={id}>{label}</option>}</For>
+          <select class="input" aria-label="Where speech is handled" value={engine()} onChange={(e) => { stopPreview(); setEngine(e.currentTarget.value); }}>
+            <For each={choices.filter(([id]) => (modern || id === "off") && (id !== "openrouter" || "openrouter_key" in init))} >{([id, label]) => <option value={id}>{label}</option>}</For>
             <option value="service">Another transcription service</option>
           </select>
         </label>
         <p class="field-help">{choices.find(([id]) => id === engine())?.[2] || "Audio goes from your server to the service below. Spoken answers use an offline device voice or Piper on your server."}</p>
+        <Show when={["auto", "server"].includes(engine()) && props.status().openrouter_key && ((!local.loading && local() && !local()!.listen && !server()?.live) || ["failed", "unsupported"].includes(server()?.state || ""))}>
+          <p class="field-help warn-note">{local()?.listen ? "Your server's private speech is unavailable." : "This device has no offline recognizer and your server may be slow."} For quicker, more natural conversations, choose OpenRouter (your key). It is paid cloud speech. Automatic stays private until you change this choice.</p>
+        </Show>
+        <Show when={engine() === "openrouter"}>
+          <p class="field-help" classList={{ "warn-note": !props.status().openrouter_key }}>{props.status().openrouter_key ? "OpenRouter key saved. About $0.04 per spoken minute plus about $0.003 per minute of your speech. Chat model use is separate." : "Save OPENROUTER_API_KEY in Passwords & keys, or add the official OpenRouter service under Models."}</p>
+          <label class="field"><span class="field-label">OpenRouter voice</span><select class="input" aria-label="OpenRouter voice" value={routerVoice()} onChange={(e) => { stopPreview(); setRouterVoice(e.currentTarget.value); }}><For each={routerVoices}>{(voice) => <option value={voice}>{voice[0].toUpperCase() + voice.slice(1)}</option>}</For></select></label>
+          <button type="button" class="btn" disabled={busy() || !props.status().openrouter_key} onClick={() => void preview()}>{previewing() ? "Stop preview" : dirty() ? "Save and preview voice" : "Preview voice"}</button>
+          <p class="field-help">An AI-generated ElevenLabs voice, not a person. Preview sends one short sentence to OpenRouter and is charged to your key.</p>
+        </Show>
         <Show when={engine() === "openai"}>
           <p class="field-help" classList={{ "warn-note": !props.status().openai_key }}><Icon name={props.status().openai_key ? "check" : "alert"} size={13} /> {props.status().openai_key ? "OpenAI API key saved. Uses paid transcription and speech, not your ChatGPT plan." : "Save an OpenAI API key in Privacy & safety → Passwords & keys (OPENAI_API_KEY), or under Models."}</p>
           <p class="field-help">This uses your chosen chat model between transcription and speech. OpenAI Realtime is not available yet.</p>

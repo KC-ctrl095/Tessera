@@ -15,6 +15,39 @@ const ERROR_BYTES: usize = 16 * 1024;
 const SPEECH_BYTES: usize = 16 * 1024 * 1024;
 const LARGE_RESPONSE: &str = "Speech service returned a response larger than allowed.";
 const HTTPS_REQUIRED: &str = "Use HTTPS for speech services outside your local network.";
+const OPENROUTER_BASE: &str = "https://openrouter.ai/api/v1";
+const OPENROUTER_TRANSCRIBE: &str = "openai/gpt-4o-mini-transcribe";
+const OPENROUTER_SPEAK: &str = "elevenlabs/eleven-v4-turbo";
+const OPENROUTER_VOICES: &[&str] = &[
+    "sarah", "george", "adam", "alice", "bella", "bill", "brian", "callum", "charlie", "chris",
+    "daniel", "eric", "harry", "jessica", "laura", "liam", "lily", "matilda", "river", "roger",
+    "will",
+];
+
+/// A provider called OpenRouter is not enough. Never reuse a proxy's key or
+/// send speech there. Production requests always use the fixed address above.
+fn is_openrouter(base: &str) -> bool {
+    url::Url::parse(base).is_ok_and(|u| {
+        u.scheme() == "https"
+            && u.host_str() == Some("openrouter.ai")
+            && u.port_or_known_default() == Some(443)
+            && u.path().trim_end_matches('/') == "/api/v1"
+            && u.username().is_empty()
+            && u.password().is_none()
+            && u.query().is_none()
+            && u.fragment().is_none()
+    })
+}
+
+fn openrouter_voice(chosen: &str) -> Result<&str, ApiError> {
+    let voice = if chosen.is_empty() { "sarah" } else { chosen };
+    if !OPENROUTER_VOICES.contains(&voice) {
+        return Err(bad(
+            "Choose one of the OpenRouter voices in Settings → Web & voice.",
+        ));
+    }
+    Ok(voice)
+}
 
 fn local_speech_ip(ip: IpAddr) -> bool {
     match ip {
@@ -107,6 +140,8 @@ pub(crate) enum Route {
     Server,
     /// OpenAI, with the user's key.
     OpenAi,
+    /// OpenRouter, only with explicit opt-in and the user's OpenRouter key.
+    OpenRouter,
     /// The transcription service set up under More.
     Service,
 }
@@ -116,6 +151,7 @@ impl Route {
         match self {
             Route::Server => "server",
             Route::OpenAi => "openai",
+            Route::OpenRouter => "openrouter",
             Route::Service => "service",
         }
     }
@@ -176,6 +212,7 @@ pub(crate) fn listen_route(engine: &str, asked: Option<&str>) -> Result<Route, S
         "off" => return Err(OFF.into()),
         "device" => return Err(DEVICE_ONLY.into()),
         "openai" => Route::OpenAi,
+        "openrouter" => Route::OpenRouter,
         "service" => Route::Service,
         _ => Route::Server,
     };
@@ -185,10 +222,10 @@ pub(crate) fn listen_route(engine: &str, asked: Option<&str>) -> Result<Route, S
         Some(a) if a == chosen.name() => Ok(chosen),
         Some(a) => Err(format!(
             "Your voice setting doesn't send speech to {}. Change it in Settings → Web & voice.",
-            if a == "openai" {
-                "OpenAI"
-            } else {
-                "that service"
+            match a {
+                "openai" => "OpenAI",
+                "openrouter" => "OpenRouter",
+                _ => "that service",
             }
         )),
     }
@@ -283,6 +320,18 @@ impl Inner {
             .map(|k| ("https://api.openai.com/v1".into(), k))
     }
 
+    fn openrouter(&self) -> Option<String> {
+        for p in self.providers.configs() {
+            if is_openrouter(&p.base_url)
+                && let Some(Credential::ApiKey { key }) = self.auth.get(&p.id)
+                && !key.trim().is_empty()
+            {
+                return Some(key);
+            }
+        }
+        self.auth.server_key("OPENROUTER_API_KEY", "openrouter.ai")
+    }
+
     pub(super) fn voice_config(&self) -> VoiceConfig {
         let v = self.config.read().voice.clone();
         let voice_id = Voice::voice_for(&v.server_voice, &v.language);
@@ -301,6 +350,10 @@ impl Inner {
             server_model: v.server_model,
             server_voice: v.server_voice,
             openai_key: self.openai().is_some(),
+            openrouter_key: self.openrouter().is_some(),
+            openrouter_voice: openrouter_voice(&v.openrouter_voice)
+                .unwrap_or("sarah")
+                .into(),
             kept,
             kept_bytes,
         }
@@ -313,6 +366,7 @@ impl Inner {
         match v.engine() {
             "service" => v.enabled,
             "openai" => self.openai().is_some(),
+            "openrouter" => self.openrouter().is_some(),
             "auto" | "server" => {
                 let voice_id = Voice::voice_for(&v.server_voice, &v.language);
                 self.voice.status(&v.server_model, voice_id).listen
@@ -350,6 +404,12 @@ impl Inner {
         let server_voice = config.server_voice.trim().to_string();
         if !server_voice.is_empty() && Voice::voice_for(&server_voice, "") != server_voice {
             return Err(bad(format!("unknown voice `{server_voice}`")));
+        }
+        let openrouter_voice = openrouter_voice(config.openrouter_voice.trim())?.to_string();
+        if engine == "openrouter" && self.openrouter().is_none() {
+            return Err(bad(
+                "Save your OpenRouter API key in Passwords & keys as OPENROUTER_API_KEY, or add the official OpenRouter service under Models.",
+            ));
         }
         let check_service = engine == "service" || config.base_url.trim() != current.base_url;
         // An unavailable, unchanged inactive service must not prevent turning
@@ -406,6 +466,7 @@ impl Inner {
                 keep_audio: config.keep_audio,
                 server_model,
                 server_voice,
+                openrouter_voice,
             };
             c.save(&self.paths).map_err(internal)?;
         }
@@ -435,10 +496,26 @@ impl Inner {
         mime: &str,
         engine: Option<&str>,
         partial: bool,
+        language: Option<&str>,
     ) -> Result<Transcript, ApiError> {
         use base64::Engine as _;
         let v = self.config.read().voice.clone();
         let route = listen_route(v.engine(), engine).map_err(bad)?;
+        // A saved language always wins. The device hint avoids Whisper's costly
+        // language-detection pass without changing shared settings.
+        let language = if v.language.is_empty() {
+            language.unwrap_or("").trim()
+        } else {
+            &v.language
+        };
+        if language.len() > 16
+            || !language
+                .chars()
+                .all(|c| c.is_ascii_alphanumeric() || c == '-')
+        {
+            return Err(bad("Use a short speech language code such as en or en-US."));
+        }
+        let primary_language = language.split('-').next().unwrap_or("");
         // Paid services are asked once, for the final words.
         if partial && route != Route::Server {
             return Err(failure(Failure::Busy));
@@ -463,7 +540,7 @@ impl Inner {
         let text = match route {
             Route::Server => self
                 .voice
-                .transcribe(&audio, mime, &v.server_model, &v.language, partial)
+                .transcribe(&audio, mime, &v.server_model, primary_language, partial)
                 .await
                 .map_err(failure)?,
             Route::OpenAi => {
@@ -474,7 +551,19 @@ impl Inner {
                     &base,
                     Some(&key),
                     "gpt-4o-mini-transcribe",
-                    &v.language,
+                    primary_language,
+                    audio,
+                    mime,
+                )
+                .await?
+            }
+            Route::OpenRouter => {
+                let key = self.openrouter().ok_or_else(|| bad("No OpenRouter API key is saved for openrouter.ai. Check Passwords & keys or Models."))?;
+                self.transcribe_http(
+                    OPENROUTER_BASE,
+                    Some(&key),
+                    OPENROUTER_TRANSCRIBE,
+                    primary_language,
                     audio,
                     mime,
                 )
@@ -494,7 +583,7 @@ impl Inner {
                     &v.base_url,
                     key.as_deref(),
                     &v.model,
-                    &v.language,
+                    primary_language,
                     audio,
                     mime,
                 )
@@ -604,64 +693,19 @@ impl Inner {
                 let (base, key) = self.openai().ok_or_else(|| {
                     bad("no OpenAI API key is saved (Settings → Privacy & safety → Passwords & keys)")
                 })?;
-                let base = safe_voice_url(&base).map_err(bad)?;
-                let client = speech_http(&base).await?;
-                let resp = client
-                    .post(format!("{base}/audio/speech"))
-                    .bearer_auth(&key)
-                    .json(&serde_json::json!({
-                        "model": "gpt-4o-mini-tts",
-                        "voice": "alloy",
-                        "input": text,
-                        "response_format": "mp3",
-                    }))
-                    .timeout(std::time::Duration::from_secs(90))
-                    .send()
+                self.speak_http(&base, &key, "gpt-4o-mini-tts", "alloy", text)
                     .await
-                    .map_err(|e| {
-                        self.voice_provider_error(format!("speech request failed: {e}"), Some(&key))
-                    })?;
-                let status = resp.status();
-                let mime = content_type(&resp);
-                let body = response_bytes(
-                    resp,
-                    if status.is_success() {
-                        SPEECH_BYTES
-                    } else {
-                        ERROR_BYTES
-                    },
+            }
+            Route::OpenRouter => {
+                let key = self.openrouter().ok_or_else(|| bad("No OpenRouter API key is saved for openrouter.ai. Check Passwords & keys or Models."))?;
+                self.speak_http(
+                    OPENROUTER_BASE,
+                    &key,
+                    OPENROUTER_SPEAK,
+                    openrouter_voice(&v.openrouter_voice)?,
+                    text,
                 )
                 .await
-                .map_err(|error| self.voice_provider_error(error, Some(&key)))?;
-                if !status.is_success() {
-                    return Err(self.voice_http_error(
-                        status.as_u16(),
-                        &String::from_utf8_lossy(&body),
-                        Some(&key),
-                    ));
-                }
-                let audio_shape = match mime.as_str() {
-                    "audio/mpeg" | "audio/mp3" => {
-                        body.starts_with(b"ID3")
-                            || (body.len() > 1 && body[0] == 0xff && body[1] & 0xe0 == 0xe0)
-                    }
-                    "audio/wav" | "audio/x-wav" => crate::voice::wav::info(&body).is_some(),
-                    "audio/ogg" => body.starts_with(b"OggS"),
-                    "audio/flac" => body.starts_with(b"fLaC"),
-                    _ => false,
-                };
-                if !audio_shape || body.is_empty() || serde_json::from_slice::<Value>(&body).is_ok()
-                {
-                    return Err(self.voice_provider_error(
-                        "Speech service returned invalid audio (expected an audio content type).",
-                        Some(&key),
-                    ));
-                }
-                Ok(SpeechAudio {
-                    audio: b64(&body),
-                    mime,
-                    ms: 0,
-                })
             }
             _ => {
                 let voice_id = Voice::voice_for(&v.server_voice, &v.language);
@@ -676,8 +720,79 @@ impl Inner {
             }
         }
     }
+
+    async fn speak_http(
+        &self,
+        base: &str,
+        key: &str,
+        model: &str,
+        voice: &str,
+        text: &str,
+    ) -> Result<SpeechAudio, ApiError> {
+        let base = safe_voice_url(base).map_err(bad)?;
+        let client = speech_http(&base).await?;
+        let resp = client
+            .post(format!("{base}/audio/speech"))
+            .bearer_auth(key)
+            .json(&serde_json::json!({
+                "model": model,
+                "voice": voice,
+                "input": text,
+                // MP3 works in Android WebView, unlike headerless provider PCM.
+                "response_format": "mp3",
+            }))
+            .timeout(std::time::Duration::from_secs(90))
+            .send()
+            .await
+            .map_err(|e| {
+                self.voice_provider_error(format!("speech request failed: {e}"), Some(key))
+            })?;
+        let status = resp.status();
+        let mime = content_type(&resp);
+        let body = response_bytes(
+            resp,
+            if status.is_success() {
+                SPEECH_BYTES
+            } else {
+                ERROR_BYTES
+            },
+        )
+        .await
+        .map_err(|error| self.voice_provider_error(error, Some(key)))?;
+        if !status.is_success() {
+            return Err(self.voice_http_error(
+                status.as_u16(),
+                &String::from_utf8_lossy(&body),
+                Some(key),
+            ));
+        }
+        let audio_shape = match mime.as_str() {
+            "audio/mpeg" | "audio/mp3" => {
+                body.starts_with(b"ID3")
+                    || (body.len() > 1 && body[0] == 0xff && body[1] & 0xe0 == 0xe0)
+            }
+            "audio/wav" | "audio/x-wav" => crate::voice::wav::info(&body).is_some(),
+            "audio/ogg" => body.starts_with(b"OggS"),
+            "audio/flac" => body.starts_with(b"fLaC"),
+            _ => false,
+        };
+        if !audio_shape || body.is_empty() || serde_json::from_slice::<Value>(&body).is_ok() {
+            return Err(self.voice_provider_error(
+                "Speech service returned invalid audio (expected an audio content type).",
+                Some(key),
+            ));
+        }
+        Ok(SpeechAudio {
+            audio: b64(&body),
+            mime,
+            ms: 0,
+        })
+    }
 }
 
+#[cfg(test)]
+#[path = "voice_openrouter_tests.rs"]
+mod openrouter_tests;
 #[cfg(test)]
 mod tests {
     use super::*;

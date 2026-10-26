@@ -143,11 +143,17 @@ pub(crate) fn decide(
     };
     let mut ack: Vec<u64> = p.new.iter().map(|n| n.id).collect();
     if !settings.enabled {
+        out.posts.extend(
+            p.new
+                .iter()
+                .filter(|n| n.kind == "test" && !n.seen)
+                .filter_map(|n| super::server_note(settings, n).map(|note| post_of(&note))),
+        );
         return (out, ack, Vec::new());
     }
     let show = |n: &UserNotification| {
         let mut note = super::server_note(settings, n)?;
-        note.silent = quiet;
+        note.silent |= !note.server_policy && quiet && !n.urgent;
         Some(post_of(&note))
     };
     out.posts.extend(
@@ -156,11 +162,21 @@ pub(crate) fn decide(
             .filter(|n| !n.seen && !tessera_proto::is_protocol_notification(n))
             .filter_map(show),
     );
-    // Old servers can return a burst of distinct event ids. Keep only the
-    // newest message for a chat/source and acknowledge superseded ones.
+    // Legacy bursts may coalesce. Modern policy already groups exact repeats,
+    // so distinct first occurrences and urgent revisions all reach the OS.
+    let independent = p
+        .new
+        .iter()
+        .filter(|n| !n.reason.is_empty() || n.urgent)
+        .map(|n| n.id)
+        .collect::<std::collections::HashSet<_>>();
     let mut keys = std::collections::HashSet::new();
     out.posts.reverse();
-    out.posts.retain(|post| keys.insert(post.tag.clone()));
+    out.posts.retain(|post| {
+        post.notification_id
+            .is_some_and(|id| independent.contains(&id))
+            || keys.insert(post.tag.clone())
+    });
     out.posts.reverse();
     ack.retain(|id| {
         !out.posts
@@ -228,9 +244,6 @@ pub(crate) fn pull(dir: &Path) -> Pulled {
     else {
         return Pulled::default();
     };
-    if !stored.settings.enabled {
-        return Pulled::default();
-    }
     let mut state: State = read(STATE_FILE)
         .and_then(|b| serde_json::from_slice(&b).ok())
         .unwrap_or_default();
@@ -372,6 +385,8 @@ pub extern "system" fn Java_dev_tessera_background_Native_ackNative<'l>(
     struct Receipt {
         server: String,
         key: String,
+        #[serde(default)]
+        delivered: Vec<u64>,
         ids: Vec<u64>,
     }
     let Ok(receipt) = serde_json::from_str::<Receipt>(&json) else {
@@ -410,6 +425,15 @@ pub extern "system" fn Java_dev_tessera_background_Native_ackNative<'l>(
                 if client.wait_connected(Duration::from_secs(15)).await.is_ok()
                     && let Some(epoch) = client.connected_epoch()
                 {
+                    let _ = client
+                        .call_timeout_in_epoch(
+                            epoch,
+                            tessera_proto::Request::ReportNotificationDelivery {
+                                ids: receipt.delivered.clone(),
+                            },
+                            Duration::from_secs(15),
+                        )
+                        .await;
                     let _ = client
                         .call_timeout_in_epoch(
                             epoch,
@@ -515,6 +539,7 @@ mod tests {
             quiet: false,
             private: false,
             source_key: String::new(),
+            ..Default::default()
         }
     }
 
@@ -659,6 +684,58 @@ mod tests {
         }
     }
 
+    #[test]
+    fn server_levels_and_urgent_test_survive_closed_app_preferences() {
+        let mut test = message(91, "s1");
+        test.kind = "test".into();
+        test.source_key = "system_test".into();
+        test.urgent = true;
+        test.reason = "you asked for this alert".into();
+        let mut digest = message(92, "s1");
+        digest.kind = "digest".into();
+        digest.source_key = "system_digest".into();
+        digest.level = tessera_proto::NotificationLevel::Digest;
+        digest.reason = "scheduled summary, without sound".into();
+        let snapshot = PendingNotifications {
+            new: vec![test, digest],
+            seen: vec![],
+            withdraw: vec![],
+            next_due: None,
+            waiting: vec![],
+        };
+        let (posts, _, _) = decide(&Settings::default(), &snapshot, &[], true);
+        assert_eq!(posts.posts.len(), 2);
+        assert!(!posts.posts[0].silent, "urgent test cannot be quieted");
+        assert!(posts.posts[1].silent, "digest is always silent");
+        let off = Settings {
+            enabled: false,
+            ..Settings::default()
+        };
+        let (posts, _, _) = decide(&off, &snapshot, &[], true);
+        assert_eq!(
+            posts.posts.len(),
+            1,
+            "explicit test still reaches an opted-out device"
+        );
+        assert_eq!(posts.posts[0].notification_id, Some(91));
+        let mut first = message(93, "s1");
+        first.reason = "a reply you asked for is ready".into();
+        let second = UserNotification {
+            id: 94,
+            title: "A different first occurrence".into(),
+            ..first.clone()
+        };
+        let burst = PendingNotifications {
+            new: vec![first, second],
+            ..snapshot
+        };
+        let (posts, _, _) = decide(&Settings::default(), &burst, &[], false);
+        assert_eq!(
+            posts.posts.len(),
+            2,
+            "modern policy must not coalesce different first occurrences"
+        );
+    }
     #[test]
     fn no_server_or_notifications_off_means_no_check() {
         let dir = std::env::temp_dir().join(format!("tessera-pull-{}", std::process::id()));

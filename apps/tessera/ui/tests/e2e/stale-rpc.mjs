@@ -13,6 +13,8 @@ run(async () => {
     s.api.listProviders = () => new Promise(resolve => pending.providers=resolve);
     const providers = s.refreshProviders();
     s.api.listSessions = () => new Promise(resolve => pending.archived=resolve);
+    // New servers page the archive (list_session_page); old ones list it at once.
+    s.api.listSessionPage = () => new Promise(resolve => pending.archived = list => resolve({sessions:list,next_cursor:null}));
     const archived = s.refreshArchived();
     s.api.saveMosaics = () => new Promise(resolve => pending.layout=resolve);
     w.openSession('ses_7d3a91e5c4b2',{newPane:true});

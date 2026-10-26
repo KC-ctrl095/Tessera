@@ -6,19 +6,64 @@
   min-height: 0;
   background: var(--pane-bg);
 }
+.term-body[data-term-theme] {
+  background: var(--term-bg);
+  color: var(--term-fg);
+  color-scheme: dark;
+}
+.term-body[data-term-theme="light"] {
+  color-scheme: light;
+}
 .term-screen {
   flex: 1 1 auto;
   min-height: 0;
   min-width: 0;
-  padding: 6px 4px 4px 10px;
   overflow: hidden;
+  position: relative;
 }
 .term-screen .xterm {
   height: 100%;
+  /* FitAddon subtracts the terminal element's padding, not its parent's. */
+  padding: 6px 4px 4px 10px;
 }
 .term-screen .xterm-viewport {
-  /* The tile's own colour, not xterm's black, around the last row. */
   background-color: transparent !important;
+  scrollbar-width: thin;
+  scrollbar-color: #6668 transparent;
+}
+.term-screen .xterm-rows {
+  font-kerning: none;
+  font-variant-ligatures: none;
+}
+/* A thin thumb with xterm's larger invisible grab area unchanged. */
+.term-screen .xterm-scrollable-element > .scrollbar.vertical > .slider {
+  width: 6px !important;
+  left: auto !important;
+  right: 3px;
+  border-radius: 3px;
+}
+.term-screen .xterm-viewport::-webkit-scrollbar { width: 8px; }
+.term-screen .xterm-viewport::-webkit-scrollbar-thumb {
+  background: #6668;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 4px;
+}
+.term-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 2px solid transparent;
+}
+.term-screen.term-bell::after {
+  border-color: var(--term-fg);
+  opacity: 0.35;
+}
+.term-tile .title-static {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .term-sub {
   text-transform: none;
@@ -208,7 +253,7 @@
   gap: 4px;
   padding: 5px 6px calc(5px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--border);
-  background: var(--sunken);
+  background: var(--term-bg, var(--sunken));
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -216,7 +261,7 @@
   /* Eight keys share the row: they fit a folded phone (344 px). */
   flex: 1 1 0;
   min-width: 30px;
-  height: 34px;
+  height: 44px;
   padding: 0 2px;
   border: 1px solid var(--border);
   border-radius: 9px;

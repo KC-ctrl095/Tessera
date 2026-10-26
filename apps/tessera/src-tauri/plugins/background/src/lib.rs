@@ -15,6 +15,8 @@ use tauri::{Manager, Runtime};
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Post {
+    /// Server revision, for exact duplicate OS suppression across live and pull.
+    pub notification_id: Option<u64>,
     /// A session id, or a fixed key for app-wide notifications.
     pub tag: String,
     /// Opened when the notification is tapped.

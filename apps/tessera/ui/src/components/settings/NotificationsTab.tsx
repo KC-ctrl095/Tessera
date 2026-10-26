@@ -13,7 +13,8 @@ import {
   type NotificationsState,
 } from "../../lib/native";
 import { Toggle } from "../primitives";
-import { AgentMessagesCard, BrowserNotificationsCard, QuietHoursCard, ScheduledCard, SendTest } from "./NotifySections";
+import { NotificationPolicyCard } from "./NotificationPolicyCard";
+import { AgentMessagesCard, BrowserNotificationsCard, ScheduledCard, SendTest } from "./NotifySections";
 import { Card, LoadingBlock, Row, ThisDevice } from "./kit";
 
 export function NotificationsTab() {
@@ -22,6 +23,7 @@ export function NotificationsTab() {
     return (
       <div class="stack">
         <BrowserNotificationsCard />
+        <NotificationPolicyCard />
         <AgentMessagesCard />
         <ScheduledCard />
         <SendTest />
@@ -70,7 +72,7 @@ export function NotificationsTab() {
   const KEEP: { value: NotificationSettings["keepAlive"]; label: string; help: string }[] = [
     { value: "while_busy", label: "While a task is running (recommended)", help: "Stays connected during a task and 2 minutes after, so you still hear when it's done." },
     { value: "always", label: "Always stay connected (uses more battery)", help: "Hear about everything at once, at any time, including agents' messages." },
-    { value: "off", label: "Off", help: "Android may stop Tessera soon after you leave it; you get notified only while it's open." },
+    { value: "off", label: "Off", help: "No live background connection. A closed app still checks for alerts about every 15 minutes." },
   ];
   return (
     <Show when={st()} fallback={<LoadingBlock error={st.error} />}>
@@ -112,6 +114,7 @@ export function NotificationsTab() {
               </select>
             </Row>
           </Card>
+          <NotificationPolicyCard />
           <Show when={n().enabled}>
             <AgentMessagesCard />
             <Card>
@@ -126,7 +129,6 @@ export function NotificationsTab() {
                 <Toggle checked={n().previews} onChange={(v) => void save({ previews: v })} label="Show message previews" />
               </Row>
             </Card>
-            <QuietHoursCard quiet={n().quiet} from={n().quietFrom} to={n().quietTo} onChange={(p) => void save(p)} />
             <ScheduledCard />
             <Show when={n().keepAliveAvailable}>
               <Card>
@@ -162,8 +164,8 @@ export function NotificationsTab() {
                 </Show>
               </Card>
             </Show>
-            <SendTest here={() => void run(notificationsTest, "Could not send a test notification")} />
           </Show>
+          <SendTest here={() => void run(notificationsTest, "Could not send a test notification")} />
         </div>
       )}
     </Show>

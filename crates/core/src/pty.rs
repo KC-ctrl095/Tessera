@@ -421,8 +421,27 @@ fn environment_from(
     if let Some(h) = home {
         env.push(("HOME".into(), h.as_os_str().to_owned()));
     }
-    if !env.iter().any(|(k, _)| k == "LANG" || k == "LC_ALL") {
-        env.push(("LANG".into(), "C.UTF-8".into()));
+    // The grid decodes UTF-8. Services often inherit LANG=C, which otherwise
+    // makes readline and TUIs count bytes instead of cells. Keep UTF-8 user
+    // locales and unrelated LC_* categories, but repair encoding overrides.
+    let utf8 = if cfg!(target_os = "macos") {
+        "en_US.UTF-8"
+    } else {
+        "C.UTF-8"
+    };
+    for (key, value) in &mut env {
+        if matches!(key.to_str(), Some("LANG" | "LC_ALL" | "LC_CTYPE")) {
+            let locale = value
+                .to_string_lossy()
+                .to_ascii_lowercase()
+                .replace('-', "");
+            if !locale.contains("utf8") && (key.to_str() == Some("LANG") || !locale.is_empty()) {
+                *value = utf8.into();
+            }
+        }
+    }
+    if !env.iter().any(|(k, _)| k == "LANG") {
+        env.push(("LANG".into(), utf8.into()));
     }
     if !env.iter().any(|(k, _)| k == "PATH") {
         env.push((
@@ -548,7 +567,7 @@ mod tests {
         .unwrap();
         std::fs::write(
             home.path().join(".bashrc"),
-            "alias ls='ls --color=auto'\nPS1='ready> '\n",
+            "alias ls='ls --color=auto'\nPS1='\\[\\e[32m\\]ready> \\[\\e[0m\\]'\n",
         )
         .unwrap();
         let (program, args) = shell_start(bash);
@@ -567,16 +586,22 @@ mod tests {
             sandbox: None,
         })
         .unwrap();
-        read_until(&s.pty, "ready> ").await;
+        let prompt = read_until(&s.pty, "ready> ").await;
+        assert!(prompt.contains("\x1b[32m"), "{prompt:?}");
         s.pty
-            .write_all(b"echo profile=$FROM_PROFILE; type ls; echo term=$TERM; exit\r")
+            .write_all(b"echo profile=$FROM_PROFILE; type ls; printf 'env=%s,%s,%s\\n' \"$TERM\" \"$COLORTERM\" \"$LANG\"; case $- in *i*) echo interactive=yes;; esac; pwd; printf '\\nterminal-test-done\\n'; exit\r")
             .await
             .unwrap();
-        // The command line is echoed first ("term=$TERM"): wait for what it printed.
-        let out = read_until(&s.pty, "term=xterm").await;
+        // The command line is echoed first, then its result.
+        let out = read_until(&s.pty, "\r\nterminal-test-done\r\n").await;
         assert!(out.contains("profile=yes"), "{out:?}");
         assert!(out.contains("ls --color=auto"), "{out:?}");
-        assert!(out.contains("term=xterm-256color"), "{out:?}");
+        assert!(out.contains("env=xterm-256color,truecolor,"), "{out:?}");
+        assert!(out.contains("\r\ninteractive=yes\r\n"), "{out:?}");
+        assert!(
+            out.contains(&format!("\r\n{}\r\n", home.path().display())),
+            "{out:?}"
+        );
         let mut child = s.child;
         if tokio::time::timeout(Duration::from_secs(5), child.wait())
             .await
@@ -589,6 +614,45 @@ mod tests {
         assert_eq!(args, vec![OsString::from("-l")]);
         let (_, args) = shell_start(Path::new("/usr/bin/fish"));
         assert_eq!(args, vec![OsString::from("-l")]);
+    }
+
+    #[test]
+    fn terminals_repair_non_utf8_service_locales_without_changing_other_categories() {
+        for sandboxed in [false, true] {
+            for vars in [
+                vec![("LANG", "C"), ("LC_ALL", "POSIX")],
+                vec![("LANG", "en_US.UTF-8"), ("LC_CTYPE", "C")],
+                vec![("LANG", "de_DE.utf8"), ("LC_ALL", ""), ("LC_TIME", "nl_NL")],
+                vec![],
+            ] {
+                let env = environment_from(
+                    vars.iter().map(|(k, v)| ((*k).into(), (*v).into())),
+                    None,
+                    Path::new("/bin/bash"),
+                    sandboxed,
+                );
+                let get = |key: &str| {
+                    env.iter()
+                        .find(|(k, _)| k == key)
+                        .map(|(_, v)| v.to_string_lossy().to_string())
+                };
+                let lang = get("LANG").unwrap();
+                assert!(lang.to_lowercase().replace('-', "").contains("utf8"));
+                for key in ["LC_ALL", "LC_CTYPE"] {
+                    if let Some(value) = get(key) {
+                        assert!(
+                            value.is_empty()
+                                || value.to_lowercase().replace('-', "").contains("utf8")
+                        );
+                    }
+                }
+                if vars.contains(&("LANG", "de_DE.utf8")) {
+                    assert_eq!(lang, "de_DE.utf8");
+                    assert_eq!(get("LC_TIME").as_deref(), Some("nl_NL"));
+                    assert_eq!(get("LC_ALL").as_deref(), Some(""));
+                }
+            }
+        }
     }
 
     /// Sandboxed: only what the shell needs, from a list; never the

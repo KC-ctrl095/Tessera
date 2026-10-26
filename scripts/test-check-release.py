@@ -69,6 +69,15 @@ class ReleaseCheck(unittest.TestCase):
     def test_complete_release(self):
         release.check(self.folder)
 
+    def test_without_a_signing_key_the_release_has_no_apk_at_all(self):
+        with patch.object(release, "ANDROID", False):
+            # An APK of any kind is refused when no release key signed it.
+            with self.assertRaisesRegex(ValueError, "must not contain an APK"):
+                release.check(self.folder)
+            (self.folder / "tessera-android-arm64.apk").unlink()
+            self.sums()
+            release.check(self.folder)
+
     def test_each_launch_artifact_is_required(self):
         for name in (*release.REQUIRED, "SHA256SUMS"):
             with self.subTest(name=name):

@@ -832,6 +832,7 @@ fn claude_plan_reset_native_system_body_is_local_on_live_and_pull_paths() {
             sent: true,
             seen: false,
             kind: String::new(), quiet: false, private: false, source_key: String::new(),
+            ..Default::default()
         };
         let note = Note::agent(&n); // the same constructor Android pull uses
         assert_eq!(note.body, Note::local_limit_body(&body));

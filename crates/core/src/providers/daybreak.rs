@@ -4,6 +4,9 @@ use sha2::{Digest, Sha256};
 
 use super::*;
 
+/// OpenAI's deprecated Daybreak model alias: valid when chosen, never suggested.
+const DAYBREAK_ALIAS: &str = "gpt-daybreak-blue-latest";
+
 pub(super) fn official(cfg: &ProviderConfig) -> bool {
     matches!(
         (cfg.kind, cfg.base_url.trim_end_matches('/')),
@@ -93,6 +96,65 @@ impl Providers {
                     .clone_from(&entry.cyber_access_programs);
             }
         }
+    }
+
+    /// The models (`provider/model`) whose account's fresh catalog offers
+    /// Blue, OpenAI's deprecated alias last: what to suggest when a chosen
+    /// model doesn't offer it.
+    pub fn daybreak_models(&self) -> Vec<ModelRef> {
+        let mut out: Vec<ModelRef> = self
+            .state
+            .read()
+            .iter()
+            .filter(|p| {
+                p.catalog_scope.is_some() && p.catalog_scope == self.credential_scope(&p.cfg)
+            })
+            .flat_map(|p| {
+                p.discovered
+                    .iter()
+                    .filter(|m| llm::responses::daybreak_available(&m.cyber_access_programs))
+                    .map(|m| ModelRef {
+                        provider: p.cfg.id.clone(),
+                        model: m.id.clone(),
+                    })
+            })
+            .collect();
+        out.sort_by_key(|m| m.model == DAYBREAK_ALIAS);
+        out
+    }
+
+    /// The Blue model closest to `model`: the same provider and family (the
+    /// part after the last dash, like `sol`), the newest version first; else
+    /// that provider's newest. Never the deprecated alias.
+    pub fn daybreak_sibling(&self, model: &ModelRef) -> Option<ModelRef> {
+        let family = |id: &str| id.rsplit('-').next().unwrap_or("").to_string();
+        let version = |id: &str| -> f64 {
+            let start = id.find(|c: char| c.is_ascii_digit());
+            start
+                .map(|s| {
+                    let digits: String = id[s..]
+                        .chars()
+                        .take_while(|c| c.is_ascii_digit() || *c == '.')
+                        .collect();
+                    digits.trim_end_matches('.').parse().unwrap_or(0.0)
+                })
+                .unwrap_or(0.0)
+        };
+        let mut pool: Vec<ModelRef> = self
+            .daybreak_models()
+            .into_iter()
+            .filter(|m| m.provider == model.provider && m.model != DAYBREAK_ALIAS)
+            .collect();
+        if pool
+            .iter()
+            .any(|m| family(&m.model) == family(&model.model))
+        {
+            pool.retain(|m| family(&m.model) == family(&model.model));
+        }
+        // Equal versions: the one the catalog lists first.
+        pool.into_iter()
+            .rev()
+            .max_by(|a, b| version(&a.model).total_cmp(&version(&b.model)))
     }
 
     /// Like Codex: the account's fresh catalog decides. A model it lists
@@ -238,5 +300,77 @@ mod tests {
         );
         auth.remove(&cfg.id).unwrap();
         assert!(!providers.daybreak_available(&model));
+    }
+
+    /// An account's catalog may list Blue on gpt-6-sol and older models but
+    /// only `standard` on gpt-6.1-sol: helpers and the error must point at
+    /// what the catalog offers.
+    #[test]
+    fn the_closest_blue_model_is_suggested_from_the_accounts_catalog() {
+        let dir = tempfile::tempdir().unwrap();
+        let cfg = configured(CODEX_BASE_URL, ProviderKind::OpenaiCodex);
+        let auth = Arc::new(AuthStore::load(dir.path().join("auth.json")).unwrap());
+        auth.set(
+            &cfg.id,
+            Credential::Oauth {
+                access: "fixture-access".into(),
+                refresh: "fixture-refresh".into(),
+                expires: u64::MAX,
+                account_id: None,
+                email: None,
+            },
+        )
+        .unwrap();
+        let providers = Providers::new(reqwest::Client::new(), auth, std::slice::from_ref(&cfg));
+        let listed = |id: &str, programs: &[&str]| {
+            let mut info = default_info(&cfg, id, None);
+            info.cyber_access_programs = programs.iter().map(|p| p.to_string()).collect();
+            info
+        };
+        let both = ["standard", "daybreak_blue"];
+        {
+            let mut state = providers.state.write();
+            state[0].discovered = vec![
+                listed("gpt-6.1-sol", &["standard"]),
+                listed("gpt-6.1-luna", &["standard"]),
+                listed("gpt-daybreak-blue-latest", &both),
+                listed("gpt-5.6-sol", &both),
+                listed("gpt-6-sol", &both),
+                listed("gpt-6-luna", &both),
+            ];
+            state[0].catalog_scope = providers.credential_scope(&cfg);
+        }
+        let at = |model: &str| ModelRef {
+            provider: cfg.id.clone(),
+            model: model.into(),
+        };
+        assert!(!providers.daybreak_available(&at("gpt-6.1-sol")));
+        assert_eq!(
+            providers.daybreak_sibling(&at("gpt-6.1-sol")),
+            Some(at("gpt-6-sol"))
+        );
+        assert_eq!(
+            providers.daybreak_sibling(&at("gpt-6.1-luna")),
+            Some(at("gpt-6-luna"))
+        );
+        // Another family: the newest that has it, never the old alias.
+        assert_eq!(
+            providers.daybreak_sibling(&at("gpt-6.1-terra")),
+            Some(at("gpt-6-sol"))
+        );
+        let offered: Vec<String> = providers
+            .daybreak_models()
+            .iter()
+            .map(|m| m.model.clone())
+            .collect();
+        assert_eq!(
+            offered.last().map(String::as_str),
+            Some("gpt-daybreak-blue-latest")
+        );
+        assert_eq!(offered.len(), 4);
+        // Another account's catalog suggests nothing.
+        providers.state.write()[0].catalog_scope = None;
+        assert!(providers.daybreak_models().is_empty());
+        assert_eq!(providers.daybreak_sibling(&at("gpt-6.1-sol")), None);
     }
 }

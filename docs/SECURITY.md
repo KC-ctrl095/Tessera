@@ -445,7 +445,11 @@ server and its browser. On your machines, each password is *like my other
 passwords* (the setting **Let saved passwords be used on my machines** at the
 top of the page: *Off*, the default; *Machines I pick*; or *All my machines*,
 also ones added later) or *chooses for itself* (exactly the machines you tick,
-possibly none). Turning the setting up asks first. A secret not allowed where
+possibly none). A new password chooses for itself with no machines ticked, so
+it works on this server only until you allow a machine for it: a test or lab
+machine never gets a fresh password by default. The list marks every password
+another computer can use and names those computers, with one button to keep
+them all on this server again. Turning the setting up asks first. A secret not allowed where
 a command runs is refused (the agent is told where it works, and that you can
 allow it here). Each machine still decides what runs on it (its folders,
 whether commands are on, who may use it): the server checks that before
