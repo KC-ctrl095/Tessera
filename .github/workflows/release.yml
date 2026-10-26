@@ -291,8 +291,11 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq p7zip-full
+      # Only needed to inspect a signed APK (none without the signing key).
       - uses: android-actions/setup-android@v3
+        if: needs.android.outputs.signed == 'true'
       - name: Android inspection tools
+        if: needs.android.outputs.signed == 'true'
         run: |
           sdkmanager 'build-tools;37.0.0'
           echo "$ANDROID_HOME/build-tools/37.0.0" >> "$GITHUB_PATH"
